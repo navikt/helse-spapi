@@ -12,7 +12,7 @@ import io.ktor.server.routing.*
 import java.net.URL
 
 private val String.env get() = checkNotNull(System.getenv(this)) { "Fant ikke environment variable $this" }
-private const val FellesordningenForAfp = "FellesordningenForAfp"
+private const val FellesordningenForAfp = "fellsordningen-for-afp"
 
 fun main() {
     embeddedServer(CIO, port = 8080, module = Application::spapi).start(wait = true)
@@ -37,7 +37,7 @@ private fun Application.spapi() {
         get("/internal/isready") { call.respondText("READY") }
 
         authenticate(FellesordningenForAfp) {
-            post("/fellesordningenafp") {
+            post("/$FellesordningenForAfp") {
                 call.respondText("Hei til dere Fellesordningen for AFP! 👽")
             }
         }
