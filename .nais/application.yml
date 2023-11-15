@@ -39,8 +39,8 @@ spec:
           product: "sykepenger"
           consumers:
             {{# each consumers as |consumer| }}
-            - name: {{consumer.name}}
-              orgno: {{consumer.orgno}}
+            - name: "{{consumer.name}}"
+              orgno: "{{consumer.orgno}}"
             {{/each}}
   env:
     - name: AUDIENCE
