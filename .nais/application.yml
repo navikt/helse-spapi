@@ -38,10 +38,10 @@ spec:
           enabled: true
           product: "sykepenger"
           consumers:
-            - name: "NAV"
-              orgno: "889640782"
-            - name: "Fellesordningen for AFP"
-              orgno: "987414502"
+            {{# each consumers as |consumer| }}
+            - name: {{consumer.name}}
+              orgno: {{consumer.orgno}}
+            {{/each}}
   env:
     - name: AUDIENCE
       value: {{ingress}}
