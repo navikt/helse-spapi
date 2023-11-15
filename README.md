@@ -8,7 +8,7 @@ Overordnet systemarkitekturskisse
 
 ```mermaid
 ---
-title: konsumenter henter data
+title: Konsumenter henter data
 ---
 flowchart LR
     spapi -->|https| spøkelse
@@ -18,7 +18,7 @@ flowchart LR
 
 ```mermaid
 ---
-title: spøkelse cacher spleis-data
+title: Spøkelse cacher spleis-data
 ---
 flowchart LR
     spøkelse -->|leser fra kafka| kafka[/tbd.utbetaling/] --> database[(spøkelse-db)]
@@ -26,15 +26,15 @@ flowchart LR
 
 ```mermaid
 ---
-title: Use Case AFP henter data 
+title: Use Case FO AFP henter data 
 ---
 flowchart TB
-    afp -->|Gi meg data for fnr og uttaksdato| spapi
+    fo-afp -->|Gi meg data for fnr og uttaksdato| spapi
     spapi -->|Gi meg data for fnr og uttaksdato| spøkelse
     spøkelse -->|Vær så god| spapi 
     spapi -->|Her er data vi skal gi til AFP| sporingslogg
     sporingslogg -->|Den er god| spapi 
-    spapi -->|Vær så god| afp
+    spapi -->|Vær så god| fo-afp
 ```
 
 ```mermaid
@@ -42,7 +42,7 @@ flowchart TB
 title: Use Case AFP henter data, denne gangen som en sekvens med avgjørelser
 ---
 sequenceDiagram
-    AFP ->> SPAPI: Gi meg data for FNR og UTTAKSDATO
+    FO-AFP ->> SPAPI: Gi meg data for FNR og UTTAKSDATO
     activate SPAPI
     SPAPI ->> Spøkelse: Gi meg data for FNR og UTTAKSDATO
     activate Spøkelse
@@ -54,10 +54,10 @@ sequenceDiagram
     SPAPI ->> Sporingslogg: Dette er data vi ønkser å gi til FO AFP
     alt logging virker
         Sporingslogg -->> SPAPI: Logging er ok
-        SPAPI -->> AFP: Her er dataen du ville ha
+        SPAPI -->> FO-AFP: Her er dataen du ville ha
     else logging feilet
         Sporingslogg -->> SPAPI: Klarte ikke logge
-        SPAPI -->> AFP: Her er en feilmelding
+        SPAPI -->> FO-AFP: Her er en feilmelding
     end
     deactivate SPAPI
 ```
