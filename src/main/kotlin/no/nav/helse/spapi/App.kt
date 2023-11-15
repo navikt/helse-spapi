@@ -15,6 +15,8 @@ fun main() {
 
 private fun Application.spapi() {
     routing {
+        get("/velkommen") { call.respondText("Velkommn til Spapi! 👽") }
+        // Endepunkt under /internal eksponeres ikke
         get("/internal/isalive") { call.respondText("ISALIVE") }
         get("/internal/isready") { call.respondText("READY") }
     }
