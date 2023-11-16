@@ -4,15 +4,19 @@ import com.auth0.jwk.JwkProviderBuilder
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.http.*
 import io.ktor.http.ContentType.Application.Json
-import io.ktor.server.application.Application
-import io.ktor.server.application.call
+import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.engine.embeddedServer
+import io.ktor.server.plugins.callid.*
+import io.ktor.server.plugins.callloging.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import org.slf4j.LoggerFactory
+import org.slf4j.event.Level
 import java.net.URL
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 private val objectMapper = jacksonObjectMapper()
@@ -23,6 +27,20 @@ fun main() {
 }
 
 internal fun Application.spapi(config: Map<String, String> = System.getenv(), sporings: Sporingslogg = KafkaSporingslogg(config)) {
+
+    install(CallId) {
+        header("x-callId")
+        verify { it.isNotEmpty() }
+        generate { UUID.randomUUID().toString() }
+    }
+    install(CallLogging) {
+        logger = LoggerFactory.getLogger("tjenestekall")
+        level = Level.INFO
+        disableDefaultColors()
+        callIdMdc("callId")
+        filter { call -> !call.request.path().contains("internal") }
+    }
+
     authentication {
         jwt(FellesordningenForAfp.id) {
             val jwkProvider = JwkProviderBuilder(URL(config.hent("MASKINPORTEN_JWKS_URI")))
