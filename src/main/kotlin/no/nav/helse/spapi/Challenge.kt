@@ -18,7 +18,7 @@ internal suspend fun ApplicationCall.respondChallenge() {
             ?.split(".")
             ?.takeIf { it.size == 3 }
             ?: return respond(Unauthorized, "Bearer token må settes i Authorization header for å hente data fra Spaπ!")
-        sikkerlogg.error("Mottok request med access token som ikke har tilgang til Spaπ sitt endepunkt ${request.path()}!\n\tJWT Headers: ${String(Base64.getUrlDecoder().decode(jwt[0]))}\n\tJWT Payload: ${String(Base64.getUrlDecoder().decode(jwt[1]))}".also { println(it) })
+        sikkerlogg.error("Mottok request med access token som ikke har tilgang til Spaπ sitt endepunkt ${request.path()}!\n\tJWT Headers: ${String(Base64.getUrlDecoder().decode(jwt[0]))}\n\tJWT Payload: ${String(Base64.getUrlDecoder().decode(jwt[1]))}")
         respond(Forbidden, "Bearer token som er brukt har ikke rett tilgang til å hente data fra Spaπ! Ta kontakt med NAV.")
     } catch (throwable: Throwable) {
         respond(Unauthorized, "Bearer token må settes i Authorization header for å hente data fra Spaπ!")

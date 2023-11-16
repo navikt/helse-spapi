@@ -1,4 +1,4 @@
-SPAPI eksponerer sykepengeperioder til eksterne konsumenter.
+Spaπ eksponerer sykepengeperioder til eksterne konsumenter.
 
 I første omgang er dette kun Fellesordningen for AFP.
 
@@ -11,7 +11,7 @@ Overordnet systemarkitekturskisse
 title: Konsumenter henter data
 ---
 flowchart LR
-    spapi -->|https| spøkelse
+    Spaπ -->|https| spøkelse
     spøkelse -->|spleis-data| kafka[(spøkelse-db)]
     spøkelse -->|infotrygd-data| sykepengeperiode-api --> infotrygd[(infotrygd-replika)]
 ```
@@ -29,12 +29,12 @@ flowchart LR
 title: Use Case FO AFP henter data 
 ---
 flowchart TB
-    fo-afp -->|Gi meg data for fnr og uttaksdato| spapi
-    spapi -->|Gi meg data for fnr og uttaksdato| spøkelse
-    spøkelse -->|Vær så god| spapi 
-    spapi -->|Her er data vi skal gi til AFP| sporingslogg
-    sporingslogg -->|Den er god| spapi 
-    spapi -->|Vær så god| fo-afp
+    fo-afp -->|Gi meg data for fnr og uttaksdato| Spaπ
+    Spaπ -->|Gi meg data for fnr og uttaksdato| spøkelse
+    spøkelse -->|Vær så god| Spaπ 
+    Spaπ -->|Her er data vi skal gi til AFP| sporingslogg
+    sporingslogg -->|Den er god| Spaπ 
+    Spaπ -->|Vær så god| fo-afp
 ```
 
 ```mermaid
@@ -42,24 +42,24 @@ flowchart TB
 title: Use Case AFP henter data, denne gangen som en sekvens med avgjørelser
 ---
 sequenceDiagram
-    FO-AFP ->> SPAPI: Gi meg data for FNR og UTTAKSDATO
-    activate SPAPI
-    SPAPI ->> Spøkelse: Gi meg data for FNR og UTTAKSDATO
+    FO-AFP ->> Spaπ: Gi meg data for FNR og UTTAKSDATO
+    activate Spaπ
+    Spaπ ->> Spøkelse: Gi meg data for FNR og UTTAKSDATO
     activate Spøkelse
     Spøkelse ->> SpøkelseDB: Gi meg spleis-data for FNR og UTTAKSDATO
     Spøkelse ->> InfotrygdReplikering: Gi meg infotrygd-data for FNR og UTTAKSDATO
     Spøkelse ->> Spøkelse: Slå sammen data
-    Spøkelse -->> SPAPI: Her er dataen
+    Spøkelse -->> Spaπ: Her er dataen
     deactivate Spøkelse
-    SPAPI ->> Sporingslogg: Dette er data vi ønkser å gi til FO AFP
+    Spaπ ->> Sporingslogg: Dette er data vi ønkser å gi til FO AFP
     alt logging virker
-        Sporingslogg -->> SPAPI: Logging er ok
-        SPAPI -->> FO-AFP: Her er dataen du ville ha
+        Sporingslogg -->> Spaπ: Logging er ok
+        Spaπ -->> FO-AFP: Her er dataen du ville ha
     else logging feilet
-        Sporingslogg -->> SPAPI: Klarte ikke logge
-        SPAPI -->> FO-AFP: Her er en feilmelding
+        Sporingslogg -->> Spaπ: Klarte ikke logge
+        Spaπ -->> FO-AFP: Her er en feilmelding
     end
-    deactivate SPAPI
+    deactivate Spaπ
 ```
 
 
