@@ -11,7 +11,7 @@ internal class Sporingslogg {
             put("person", "$person")
             put("mottaker", "${konsument.organisasjonsnummer}")
             put("tema", "SYK")
-            put("behandlingsgrunnlag", "GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b")
+            put("behandlingsGrunnlag", "GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b")
             put("uthentingsTidspunkt", "${LocalDateTime.now()}")
             put("leverteData", Base64.getEncoder().encodeToString(leverteData.encodeToByteArray()))
         }
