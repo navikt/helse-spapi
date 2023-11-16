@@ -2,6 +2,7 @@
   "ingress": "https://spapi.ekstern.dev.nav.no",
   "kafkaPool": "nav-dev",
   "sporingsloggTopic": "pensjonsamhandling.public-sporingslogg-loggmeldingmottatt-q2",
+  "azureTenant": "trygdeetaten.no",
   "consumers": [{
     "name": "Fellesordningen for AFP",
     "orgno": "987414502"
