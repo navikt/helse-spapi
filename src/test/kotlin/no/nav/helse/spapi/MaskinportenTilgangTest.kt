@@ -1,5 +1,6 @@
 package no.nav.helse.spapi
 
+import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -20,12 +21,12 @@ internal class MaskinportenTilgangTest {
 
     @Test
     fun `tilgang for fellesordningen for afp`() = setupSpapi {
-        assertEquals(Unauthorized, client.post("/fellesordningen-for-afp").status)
-        assertEquals(Forbidden, client.post("/fellesordningen-for-afp") { header(Authorization, "Bearer ${feilScope()}") }.status)
-        assertEquals(Forbidden, client.post("/fellesordningen-for-afp") { header(Authorization, "Bearer ${feilIssuer()}") }.status)
-        assertEquals(Forbidden, client.post("/fellesordningen-for-afp") { header(Authorization, "Bearer ${feilIssuerHeader()}") }.status)
-        assertEquals(Forbidden, client.post("/fellesordningen-for-afp") { header(Authorization, "Bearer ${feilAudience()}") }.status)
-        assertEquals(OK, client.post("/fellesordningen-for-afp") { header(Authorization, "Bearer ${riktigToken()}") }.status)
+        assertEquals(Unauthorized, client.fellesordningenForAfpRequest().status)
+        assertEquals(Forbidden, client.fellesordningenForAfpRequest(feilScope()).status)
+        assertEquals(Forbidden, client.fellesordningenForAfpRequest(feilIssuer()).status)
+        assertEquals(Forbidden, client.fellesordningenForAfpRequest(feilIssuerHeader()).status)
+        assertEquals(Forbidden, client.fellesordningenForAfpRequest(feilAudience()).status)
+        assertEquals(OK, client.fellesordningenForAfpRequest(riktigToken()).status)
     }
 
     private fun setupSpapi(block: suspend ApplicationTestBuilder.() -> Unit) {
@@ -37,6 +38,11 @@ internal class MaskinportenTilgangTest {
             )) }
             block()
         }
+    }
+
+    private suspend fun HttpClient.fellesordningenForAfpRequest(accessToken: String? = null) = post("/fellesordningen-for-afp") {
+        accessToken?.let { header(Authorization, "Bearer $it") }
+        setBody("""{"personidentifikator": "11111111111"}""")
     }
 
     private val maskinporten = Issuer(navn = "maskinporten", audience = "https://spapi")
