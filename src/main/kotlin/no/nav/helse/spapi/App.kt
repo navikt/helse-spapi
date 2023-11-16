@@ -11,19 +11,19 @@ import io.ktor.server.response.respondText
 import io.ktor.server.routing.*
 import java.net.URL
 
-private val String.env get() = checkNotNull(System.getenv(this)) { "Fant ikke environment variable $this" }
+private fun Map<String, String>.hent(key: String) = get(key) ?: throw IllegalStateException("Mangler config for $key")
 private const val FellesordningenForAfp = "fellesordningen-for-afp"
 
 fun main() {
     embeddedServer(CIO, port = 8080, module = Application::spapi).start(wait = true)
 }
 
-private fun Application.spapi() {
+internal fun Application.spapi(config: Map<String, String> = System.getenv()) {
     authentication {
         jwt(FellesordningenForAfp) {
-            val jwkProvider = JwkProviderBuilder(URL("MASKINPORTEN_JWKS_URI".env)).build()
-            verifier(jwkProvider, "MASKINPORTEN_ISSUER".env) {
-                withAudience("AUDIENCE".env)
+            val jwkProvider = JwkProviderBuilder(URL(config.hent("MASKINPORTEN_JWKS_URI"))).build()
+            verifier(jwkProvider, config.hent("MASKINPORTEN_ISSUER")) {
+                withAudience(config.hent("AUDIENCE"))
                 withClaim("scope", "nav:sykepenger:fellesordningenforafp.read")
             }
             validate { credentials -> JWTPrincipal(credentials.payload) }
