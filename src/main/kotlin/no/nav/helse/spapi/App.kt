@@ -7,24 +7,28 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.call
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
-import io.ktor.server.cio.CIO
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import java.net.URL
+import java.util.concurrent.TimeUnit
 
 private val objectMapper = jacksonObjectMapper()
 private fun Map<String, String>.hent(key: String) = get(key) ?: throw IllegalStateException("Mangler config for $key")
 
 fun main() {
-    embeddedServer(CIO, port = 8080, module = Application::spapi).start(wait = true)
+    embeddedServer(ConfiguredCIO, port = 8080, module = Application::spapi).start(wait = true)
 }
 
 internal fun Application.spapi(config: Map<String, String> = System.getenv()) {
     authentication {
         jwt(FellesordningenForAfp.id) {
-            val jwkProvider = JwkProviderBuilder(URL(config.hent("MASKINPORTEN_JWKS_URI"))).build()
+            val jwkProvider = JwkProviderBuilder(URL(config.hent("MASKINPORTEN_JWKS_URI")))
+                .cached(10, 24, TimeUnit.HOURS)
+                .rateLimited(10, 1, TimeUnit.MINUTES)
+                .build()
+
             verifier(jwkProvider, config.hent("MASKINPORTEN_ISSUER")) {
                 withAudience(config.hent("AUDIENCE"))
                 withClaim("scope", FellesordningenForAfp.scope)
