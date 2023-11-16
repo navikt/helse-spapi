@@ -2,6 +2,7 @@ package no.nav.helse.spapi
 
 import com.auth0.jwk.JwkProviderBuilder
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.ktor.http.*
 import io.ktor.http.ContentType.Application.Json
 import io.ktor.server.application.Application
 import io.ktor.server.application.call
@@ -39,15 +40,21 @@ internal fun Application.spapi(config: Map<String, String> = System.getenv()) {
     }
 
     val sporings = Sporingslogg()
+    val prod = config["NAIS_CLUSTER_NAME"] == "prod-gcp"
+    val unavailableForLegalReasons = HttpStatusCode(451, "Unavailable For Legal Reasons")
 
     routing {
-        get("/velkommen") { call.respondText("Velkommen til Spaπ! 👽") }
+        get("/velkommen") {
+            if (prod) return@get call.respond(unavailableForLegalReasons, "451 Unavailable For Legal Reasons: Spaπ blir tilgjenglig i løpet av 2023 👩‍ ⚖️ Gled deg!")
+            call.respondText("Velkommen til Spaπ! 👽")
+        }
         // Endepunkt under /internal eksponeres ikke
         get("/internal/isalive") { call.respondText("ISALIVE") }
         get("/internal/isready") { call.respondText("READY") }
 
         authenticate(FellesordningenForAfp.id) {
             post(FellesordningenForAfp.endepunkt) {
+                if (prod) return@post call.respond(unavailableForLegalReasons)
                 val request = objectMapper.readTree(call.receiveText())
                 val response = """{"perioder":[]}"""
                 val person = Personidentifikator(request.path("personidentifikator").asText())
