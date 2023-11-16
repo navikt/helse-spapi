@@ -1,5 +1,5 @@
 {
-  "ingress": "https://spapi.ekstern.nav.no",
+  "ingress": "https://spapi.nav.no",
   "consumers": [{
     "name": "Fellesordningen for AFP",
     "orgno": "987414502"
