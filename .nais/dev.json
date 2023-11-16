@@ -1,5 +1,6 @@
 {
   "ingress": "https://spapi.ekstern.dev.nav.no",
+  "kafkaPool": "nav-dev",
   "consumers": [{
     "name": "Fellesordningen for AFP",
     "orgno": "987414502"

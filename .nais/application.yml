@@ -49,6 +49,8 @@ spec:
     outbound:
       rules:
         - application: spokelse
+  kafka:
+    pool: {{kafkaPool}}
   env:
     - name: AUDIENCE
       value: {{ingress}}
