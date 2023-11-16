@@ -8,6 +8,7 @@ val logbackEncoderVersion = "7.4"
 val jacksonVersion = "2.15.0"
 val junitJupiterVersion = "5.10.1"
 val wiremockVersion = "3.3.1"
+val kafkaVersion = "3.6.0"
 
 val mainClass = "no.nav.helse.spapi.AppKt"
 
@@ -24,7 +25,9 @@ dependencies {
     implementation("io.ktor:ktor-server-auth-jvm:$ktorVersion")
     implementation("io.ktor:ktor-server-core-jvm:$ktorVersion")
     implementation("io.ktor:ktor-server-auth-jwt-jvm:$ktorVersion")
+
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+    implementation("org.apache.kafka:kafka-clients:$kafkaVersion")
 
     testImplementation("io.ktor:ktor-server-tests:$ktorVersion")
     testImplementation("org.wiremock:wiremock:$wiremockVersion")

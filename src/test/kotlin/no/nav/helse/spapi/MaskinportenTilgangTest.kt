@@ -1,5 +1,6 @@
 package no.nav.helse.spapi
 
+import com.fasterxml.jackson.databind.JsonNode
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -31,11 +32,16 @@ internal class MaskinportenTilgangTest {
 
     private fun setupSpapi(block: suspend ApplicationTestBuilder.() -> Unit) {
         testApplication {
-            application { spapi(mapOf(
-                "MASKINPORTEN_JWKS_URI" to maskinporten.jwksUri(),
-                "MASKINPORTEN_ISSUER" to maskinporten.navn(),
-                "AUDIENCE" to maskinporten.audience()
-            )) }
+            application { spapi(
+                config = mapOf(
+                    "MASKINPORTEN_JWKS_URI" to maskinporten.jwksUri(),
+                    "MASKINPORTEN_ISSUER" to maskinporten.navn(),
+                    "AUDIENCE" to maskinporten.audience()
+                ),
+                sporings = object : Sporingslogg() {
+                    override fun send(logginnslag: JsonNode) {}
+                }
+            )}
             block()
         }
     }

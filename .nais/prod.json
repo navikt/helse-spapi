@@ -1,6 +1,7 @@
 {
   "ingress": "https://spapi.nav.no",
   "kafkaPool": "nav-prod",
+  "sporingsloggTopic": "pensjonsamhandling.public-sporingslogg-loggmeldingmottatt",
   "consumers": [{
     "name": "Fellesordningen for AFP",
     "orgno": "987414502"

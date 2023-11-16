@@ -16,13 +16,13 @@ import java.net.URL
 import java.util.concurrent.TimeUnit
 
 private val objectMapper = jacksonObjectMapper()
-private fun Map<String, String>.hent(key: String) = get(key) ?: throw IllegalStateException("Mangler config for $key")
+internal fun Map<String, String>.hent(key: String) = get(key) ?: throw IllegalStateException("Mangler config for $key")
 
 fun main() {
     embeddedServer(ConfiguredCIO, port = 8080, module = Application::spapi).start(wait = true)
 }
 
-internal fun Application.spapi(config: Map<String, String> = System.getenv()) {
+internal fun Application.spapi(config: Map<String, String> = System.getenv(), sporings: Sporingslogg = KafkaSporingslogg(config)) {
     authentication {
         jwt(FellesordningenForAfp.id) {
             val jwkProvider = JwkProviderBuilder(URL(config.hent("MASKINPORTEN_JWKS_URI")))
@@ -39,7 +39,6 @@ internal fun Application.spapi(config: Map<String, String> = System.getenv()) {
         }
     }
 
-    val sporings = Sporingslogg()
     val prod = config["NAIS_CLUSTER_NAME"] == "prod-gcp"
     val unavailableForLegalReasons = HttpStatusCode(451, "Unavailable For Legal Reasons")
 

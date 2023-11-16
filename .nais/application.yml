@@ -54,3 +54,5 @@ spec:
   env:
     - name: AUDIENCE
       value: {{ingress}}
+    - name: SPORINGSLOGG_TOPIC
+      value: {{sporingsloggTopic}}
