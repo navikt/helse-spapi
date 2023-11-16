@@ -4,6 +4,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.http.HttpHeaders.Authorization
+import io.ktor.http.HttpStatusCode.Companion.Forbidden
 import io.ktor.http.HttpStatusCode.Companion.OK
 import io.ktor.http.HttpStatusCode.Companion.Unauthorized
 import io.ktor.server.testing.*
@@ -20,10 +21,10 @@ internal class MaskinportenTilgangTest {
     @Test
     fun `tilgang for fellesordningen for afp`() = setupSpapi {
         assertEquals(Unauthorized, client.post("/fellesordningen-for-afp").status)
-        // Burde ikke disse gitt Forbidden? 🤔
-        assertEquals(Unauthorized, client.post("/fellesordningen-for-afp") { header(Authorization, "Bearer ${feilScope()}") }.status)
-        assertEquals(Unauthorized, client.post("/fellesordningen-for-afp") { header(Authorization, "Bearer ${feilIssuer()}") }.status)
-        assertEquals(Unauthorized, client.post("/fellesordningen-for-afp") { header(Authorization, "Bearer ${feilAudience()}") }.status)
+        assertEquals(Forbidden, client.post("/fellesordningen-for-afp") { header(Authorization, "Bearer ${feilScope()}") }.status)
+        assertEquals(Forbidden, client.post("/fellesordningen-for-afp") { header(Authorization, "Bearer ${feilIssuer()}") }.status)
+        assertEquals(Forbidden, client.post("/fellesordningen-for-afp") { header(Authorization, "Bearer ${feilIssuerHeader()}") }.status)
+        assertEquals(Forbidden, client.post("/fellesordningen-for-afp") { header(Authorization, "Bearer ${feilAudience()}") }.status)
         assertEquals(OK, client.post("/fellesordningen-for-afp") { header(Authorization, "Bearer ${riktigToken()}") }.status)
     }
 
@@ -39,10 +40,13 @@ internal class MaskinportenTilgangTest {
     }
 
     private val maskinporten = Issuer(navn = "maskinporten", audience = "https://spapi")
+    private val feilIssuer = Issuer(navn = "ikke-maskinporten", audience = "https://spapi")
     private val riktigScope = "nav:sykepenger:fellesordningenforafp.read"
+
     private fun riktigToken() = maskinporten.accessToken(mapOf("scope" to riktigScope))
     private fun feilScope() = maskinporten.accessToken(mapOf("scope" to "nav:sykepenger:fellesordningenforafp.write"))
-    private fun feilIssuer() = maskinporten.accessToken(mapOf("scope" to riktigScope, "iss" to "feil-issuer"))
+    private fun feilIssuerHeader() = maskinporten.accessToken(mapOf("scope" to riktigScope, "iss" to "feil-issuer"))
+    private fun feilIssuer() = feilIssuer.accessToken(mapOf("scope" to riktigScope))
     private fun feilAudience() = maskinporten.accessToken(mapOf("scope" to riktigScope, "aud" to "feil-audience"))
 
     @BeforeAll
