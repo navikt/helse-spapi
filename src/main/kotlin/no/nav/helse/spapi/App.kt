@@ -29,7 +29,11 @@ fun main() {
     embeddedServer(ConfiguredCIO, port = 8080, module = Application::spapi).start(wait = true)
 }
 
-internal fun Application.spapi(config: Map<String, String> = System.getenv(), sporings: Sporingslogg = KafkaSporingslogg(config)) {
+internal fun Application.spapi(
+    config: Map<String, String> = System.getenv(),
+    sporings: Sporingslogg = KafkaSporingslogg(config),
+    accessToken: AccessToken = AzureAccessToken(config)
+) {
 
     install(CallId) {
         header("x-callId")
@@ -71,6 +75,7 @@ internal fun Application.spapi(config: Map<String, String> = System.getenv(), sp
     routing {
         get("/velkommen") {
             if (prod) return@get call.respond(unavailableForLegalReasons, "451 Unavailable For Legal Reasons: Spaπ blir tilgjenglig i løpet av 2023 👩‍ ⚖️ Gled deg!")
+            accessToken.get(config.hent("SPOKELSE_SCOPE"))
             call.respondText("Velkommen til Spaπ! 👽")
         }
         // Endepunkt under /internal eksponeres ikke

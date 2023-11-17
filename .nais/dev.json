@@ -3,6 +3,7 @@
   "kafkaPool": "nav-dev",
   "sporingsloggTopic": "pensjonsamhandling.public-sporingslogg-loggmeldingmottatt-q2",
   "azureTenant": "trygdeetaten.no",
+  "spokelseScope": "api://dev-gcp.tbd.spokelse/.default",
   "consumers": [{
     "name": "Fellesordningen for AFP",
     "orgno": "987414502"

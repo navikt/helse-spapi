@@ -40,6 +40,9 @@ internal class MaskinportenTilgangTest {
                 ),
                 sporings = object : Sporingslogg() {
                     override fun send(logginnslag: JsonNode) {}
+                },
+                accessToken = object : AccessToken {
+                    override suspend fun get(scope: String) = "accessToken"
                 }
             )}
             block()
