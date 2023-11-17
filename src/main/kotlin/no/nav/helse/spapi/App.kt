@@ -2,6 +2,8 @@ package no.nav.helse.spapi
 
 import com.auth0.jwk.JwkProviderBuilder
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
 import io.ktor.http.*
 import io.ktor.http.ContentType.Application.Json
 import io.ktor.http.HttpStatusCode.Companion.InternalServerError
@@ -18,6 +20,7 @@ import io.ktor.server.routing.*
 import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
 import java.net.URL
+import java.time.LocalDate
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -32,7 +35,9 @@ fun main() {
 internal fun Application.spapi(
     config: Map<String, String> = System.getenv(),
     sporings: Sporingslogg = KafkaSporingslogg(config),
-    accessToken: AccessToken = AzureAccessToken(config)
+    client: HttpClient = HttpClient(CIO),
+    accessToken: AccessToken = AzureAccessToken(config, client),
+    spøkelse: Spøkelse = RestSpøkelse(config, client, accessToken)
 ) {
 
     install(CallId) {
@@ -52,6 +57,9 @@ internal fun Application.spapi(
             sikkerlogg.info("Feil ved håndtering av ${call.request.httpMethod} - ${call.request.path()}", cause)
             call.respondText("Uventet feil. Feilreferanse ${call.callId}. Ta kontakt med NAV om feilen vedvarer.", status = InternalServerError)
         }
+    }
+    environment.monitor.subscribe(ApplicationStopped) {
+        client.close()
     }
     authentication {
         jwt(FellesordningenForAfp.id) {
@@ -75,8 +83,7 @@ internal fun Application.spapi(
     routing {
         get("/velkommen") {
             if (prod) return@get call.respond(unavailableForLegalReasons, "451 Unavailable For Legal Reasons: Spaπ blir tilgjenglig i løpet av 2023 👩‍ ⚖️ Gled deg!")
-            accessToken.get(config.hent("SPOKELSE_SCOPE")).also { sikkerlogg.info("Henting av Spøkelse-token gikk jo bra") }
-            sporings.logg(person = Personidentifikator("11111111111"), konsument = FellesordningenForAfp, leverteData = """{"perioder":[]}""").also { sikkerlogg.info("Sending av sporingslogg gikk jo bra") }
+            spøkelse.hent(Personidentifikator("11111111111"), LocalDate.MIN, LocalDate.MAX).also { sikkerlogg.info("Å kontakte Spøkelse gikk jo bra!") }
             call.respondText("Velkommen til Spaπ! 👽")
         }
         // Endepunkt under /internal eksponeres ikke

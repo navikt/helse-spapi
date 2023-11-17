@@ -2,7 +2,6 @@ package no.nav.helse.spapi
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.*
-import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.ContentType.Application.FormUrlEncoded
@@ -15,11 +14,10 @@ interface AccessToken {
     suspend fun get(scope: String): String
 }
 
-internal class AzureAccessToken(config: Map<String, String>): AccessToken {
+internal class AzureAccessToken(config: Map<String, String>, private val client: HttpClient): AccessToken {
     private val tokenEndpoint = URL(config.hent("AZURE_OPENID_CONFIG_TOKEN_ENDPOINT"))
     private val clientId = config.hent("AZURE_APP_CLIENT_ID")
     private val clientSecret = config.hent("AZURE_APP_CLIENT_SECRET")
-    private val client = HttpClient(CIO)
 
     override suspend fun get(scope: String): String {
         val response = client.post(tokenEndpoint) {

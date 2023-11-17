@@ -16,6 +16,7 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
+import java.time.LocalDate
 
 @TestInstance(PER_CLASS)
 internal class MaskinportenTilgangTest {
@@ -43,6 +44,9 @@ internal class MaskinportenTilgangTest {
                 },
                 accessToken = object : AccessToken {
                     override suspend fun get(scope: String) = "accessToken"
+                },
+                spøkelse = object : Spøkelse {
+                    override suspend fun hent(personidentifikator: Personidentifikator, fom: LocalDate, tom: LocalDate) = emptyList<Spøkelse.Periode>()
                 }
             )}
             block()
