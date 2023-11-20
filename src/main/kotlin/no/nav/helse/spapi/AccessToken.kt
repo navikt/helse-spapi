@@ -5,6 +5,7 @@ import io.ktor.client.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.http.HttpStatusCode.Companion.OK
 import org.slf4j.LoggerFactory
 import java.net.URL
 import java.time.Duration
@@ -50,15 +51,16 @@ internal class AzureAccessToken(config: Map<String, String>, private val client:
                 append("grant_type", "client_credentials")
             }
         )
+        check(response.status == OK) {
+            "Mottok HTTP ${response.status} ved henting av access token for $scope:\n\t${response.bodyAsText()}"
+        }
         val json = objectMapper.readTree(response.readBytes())
         val accessToken = json.path("access_token").asText()
         val expiresIn = json.path("expires_in").asLong()
-        sikkerlogg.info("TokenResponse=$json, expires_in=$expiresIn")
         return accessToken to expiresIn
     }
 
     private companion object {
         private val objectMapper = jacksonObjectMapper()
-        private val sikkerlogg = LoggerFactory.getLogger("tjenestekall")
     }
 }
