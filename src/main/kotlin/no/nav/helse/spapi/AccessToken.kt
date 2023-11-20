@@ -2,18 +2,17 @@ package no.nav.helse.spapi
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.*
-import io.ktor.client.request.*
+import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
-import io.ktor.http.ContentType.Application.FormUrlEncoded
-import io.ktor.http.ContentType.Application.Json
-import io.ktor.http.HttpHeaders.Accept
-import io.ktor.http.HttpHeaders.ContentType
+import io.ktor.http.*
 import org.slf4j.LoggerFactory
 import java.net.URL
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.LocalDateTime.now
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.collections.Map
+import kotlin.collections.set
 
 abstract class AccessToken(private val leeway: Duration = Duration.ofSeconds(30)) {
     private var cache = ConcurrentHashMap<String, Pair<String, LocalDateTime>>()
@@ -42,14 +41,15 @@ internal class AzureAccessToken(config: Map<String, String>, private val client:
     private val clientSecret = config.hent("AZURE_APP_CLIENT_SECRET")
 
     override suspend fun hentNytt(scope: String): Pair<String, Long> {
-        val response = client.post(tokenEndpoint) {
-            header(Accept, Json)
-            header(ContentType, FormUrlEncoded)
-            parameter("client_id", clientId)
-            parameter("client_secret", clientSecret)
-            parameter("scope", scope)
-            parameter("grant_type", "client_credentials")
-        }
+        val response = client.submitForm(
+            url = tokenEndpoint.toString(),
+            formParameters = Parameters.build {
+                append("client_id", clientId)
+                append("client_secret", clientSecret)
+                append("scope", scope)
+                append("grant_type", "client_credentials")
+            }
+        )
         val json = objectMapper.readTree(response.readBytes())
         val accessToken = json.path("access_token").asText()
         val expiresIn = json.path("expires_in").asLong()
