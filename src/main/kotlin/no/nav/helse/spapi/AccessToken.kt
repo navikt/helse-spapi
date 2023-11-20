@@ -8,18 +8,40 @@ import io.ktor.http.ContentType.Application.FormUrlEncoded
 import io.ktor.http.ContentType.Application.Json
 import io.ktor.http.HttpHeaders.Accept
 import io.ktor.http.HttpHeaders.ContentType
+import org.slf4j.LoggerFactory
 import java.net.URL
+import java.time.Duration
+import java.time.LocalDateTime
+import java.time.LocalDateTime.now
+import java.util.concurrent.ConcurrentHashMap
 
-interface AccessToken {
-    suspend fun get(scope: String): String
+abstract class AccessToken(private val leeway: Duration = Duration.ofSeconds(30)) {
+    private var cache = ConcurrentHashMap<String, Pair<String, LocalDateTime>>()
+    abstract suspend fun hentNytt(scope: String): Pair<String, Long>
+
+    internal suspend fun get(scope: String) =
+        cache[scope]?.takeIf { it.second > now() }?.first ?: hentOgCache(scope)
+
+    private suspend fun hentOgCache(scope: String): String {
+        val (accessToken, expiresIn) = hentNytt(scope)
+        val expires = now().plusSeconds(expiresIn).minus(leeway)
+        cache[scope] = accessToken to expires
+        logger.info("Hentet nytt access token for $scope som brukes frem til $expires")
+        return accessToken
+    }
+
+    private companion object {
+        private val logger = LoggerFactory.getLogger(AccessToken::class.java)
+    }
 }
 
-internal class AzureAccessToken(config: Map<String, String>, private val client: HttpClient): AccessToken {
+
+internal class AzureAccessToken(config: Map<String, String>, private val client: HttpClient): AccessToken() {
     private val tokenEndpoint = URL(config.hent("AZURE_OPENID_CONFIG_TOKEN_ENDPOINT"))
     private val clientId = config.hent("AZURE_APP_CLIENT_ID")
     private val clientSecret = config.hent("AZURE_APP_CLIENT_SECRET")
 
-    override suspend fun get(scope: String): String {
+    override suspend fun hentNytt(scope: String): Pair<String, Long> {
         val response = client.post(tokenEndpoint) {
             header(Accept, Json)
             header(ContentType, FormUrlEncoded)
@@ -30,8 +52,8 @@ internal class AzureAccessToken(config: Map<String, String>, private val client:
         }
         val json = objectMapper.readTree(response.readBytes())
         val accessToken = json.path("access_token").asText()
-        //val expiresIn = json.path("expires_in").asLong() // TODO: Cache Access Token
-        return accessToken
+        val expiresIn = json.path("expires_in").asLong()
+        return accessToken to expiresIn
     }
 
     private companion object {

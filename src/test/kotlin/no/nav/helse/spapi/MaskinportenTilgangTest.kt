@@ -42,8 +42,8 @@ internal class MaskinportenTilgangTest {
                 sporings = object : Sporingslogg() {
                     override fun send(logginnslag: JsonNode) {}
                 },
-                accessToken = object : AccessToken {
-                    override suspend fun get(scope: String) = "accessToken"
+                accessToken = object : AccessToken() {
+                    override suspend fun hentNytt(scope: String) = "1" to 1L
                 },
                 spøkelse = object : Spøkelse {
                     override suspend fun hent(personidentifikator: Personidentifikator, fom: LocalDate, tom: LocalDate) = emptyList<Spøkelse.Periode>()
