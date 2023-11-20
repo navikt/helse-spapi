@@ -53,10 +53,12 @@ internal class AzureAccessToken(config: Map<String, String>, private val client:
         val json = objectMapper.readTree(response.readBytes())
         val accessToken = json.path("access_token").asText()
         val expiresIn = json.path("expires_in").asLong()
+        sikkerlogg.info("TokenResponse=$json, expires_in=$expiresIn")
         return accessToken to expiresIn
     }
 
     private companion object {
         private val objectMapper = jacksonObjectMapper()
+        private val sikkerlogg = LoggerFactory.getLogger("tjenestekall")
     }
 }
