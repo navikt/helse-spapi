@@ -20,7 +20,7 @@ import io.ktor.server.routing.*
 import no.nav.helse.spapi.personidentifikator.Personidentifikator
 import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
-import java.net.URL
+import java.net.URI
 import java.time.LocalDate
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -64,7 +64,7 @@ internal fun Application.spapi(
     }
     authentication {
         jwt(FellesordningenForAfp.id) {
-            val jwkProvider = JwkProviderBuilder(URL(config.hent("MASKINPORTEN_JWKS_URI")))
+            val jwkProvider = JwkProviderBuilder(URI(config.hent("MASKINPORTEN_JWKS_URI")).toURL())
                 .cached(10, 24, TimeUnit.HOURS)
                 .rateLimited(10, 1, TimeUnit.MINUTES)
                 .build()
