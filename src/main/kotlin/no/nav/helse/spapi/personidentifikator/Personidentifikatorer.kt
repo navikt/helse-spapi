@@ -7,24 +7,25 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import no.nav.helse.spapi.AccessToken
+import no.nav.helse.spapi.Konsument
 import no.nav.helse.spapi.hent
 import org.intellij.lang.annotations.Language
 import java.util.UUID
 
 internal interface Personidentifikatorer {
-    suspend fun hentAlle(personidentifikator: Personidentifikator): Set<Personidentifikator>
+    suspend fun hentAlle(personidentifikator: Personidentifikator, konsument: Konsument): Set<Personidentifikator>
 }
 
 internal class PdlPersonidentifikatorer(config: Map<String, String>, private val httpClient: HttpClient, private val accessToken: AccessToken): Personidentifikatorer {
     private val scope = config.hent("PDL_SCOPE")
 
-    override suspend fun hentAlle(personidentifikator: Personidentifikator): Set<Personidentifikator> {
+    override suspend fun hentAlle(personidentifikator: Personidentifikator, konsument: Konsument): Set<Personidentifikator> {
         val response = httpClient.post {
             header(HttpHeaders.Authorization, "Bearer ${accessToken.get(scope)}")
             header(HttpHeaders.ContentType, ContentType.Application.Json)
             header(HttpHeaders.Accept, ContentType.Application.Json)
             header("Nav-Call-Id", "${UUID.randomUUID()}")
-            header("behandlingsnummer", "B139") // TODO: Få oss et eget behandlingsnummer
+            header("behandlingsnummer", konsument.behandlingsnummer)
             setBody(body(personidentifikator))
         }
 
