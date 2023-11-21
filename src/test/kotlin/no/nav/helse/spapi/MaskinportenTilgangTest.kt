@@ -47,7 +47,7 @@ internal class MaskinportenTilgangTest {
                     override suspend fun hentNytt(scope: String) = "1" to 1L
                 },
                 spøkelse = object : Spøkelse {
-                    override suspend fun hent(personidentifikator: Personidentifikator, fom: LocalDate, tom: LocalDate) = emptyList<Spøkelse.Periode>()
+                    override suspend fun hent(personidentifikatorer: Set<Personidentifikator>, fom: LocalDate, tom: LocalDate) = emptyList<Spøkelse.Periode>()
                 }
             )}
             block()

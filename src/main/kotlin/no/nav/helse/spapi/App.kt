@@ -84,7 +84,7 @@ internal fun Application.spapi(
     routing {
         get("/velkommen") {
             if (prod) return@get call.respond(unavailableForLegalReasons, "451 Unavailable For Legal Reasons: Spaπ blir tilgjenglig i løpet av 2023 👩‍ ⚖️ Gled deg!")
-            spøkelse.hent(Personidentifikator("11111111111"), LocalDate.MIN, LocalDate.MAX).also { sikkerlogg.info("Å kontakte Spøkelse gikk jo bra!") }
+            spøkelse.hent(setOf(Personidentifikator("11111111111")), LocalDate.MIN, LocalDate.MAX).also { sikkerlogg.info("Å kontakte Spøkelse gikk jo bra!") }
             call.respondText("Velkommen til Spaπ! 👽")
         }
         // Endepunkt under /internal eksponeres ikke
