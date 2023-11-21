@@ -1,4 +1,4 @@
-package no.nav.helse.spapi
+package no.nav.helse.spapi.personidentifikator
 
 internal class Personidentifikator(private val id: String) {
     init {
@@ -6,4 +6,6 @@ internal class Personidentifikator(private val id: String) {
     }
 
     override fun toString() = id
+    override fun equals(other: Any?) = other is Personidentifikator && other.id == id
+    override fun hashCode() = id.hashCode()
 }

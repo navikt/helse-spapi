@@ -17,6 +17,7 @@ import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import no.nav.helse.spapi.personidentifikator.Personidentifikator
 import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
 import java.net.URL

@@ -4,6 +4,7 @@ import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.http.HttpHeaders.Authorization
+import no.nav.helse.spapi.personidentifikator.Personidentifikator
 import java.net.URL
 import java.time.LocalDate
 
