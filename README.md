@@ -70,7 +70,7 @@ I påvente av at vi lager en swagger-greie eller tilsvarende
 
 Request:
 POST
-parametere er fnr (11 siffer) og dato
+parametere er personidentifikator (11 siffer) og dato
 
 Response: 
 JSON-objekt som inneholder et resultat som er en liste med fom (dato), tom(dato) og grad (heltall)

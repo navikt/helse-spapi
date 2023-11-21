@@ -23,7 +23,7 @@ internal object FellesordningenForAfp: Konsument(
     organisasjonsnummer = Organisasjonsnummer("987414502"),
     id = "fellesordningen-for-afp",
     scope = "nav:sykepenger:fellesordningenforafp.read",
-    behandlingsnummer = "B139", // TODO: Få oss et eget behandlingsnummer,
+    behandlingsnummer = "B709",
     behandlingsgrunnlag = "GDPR Art. 6(1)e, 9(2)b. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum"
 )
 
