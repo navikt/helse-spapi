@@ -28,7 +28,7 @@ internal class RestSpøkelse(config: Map<String, String>, private val client: Ht
     ): List<Spøkelse.Periode> {
         val authorizationHeader = "Bearer ${accessToken.get(scope)}"
 
-        val response = client.post("http://spokelse/perioder") {
+        val response = client.post("http://spokelse/utbetalte-perioder") {
             header(Authorization, authorizationHeader)
             header(Accept, Json)
             header(ContentType, Json)
