@@ -56,7 +56,7 @@ internal fun Application.spapi(
     }
     install(StatusPages) {
         exception<Throwable> { call, cause ->
-            sikkerlogg.info("Feil ved håndtering av ${call.request.httpMethod} - ${call.request.path()}", cause)
+            sikkerlogg.info("Feil ved håndtering av ${call.request.httpMethod.value} - ${call.request.path()}", cause)
             call.respondText("Uventet feil. Feilreferanse ${call.callId}. Ta kontakt med NAV om feilen vedvarer.", status = InternalServerError)
         }
     }

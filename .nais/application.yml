@@ -50,6 +50,8 @@ spec:
     outbound:
       rules:
         - application: spokelse
+      external:
+        - host: {{pdlHost}}
   kafka:
     pool: {{kafkaPool}}
   secureLogs:
@@ -61,7 +63,7 @@ spec:
       value: {{sporingsloggTopic}}
     - name: SPOKELSE_SCOPE
       value: {{spokelseScope}}
-    - name: PDL_URL
-      value: {{pdlUrl}}
+    - name: PDL_HOST
+      value: {{pdlHost}}
     - name: PDL_SCOPE
       value: {{pdlScope}}

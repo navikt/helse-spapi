@@ -17,7 +17,7 @@ internal interface Personidentifikatorer {
 }
 
 internal class PdlPersonidentifikatorer(config: Map<String, String>, private val httpClient: HttpClient, private val accessToken: AccessToken): Personidentifikatorer {
-    private val url = config.hent("PDL_URL")
+    private val url = "https://${config.hent("PDL_HOST")}/graphql"
     private val scope = config.hent("PDL_SCOPE")
 
     override suspend fun hentAlle(personidentifikator: Personidentifikator, konsument: Konsument): Set<Personidentifikator> {

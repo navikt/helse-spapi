@@ -4,7 +4,7 @@
   "sporingsloggTopic": "pensjonsamhandling.public-sporingslogg-loggmeldingmottatt-q2",
   "azureTenant": "trygdeetaten.no",
   "spokelseScope": "api://dev-gcp.tbd.spokelse/.default",
-  "pdlUrl": "https://pdl-api.dev-fss-pub.nais.io/graphql",
+  "pdlHost": "pdl-api.dev-fss-pub.nais.io",
   "pdlScope": "api://dev-fss.pdl.pdl-api/.default",
   "consumers": [{
     "name": "Fellesordningen for AFP",
