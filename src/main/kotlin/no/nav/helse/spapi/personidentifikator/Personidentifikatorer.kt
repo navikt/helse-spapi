@@ -10,6 +10,7 @@ import no.nav.helse.spapi.AccessToken
 import no.nav.helse.spapi.Konsument
 import no.nav.helse.spapi.hent
 import org.intellij.lang.annotations.Language
+import org.slf4j.LoggerFactory
 import java.util.UUID
 
 internal interface Personidentifikatorer {
@@ -34,8 +35,10 @@ internal class PdlPersonidentifikatorer(config: Map<String, String>, private val
             "Mottok HTTP ${response.status} fra PDL:\n\t${response.bodyAsText()}"
         }
 
+
         val json = objectMapper.readTree(response.readBytes())
 
+        sikkerlogg.info("Response fra PDL:\n\t$json")
 
         return json.personidentifikatorer.also {
             check(it.contains(personidentifikator)) { "Responsen fra PDL inneholder _ikke_ personidentifikatoren vi spurte på.." }
@@ -43,6 +46,7 @@ internal class PdlPersonidentifikatorer(config: Map<String, String>, private val
     }
 
     internal companion object {
+        private val sikkerlogg = LoggerFactory.getLogger("tjenestekall")
         private val objectMapper = jacksonObjectMapper()
         private fun String.formaterQuery() = replace("[\n\r]".toRegex(), "").replace("\\s{2,}".toRegex(), " ")
 
