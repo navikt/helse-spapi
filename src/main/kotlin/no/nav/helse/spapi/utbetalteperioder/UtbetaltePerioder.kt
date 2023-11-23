@@ -1,4 +1,4 @@
-package no.nav.helse.spapi
+package no.nav.helse.spapi.utbetalteperioder
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.*
@@ -9,23 +9,25 @@ import io.ktor.http.ContentType.Application.Json
 import io.ktor.http.HttpHeaders.Accept
 import io.ktor.http.HttpHeaders.Authorization
 import io.ktor.http.HttpHeaders.ContentType
+import no.nav.helse.spapi.AccessToken
+import no.nav.helse.spapi.hent
 import no.nav.helse.spapi.personidentifikator.Personidentifikator
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 
-internal interface Spøkelse {
-    suspend fun utbetaltePerioder(personidentifikatorer: Set<Personidentifikator>, fom: LocalDate, tom: LocalDate): List<Periode>
-    class Periode(val fom: LocalDate, val tom: LocalDate, val arbeidsgiver: String, val grad: Int)
+internal interface UtbetaltePerioder {
+    suspend fun hent(personidentifikatorer: Set<Personidentifikator>, fom: LocalDate, tom: LocalDate): List<UtbetaltPeriode>
 }
 
-internal class RestSpøkelse(config: Map<String, String>, private val client: HttpClient, private val accessToken: AccessToken): Spøkelse {
+internal class Spøkelse(config: Map<String, String>, private val client: HttpClient, private val accessToken: AccessToken):
+    UtbetaltePerioder {
     private val scope = config.hent("SPOKELSE_SCOPE")
 
-    override suspend fun utbetaltePerioder(
+    override suspend fun hent(
         personidentifikatorer: Set<Personidentifikator>,
         fom: LocalDate,
         tom: LocalDate
-    ): List<Spøkelse.Periode> {
+    ): List<UtbetaltPeriode> {
         val authorizationHeader = "Bearer ${accessToken.get(scope)}"
 
         val response = client.post("http://spokelse/utbetalte-perioder") {
@@ -45,16 +47,17 @@ internal class RestSpøkelse(config: Map<String, String>, private val client: Ht
         check(response.status == HttpStatusCode.OK) {
             "Mottok HTTP ${response.status} fra Spøkelse"
         }
-        return objectMapper.readTree(response.readBytes()).path("perioder").map { Spøkelse.Periode(
-            fom = LocalDate.parse(it.path("fom").asText()),
-            tom = LocalDate.parse(it.path("tom").asText()),
-            arbeidsgiver = it.path("arbeidsgiver").asText(),
-            grad = it.path("grad").asInt()
-        )}
+        return objectMapper.readTree(response.readBytes()).path("perioder").map {
+            UtbetaltPeriode(
+                fom = LocalDate.parse(it.path("fom").asText()),
+                tom = LocalDate.parse(it.path("tom").asText()),
+                arbeidsgiver = it.path("arbeidsgiver").asText(),
+                grad = it.path("grad").asInt()
+            )
+        }
     }
 
     private companion object {
         private val objectMapper = jacksonObjectMapper()
     }
-
 }

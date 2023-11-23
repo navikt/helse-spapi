@@ -16,7 +16,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 internal abstract class Sporingslogg {
-    internal fun logg(person : Personidentifikator, konsument: Konsument, leverteData: String) {
+    internal fun logg(person: Personidentifikator, konsument: Konsument, leverteData: String) {
         val logginnslag = objectMapper.createObjectNode().apply {
             put("person", "$person")
             put("mottaker", "${konsument.organisasjonsnummer}")
@@ -37,7 +37,7 @@ internal abstract class Sporingslogg {
     }
 }
 
-internal class KafkaSporingslogg(config: Map<String, String>): Sporingslogg() {
+internal class Kafka(config: Map<String, String>): Sporingslogg() {
 
     private val properties = Properties().apply {
         put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, config.hent("KAFKA_BROKERS"))

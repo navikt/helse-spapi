@@ -10,8 +10,8 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.util.pipeline.*
-import no.nav.helse.spapi.Spøkelse.Periode
 import no.nav.helse.spapi.personidentifikator.Personidentifikator
+import no.nav.helse.spapi.utbetalteperioder.UtbetaltPeriode
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
@@ -87,7 +87,7 @@ internal object FellesordningenForAfp: Konsument(
 
     // TODO: Her skal vi nok filtrere på organisasjonsnummer
     @Language("JSON")
-    internal fun response(utbetaltePerioder: List<Periode>, organisasjonsnummer: Organisasjonsnummer) = """
+    internal fun response(utbetaltePerioder: List<UtbetaltPeriode>, organisasjonsnummer: Organisasjonsnummer) = """
         {
           "utbetaltePerioder": ${utbetaltePerioder.filter { it.grad >= 80 }.map { """{ "fom": "${it.fom}", "tom": "${it.tom}"}""" }}
         }

@@ -7,7 +7,6 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.http.HttpStatusCode.Companion.OK
 import org.slf4j.LoggerFactory
-import java.net.URL
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.LocalDateTime.now
@@ -36,14 +35,14 @@ abstract class AccessToken(private val leeway: Duration = Duration.ofSeconds(30)
 }
 
 
-internal class AzureAccessToken(config: Map<String, String>, private val client: HttpClient): AccessToken() {
-    private val tokenEndpoint = URL(config.hent("AZURE_OPENID_CONFIG_TOKEN_ENDPOINT"))
+internal class Azure(config: Map<String, String>, private val client: HttpClient): AccessToken() {
+    private val tokenEndpoint = config.hent("AZURE_OPENID_CONFIG_TOKEN_ENDPOINT")
     private val clientId = config.hent("AZURE_APP_CLIENT_ID")
     private val clientSecret = config.hent("AZURE_APP_CLIENT_SECRET")
 
     override suspend fun hentNytt(scope: String): Pair<String, Long> {
         val response = client.submitForm(
-            url = tokenEndpoint.toString(),
+            url = tokenEndpoint,
             formParameters = Parameters.build {
                 append("client_id", clientId)
                 append("client_secret", clientSecret)

@@ -8,6 +8,7 @@ import io.ktor.http.*
 import io.ktor.server.testing.*
 import no.nav.helse.spapi.personidentifikator.Personidentifikator
 import no.nav.helse.spapi.personidentifikator.Personidentifikatorer
+import no.nav.helse.spapi.utbetalteperioder.UtbetaltePerioder
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.TestInstance
@@ -18,7 +19,7 @@ import org.skyscreamer.jsonassert.JSONAssert
 internal abstract class KonsumentTest{
 
     abstract val scope: String
-    abstract fun spøkelse(): Spøkelse
+    abstract fun utbetaltePerioder(): UtbetaltePerioder
 
     @BeforeAll
     fun start() = maskinporten.start()
@@ -41,7 +42,7 @@ internal abstract class KonsumentTest{
                 accessToken = object : AccessToken() {
                     override suspend fun hentNytt(scope: String) = "1" to 1L
                 },
-                spøkelse = spøkelse(),
+                utbetaltePerioder = utbetaltePerioder(),
                 personidentifikatorer = object : Personidentifikatorer {
                     override suspend fun hentAlle(personidentifikator: Personidentifikator, konsument: Konsument) = setOf(personidentifikator)
                 }

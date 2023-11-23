@@ -17,9 +17,11 @@ import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import no.nav.helse.spapi.personidentifikator.PdlPersonidentifikatorer
+import no.nav.helse.spapi.personidentifikator.Pdl
 import no.nav.helse.spapi.personidentifikator.Personidentifikator
 import no.nav.helse.spapi.personidentifikator.Personidentifikatorer
+import no.nav.helse.spapi.utbetalteperioder.Spøkelse
+import no.nav.helse.spapi.utbetalteperioder.UtbetaltePerioder
 import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
 import java.net.URI
@@ -37,11 +39,11 @@ fun main() {
 
 internal fun Application.spapi(
     config: Map<String, String> = System.getenv(),
-    sporings: Sporingslogg = KafkaSporingslogg(config),
+    sporings: Sporingslogg = Kafka(config),
     client: HttpClient = HttpClient(CIO),
-    accessToken: AccessToken = AzureAccessToken(config, client),
-    spøkelse: Spøkelse = RestSpøkelse(config, client, accessToken),
-    personidentifikatorer: Personidentifikatorer = PdlPersonidentifikatorer(config, client, accessToken)
+    accessToken: AccessToken = Azure(config, client),
+    utbetaltePerioder: UtbetaltePerioder = Spøkelse(config, client, accessToken),
+    personidentifikatorer: Personidentifikatorer = Pdl(config, client, accessToken)
 ) {
 
     install(CallId) {
@@ -91,7 +93,7 @@ internal fun Application.spapi(
             post("/test") {
                 val request = objectMapper.readTree(call.receiveText())
                 val personidentifikator = Personidentifikator(request.path("personidentifikator").asText())
-                spøkelse.utbetaltePerioder(setOf(personidentifikator), LocalDate.MIN, LocalDate.MAX)
+                utbetaltePerioder.hent(setOf(personidentifikator), LocalDate.MIN, LocalDate.MAX)
                 sporings.logg(personidentifikator, FellesordningenForAfp, """{"perioder":[]}""")
                 personidentifikatorer.hentAlle(personidentifikator, FellesordningenForAfp)
                 call.respond(OK)
@@ -103,13 +105,13 @@ internal fun Application.spapi(
 
             val (personidentifikator, organisasjonsnummer, fom, tom) = FellesordningenForAfp.request(call)
 
-            val utbetaltePerioder = spøkelse.utbetaltePerioder(
+            val perioder = utbetaltePerioder.hent(
                 personidentifikatorer = personidentifikatorer.hentAlle(personidentifikator, FellesordningenForAfp),
                 fom = fom,
                 tom = tom
             )
 
-            val response = FellesordningenForAfp.response(utbetaltePerioder, organisasjonsnummer)
+            val response = FellesordningenForAfp.response(perioder, organisasjonsnummer)
 
             sporings.logg(
                 person = personidentifikator,
