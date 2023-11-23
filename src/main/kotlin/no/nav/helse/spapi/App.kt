@@ -6,6 +6,7 @@ import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.http.*
 import io.ktor.http.HttpStatusCode.Companion.InternalServerError
+import io.ktor.http.HttpStatusCode.Companion.OK
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.engine.*
@@ -79,15 +80,22 @@ internal fun Application.spapi(
     routing {
         get("/velkommen") {
             if (prod) return@get call.respond(unavailableForLegalReasons, "451 Unavailable For Legal Reasons: Spaπ blir tilgjenglig i løpet av 2023 👩‍ ⚖️ Gled deg!")
-            val personidentifikator = Personidentifikator("11111111111")
-            spøkelse.hent(setOf(personidentifikator), LocalDate.MIN, LocalDate.MAX).also { sikkerlogg.info("Å kontakte Spøkelse gikk jo bra!") }
-            sporings.logg(personidentifikator, FellesordningenForAfp, """{"perioder":[]}""").also { sikkerlogg.info("Å sende sporingslogg gikk jo bra!") }
-            personidentifikatorer.hentAlle(personidentifikator, FellesordningenForAfp).let { sikkerlogg.info("Å hente data fra PDL gikk jo bra! Fant ${it.size} personidentifikatorer") }
             call.respondText("Velkommen til Spaπ! 👽")
         }
         // Endepunkt under /internal eksponeres ikke
         get("/internal/isalive") { call.respondText("ISALIVE") }
         get("/internal/isready") { call.respondText("READY") }
+
+        if (!prod) {
+            post("/test") {
+                val request = objectMapper.readTree(call.receiveText())
+                val personidentifikator = Personidentifikator(request.path("personidentifikator").asText())
+                spøkelse.hent(setOf(personidentifikator), LocalDate.MIN, LocalDate.MAX)
+                sporings.logg(personidentifikator, FellesordningenForAfp, """{"perioder":[]}""")
+                personidentifikatorer.hentAlle(personidentifikator, FellesordningenForAfp)
+                call.respond(OK)
+            }
+        }
 
         FellesordningenForAfp.setupApi(this) {
             if (prod) return@setupApi call.respond(unavailableForLegalReasons)
