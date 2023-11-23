@@ -5,11 +5,9 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.http.*
-import io.ktor.http.ContentType.Application.Json
 import io.ktor.http.HttpStatusCode.Companion.InternalServerError
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.auth.jwt.*
 import io.ktor.server.engine.*
 import io.ktor.server.plugins.callid.*
 import io.ktor.server.plugins.callloging.*
@@ -63,19 +61,13 @@ internal fun Application.spapi(
         client.close()
     }
     authentication {
-        jwt(FellesordningenForAfp.id) {
-            val jwkProvider = JwkProviderBuilder(URI(config.hent("MASKINPORTEN_JWKS_URI")).toURL())
-                .cached(10, 24, TimeUnit.HOURS)
-                .rateLimited(10, 1, TimeUnit.MINUTES)
-                .build()
-
-            verifier(jwkProvider, config.hent("MASKINPORTEN_ISSUER")) {
-                withAudience(config.hent("AUDIENCE"))
-                withClaim("scope", FellesordningenForAfp.scope)
-            }
-            validate { credentials -> JWTPrincipal(credentials.payload) }
-            challenge { _, _ -> call.respondChallenge() }
-        }
+        val maskinportenJwkProvider = JwkProviderBuilder(URI(config.hent("MASKINPORTEN_JWKS_URI")).toURL())
+            .cached(10, 24, TimeUnit.HOURS)
+            .rateLimited(10, 1, TimeUnit.MINUTES)
+            .build()
+        val maskinportenIssuer = config.hent("MASKINPORTEN_ISSUER")
+        val audience = config.hent("AUDIENCE")
+        FellesordningenForAfp.setupAuthentication(this, maskinportenJwkProvider, maskinportenIssuer, audience)
     }
 
     val prod = config["NAIS_CLUSTER_NAME"] == "prod-gcp"
@@ -91,15 +83,13 @@ internal fun Application.spapi(
         get("/internal/isalive") { call.respondText("ISALIVE") }
         get("/internal/isready") { call.respondText("READY") }
 
-        authenticate(FellesordningenForAfp.id) {
-            post(FellesordningenForAfp.endepunkt) {
-                if (prod) return@post call.respond(unavailableForLegalReasons)
-                val request = objectMapper.readTree(call.receiveText())
-                val response = """{"perioder":[]}"""
-                val person = Personidentifikator(request.path("personidentifikator").asText())
-                sporings.logg(person = person, konsument = FellesordningenForAfp, leverteData = response)
-                call.respondText(response, Json)
-            }
+        FellesordningenForAfp.setupApi(this) {
+            if (prod) return@setupApi call.respond(unavailableForLegalReasons)
+            val request = objectMapper.readTree(call.receiveText())
+            val response = """{"perioder":[]}"""
+            val person = Personidentifikator(request.path("personidentifikator").asText())
+            sporings.logg(person = person, konsument = FellesordningenForAfp, leverteData = response)
+            call.respondText(response, ContentType.Application.Json)
         }
     }
 }

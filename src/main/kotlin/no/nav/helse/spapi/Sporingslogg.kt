@@ -21,7 +21,7 @@ internal abstract class Sporingslogg {
             put("person", "$person")
             put("mottaker", "${konsument.organisasjonsnummer}")
             put("tema", "SYK")
-            put("behandlingsGrunnlag", konsument.behandlingsgrunnlag)
+            put("behandlingsGrunnlag", "${konsument.behandlingsgrunnlag}")
             put("uthentingsTidspunkt", "${LocalDateTime.now()}")
             put("leverteData", Base64.getEncoder().encodeToString(leverteData.encodeToByteArray()))
         }
