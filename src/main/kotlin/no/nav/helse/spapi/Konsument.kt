@@ -2,16 +2,20 @@ package no.nav.helse.spapi
 
 import com.auth0.jwk.JwkProvider
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.util.pipeline.*
 import no.nav.helse.spapi.Spøkelse.Periode
 import no.nav.helse.spapi.personidentifikator.Personidentifikator
 import org.intellij.lang.annotations.Language
+import org.slf4j.LoggerFactory
 import java.time.LocalDate
+import java.util.*
 
 internal open class Konsument(
     private val navn: String,
@@ -38,6 +42,23 @@ internal open class Konsument(
         routing.authenticate(id) {
             post("/$id") {
                 block(this)
+            }
+        }
+    }
+
+    private companion object {
+        private val sikkerlogg = LoggerFactory.getLogger("tjenestekall")
+        private suspend fun ApplicationCall.respondChallenge() {
+            try {
+                val jwt = request.header(HttpHeaders.Authorization)
+                    ?.substringAfter("Bearer ")
+                    ?.split(".")
+                    ?.takeIf { it.size == 3 }
+                    ?: return respond(HttpStatusCode.Unauthorized, "Bearer token må settes i Authorization header for å hente data fra Spaπ!")
+                sikkerlogg.error("Mottok request med access token som ikke har tilgang til Spaπ sitt endepunkt ${request.path()}!\n\tJWT Headers: ${String(Base64.getUrlDecoder().decode(jwt[0]))}\n\tJWT Payload: ${String(Base64.getUrlDecoder().decode(jwt[1]))}")
+                respond(HttpStatusCode.Forbidden, "Bearer token som er brukt har ikke rett tilgang til å hente data fra Spaπ! Ta kontakt med NAV.")
+            } catch (throwable: Throwable) {
+                respond(HttpStatusCode.Unauthorized, "Bearer token må settes i Authorization header for å hente data fra Spaπ!")
             }
         }
     }
