@@ -76,7 +76,9 @@ internal fun Application.spapi(
     routing {
         get("/velkommen") {
             if (prod) return@get call.respond(unavailableForLegalReasons, "451 Unavailable For Legal Reasons: Spaπ blir tilgjenglig i løpet av 2023 👩‍ ⚖️ Gled deg!")
-            spøkelse.hent(setOf(Personidentifikator("11111111111")), LocalDate.MIN, LocalDate.MAX).also { sikkerlogg.info("Å kontakte Spøkelse gikk jo bra!") }
+            val personidentifikator = Personidentifikator("11111111111")
+            spøkelse.hent(setOf(personidentifikator), LocalDate.MIN, LocalDate.MAX).also { sikkerlogg.info("Å kontakte Spøkelse gikk jo bra!") }
+            sporings.logg(personidentifikator, FellesordningenForAfp, """{"perioder":[]}""").also { sikkerlogg.info("Å sende sporingslogg gikk jo bra!") }
             call.respondText("Velkommen til Spaπ! 👽")
         }
         // Endepunkt under /internal eksponeres ikke
