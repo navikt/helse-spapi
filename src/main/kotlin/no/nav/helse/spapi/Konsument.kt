@@ -43,6 +43,6 @@ internal object FellesordningenForAfp: Konsument(
     id = "fellesordningen-for-afp",
     scope = "nav:sykepenger:fellesordningenforafp.read",
     behandlingsnummer = "B709",
-    behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e, 9(2)b. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum")
+    behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b")
 )
 
