@@ -14,14 +14,14 @@ import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 
 internal interface Spøkelse {
-    suspend fun hent(personidentifikatorer: Set<Personidentifikator>, fom: LocalDate, tom: LocalDate): List<Periode>
-    class Periode(val fom: LocalDate, val tom: LocalDate, arbeidsgiver: String, grad: Int)
+    suspend fun utbetaltePerioder(personidentifikatorer: Set<Personidentifikator>, fom: LocalDate, tom: LocalDate): List<Periode>
+    class Periode(val fom: LocalDate, val tom: LocalDate, val arbeidsgiver: String, val grad: Int)
 }
 
 internal class RestSpøkelse(config: Map<String, String>, private val client: HttpClient, private val accessToken: AccessToken): Spøkelse {
     private val scope = config.hent("SPOKELSE_SCOPE")
 
-    override suspend fun hent(
+    override suspend fun utbetaltePerioder(
         personidentifikatorer: Set<Personidentifikator>,
         fom: LocalDate,
         tom: LocalDate

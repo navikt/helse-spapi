@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.http.*
+import io.ktor.http.ContentType.Application.Json
 import io.ktor.http.HttpStatusCode.Companion.InternalServerError
 import io.ktor.http.HttpStatusCode.Companion.OK
 import io.ktor.server.application.*
@@ -90,7 +91,7 @@ internal fun Application.spapi(
             post("/test") {
                 val request = objectMapper.readTree(call.receiveText())
                 val personidentifikator = Personidentifikator(request.path("personidentifikator").asText())
-                spøkelse.hent(setOf(personidentifikator), LocalDate.MIN, LocalDate.MAX)
+                spøkelse.utbetaltePerioder(setOf(personidentifikator), LocalDate.MIN, LocalDate.MAX)
                 sporings.logg(personidentifikator, FellesordningenForAfp, """{"perioder":[]}""")
                 personidentifikatorer.hentAlle(personidentifikator, FellesordningenForAfp)
                 call.respond(OK)
@@ -99,11 +100,25 @@ internal fun Application.spapi(
 
         FellesordningenForAfp.setupApi(this) {
             if (prod) return@setupApi call.respond(unavailableForLegalReasons)
-            val request = objectMapper.readTree(call.receiveText())
-            val response = """{"perioder":[]}"""
-            val person = Personidentifikator(request.path("personidentifikator").asText())
-            sporings.logg(person = person, konsument = FellesordningenForAfp, leverteData = response)
-            call.respondText(response, ContentType.Application.Json)
+
+            val (personidentifikator, organisasjonsnummer, fom, tom) = FellesordningenForAfp.request(call)
+
+            val utbetaltePerioder = spøkelse.utbetaltePerioder(
+                personidentifikatorer = personidentifikatorer.hentAlle(personidentifikator, FellesordningenForAfp),
+                fom = fom,
+                tom = tom
+            )
+
+            val response = FellesordningenForAfp.response(utbetaltePerioder, organisasjonsnummer)
+
+            sporings.logg(
+                person = personidentifikator,
+                konsument = FellesordningenForAfp,
+                leverteData = response
+            )
+
+            call.respondText(response, Json)
         }
     }
 }
+
