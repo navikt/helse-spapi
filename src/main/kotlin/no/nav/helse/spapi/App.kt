@@ -15,7 +15,9 @@ import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import no.nav.helse.spapi.personidentifikator.PdlPersonidentifikatorer
 import no.nav.helse.spapi.personidentifikator.Personidentifikator
+import no.nav.helse.spapi.personidentifikator.Personidentifikatorer
 import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
 import java.net.URI
@@ -36,7 +38,8 @@ internal fun Application.spapi(
     sporings: Sporingslogg = KafkaSporingslogg(config),
     client: HttpClient = HttpClient(CIO),
     accessToken: AccessToken = AzureAccessToken(config, client),
-    spøkelse: Spøkelse = RestSpøkelse(config, client, accessToken)
+    spøkelse: Spøkelse = RestSpøkelse(config, client, accessToken),
+    personidentifikatorer: Personidentifikatorer = PdlPersonidentifikatorer(config, client, accessToken)
 ) {
 
     install(CallId) {
@@ -79,6 +82,7 @@ internal fun Application.spapi(
             val personidentifikator = Personidentifikator("11111111111")
             spøkelse.hent(setOf(personidentifikator), LocalDate.MIN, LocalDate.MAX).also { sikkerlogg.info("Å kontakte Spøkelse gikk jo bra!") }
             sporings.logg(personidentifikator, FellesordningenForAfp, """{"perioder":[]}""").also { sikkerlogg.info("Å sende sporingslogg gikk jo bra!") }
+            personidentifikatorer.hentAlle(personidentifikator, FellesordningenForAfp).let { sikkerlogg.info("Å hente data fra PDL gikk jo bra! Fant ${it.size} personidentifikatorer") }
             call.respondText("Velkommen til Spaπ! 👽")
         }
         // Endepunkt under /internal eksponeres ikke

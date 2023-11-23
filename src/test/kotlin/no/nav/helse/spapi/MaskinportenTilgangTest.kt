@@ -11,6 +11,7 @@ import io.ktor.http.HttpStatusCode.Companion.OK
 import io.ktor.http.HttpStatusCode.Companion.Unauthorized
 import io.ktor.server.testing.*
 import no.nav.helse.spapi.personidentifikator.Personidentifikator
+import no.nav.helse.spapi.personidentifikator.Personidentifikatorer
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
@@ -48,6 +49,9 @@ internal class MaskinportenTilgangTest {
                 },
                 spøkelse = object : Spøkelse {
                     override suspend fun hent(personidentifikatorer: Set<Personidentifikator>, fom: LocalDate, tom: LocalDate) = emptyList<Spøkelse.Periode>()
+                },
+                personidentifikatorer = object : Personidentifikatorer {
+                    override suspend fun hentAlle(personidentifikator: Personidentifikator, konsument: Konsument) = setOf(personidentifikator)
                 }
             )}
             block()

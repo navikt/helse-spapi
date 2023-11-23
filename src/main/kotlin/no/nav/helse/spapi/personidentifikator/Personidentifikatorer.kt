@@ -17,10 +17,11 @@ internal interface Personidentifikatorer {
 }
 
 internal class PdlPersonidentifikatorer(config: Map<String, String>, private val httpClient: HttpClient, private val accessToken: AccessToken): Personidentifikatorer {
+    private val url = config.hent("PDL_URL")
     private val scope = config.hent("PDL_SCOPE")
 
     override suspend fun hentAlle(personidentifikator: Personidentifikator, konsument: Konsument): Set<Personidentifikator> {
-        val response = httpClient.post {
+        val response = httpClient.post(url) {
             header(HttpHeaders.Authorization, "Bearer ${accessToken.get(scope)}")
             header(HttpHeaders.ContentType, ContentType.Application.Json)
             header(HttpHeaders.Accept, ContentType.Application.Json)
@@ -30,7 +31,7 @@ internal class PdlPersonidentifikatorer(config: Map<String, String>, private val
         }
 
         check(response.status == HttpStatusCode.OK) {
-            "Mottok HTTP ${response.status} fra PDL"
+            "Mottok HTTP ${response.status} fra PDL:\n\t${response.bodyAsText()}"
         }
 
         val json = objectMapper.readTree(response.readBytes())

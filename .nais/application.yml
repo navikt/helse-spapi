@@ -61,3 +61,7 @@ spec:
       value: {{sporingsloggTopic}}
     - name: SPOKELSE_SCOPE
       value: {{spokelseScope}}
+    - name: PDL_URL
+      value: {{pdlUrl}}
+    - name: PDL_SCOPE
+      value: {{pdlScope}}
