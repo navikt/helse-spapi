@@ -93,7 +93,7 @@ internal fun Application.spapi(
             post("/test") {
                 val request = objectMapper.readTree(call.receiveText())
                 val personidentifikator = Personidentifikator(request.path("personidentifikator").asText())
-                utbetaltePerioder.hent(setOf(personidentifikator), LocalDate.MIN, LocalDate.MAX)
+                utbetaltePerioder.hent(setOf(personidentifikator), LocalDate.now(), LocalDate.now())
                 sporings.logg(personidentifikator, FellesordningenForAfp, """{"perioder":[]}""")
                 personidentifikatorer.hentAlle(personidentifikator, FellesordningenForAfp)
                 call.respond(OK)
