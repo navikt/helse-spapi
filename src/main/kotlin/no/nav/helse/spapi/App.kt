@@ -103,7 +103,8 @@ internal fun Application.spapi(
         FellesordningenForAfp.setupApi(this) {
             if (prod) return@setupApi call.respond(unavailableForLegalReasons)
 
-            val (personidentifikator, organisasjonsnummer, fom, tom) = FellesordningenForAfp.request(call)
+            val request = FellesordningenForAfp.request(call)
+            val (personidentifikator, fom, tom) = request
 
             val perioder = utbetaltePerioder.hent(
                 personidentifikatorer = personidentifikatorer.hentAlle(personidentifikator, FellesordningenForAfp),
@@ -111,7 +112,7 @@ internal fun Application.spapi(
                 tom = tom
             )
 
-            val response = FellesordningenForAfp.response(perioder, organisasjonsnummer)
+            val response = FellesordningenForAfp.response(perioder, request)
 
             sporings.logg(
                 person = personidentifikator,

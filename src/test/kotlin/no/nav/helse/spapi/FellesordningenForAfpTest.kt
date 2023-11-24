@@ -36,12 +36,12 @@ internal class FellesordningenForAfpTest : KonsumentTest() {
         {
           "utbetaltePerioder": [
             {
-              "fom": "2018-01-01",
-              "tom": "2018-01-31"
+              "fraOgMedDato": "2018-01-01",
+              "tilOgMedDato": "2018-01-31"
             },
             {
-              "fom": "2019-01-01",
-              "tom": "2019-01-31"
+              "fraOgMedDato": "2019-01-01",
+              "tilOgMedDato": "2019-01-31"
             }
           ]
         }
@@ -66,8 +66,9 @@ internal class FellesordningenForAfpTest : KonsumentTest() {
         {
           "personidentifikator": "11111111111",
           "organisasjonsnummer": "999999999",
-          "fom": "2018-01-01",
-          "tom": "2018-01-31"
+          "fraOgMedDato": "2018-01-01",
+          "tilOgMedDato": "2018-01-31",
+          "minimumSykdomsgrad": 80
         }
         """
         setBody(request)

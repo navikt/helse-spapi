@@ -73,23 +73,24 @@ internal object FellesordningenForAfp: Konsument(
     behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b")
 ) {
     private val objectMapper = jacksonObjectMapper()
-    internal data class Request(val personidentifikator: Personidentifikator, val organisasjonsnummer: Organisasjonsnummer, val fom: LocalDate, val tom: LocalDate) {
+    internal data class Request(val personidentifikator: Personidentifikator, val fom: LocalDate, val tom: LocalDate, val organisasjonsnummer: Organisasjonsnummer, val minimumSykdomsgrad: Int) {
         init { check(fom <= tom) { "Ugyldig periode $fom - $tom"} }
     }
     internal suspend fun request(call: ApplicationCall): Request {
         val request = objectMapper.readTree(call.receiveText())
         val personidentifikator = Personidentifikator(request.path("personidentifikator").asText())
         val organisasjonsnummer = Organisasjonsnummer(request.path("organisasjonsnummer").asText())
-        val fom = LocalDate.parse(request.path("fom").asText())
-        val tom = LocalDate.parse(request.path("tom").asText())
-        return Request(personidentifikator, organisasjonsnummer, fom, tom)
+        val fom = LocalDate.parse(request.path("fraOgMedDato").asText())
+        val tom = LocalDate.parse(request.path("tilOgMedDato").asText())
+        val minimumSykdomsgrad = request.path("minimumSykdomsgrad").takeUnless { it.isMissingNode || it.isNull }?.asInt() ?: throw IllegalArgumentException("Mangler minimumSykdomsgrad i requesten.")
+        return Request(personidentifikator, fom, tom, organisasjonsnummer, minimumSykdomsgrad)
     }
 
     // TODO: Her skal vi nok filtrere på organisasjonsnummer
     @Language("JSON")
-    internal fun response(utbetaltePerioder: List<UtbetaltPeriode>, organisasjonsnummer: Organisasjonsnummer) = """
+    internal fun response(utbetaltePerioder: List<UtbetaltPeriode>, request: Request) = """
         {
-          "utbetaltePerioder": ${utbetaltePerioder.filter { it.grad >= 80 }.map { """{ "fom": "${it.fom}", "tom": "${it.tom}"}""" }}
+          "utbetaltePerioder": ${utbetaltePerioder.filter { it.grad >= request.minimumSykdomsgrad }.map { """{ "fraOgMedDato": "${it.fom}", "tilOgMedDato": "${it.tom}"}""" }}
         }
     """
 }
