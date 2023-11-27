@@ -47,11 +47,11 @@ internal class Spøkelse(config: Map<String, String>, private val client: HttpCl
         check(response.status == HttpStatusCode.OK) {
             "Mottok HTTP ${response.status} fra Spøkelse"
         }
-        return objectMapper.readTree(response.readBytes()).path("perioder").map {
+        return objectMapper.readTree(response.readBytes()).path("utbetaltePerioder").map {
             UtbetaltPeriode(
                 fom = LocalDate.parse(it.path("fom").asText()),
                 tom = LocalDate.parse(it.path("tom").asText()),
-                arbeidsgiver = it.path("arbeidsgiver").asText(),
+                arbeidsgiver = null, //it.path("arbeidsgiver").asText(),
                 grad = it.path("grad").asInt()
             )
         }
