@@ -6,4 +6,5 @@ internal class Organisasjonsnummer(private val id: String) {
     }
 
     override fun toString() = id
+    override fun equals(other: Any?) = other is Organisasjonsnummer && other.id == this.id
 }

@@ -10,6 +10,7 @@ import io.ktor.http.HttpHeaders.Accept
 import io.ktor.http.HttpHeaders.Authorization
 import io.ktor.http.HttpHeaders.ContentType
 import no.nav.helse.spapi.AccessToken
+import no.nav.helse.spapi.Organisasjonsnummer
 import no.nav.helse.spapi.hent
 import no.nav.helse.spapi.personidentifikator.Personidentifikator
 import org.intellij.lang.annotations.Language
@@ -19,8 +20,7 @@ internal interface UtbetaltePerioder {
     suspend fun hent(personidentifikatorer: Set<Personidentifikator>, fom: LocalDate, tom: LocalDate): List<UtbetaltPeriode>
 }
 
-internal class Spøkelse(config: Map<String, String>, private val client: HttpClient, private val accessToken: AccessToken):
-    UtbetaltePerioder {
+internal class Spøkelse(config: Map<String, String>, private val client: HttpClient, private val accessToken: AccessToken): UtbetaltePerioder {
     private val scope = config.hent("SPOKELSE_SCOPE")
 
     override suspend fun hent(
@@ -51,7 +51,7 @@ internal class Spøkelse(config: Map<String, String>, private val client: HttpCl
             UtbetaltPeriode(
                 fom = LocalDate.parse(it.path("fom").asText()),
                 tom = LocalDate.parse(it.path("tom").asText()),
-                arbeidsgiver = null, //it.path("arbeidsgiver").asText(),
+                organisasjonsnummer = it.path("organisasjonsnummer").takeUnless { orgnr -> orgnr.isMissingNode || orgnr.isNull }?.let { orgnr -> Organisasjonsnummer(orgnr.asText()) },
                 grad = it.path("grad").asInt()
             )
         }

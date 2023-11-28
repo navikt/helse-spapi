@@ -38,10 +38,6 @@ internal class FellesordningenForAfpTest : KonsumentTest() {
             {
               "fraOgMedDato": "2018-01-01",
               "tilOgMedDato": "2018-01-31"
-            },
-            {
-              "fraOgMedDato": "2019-01-01",
-              "tilOgMedDato": "2019-01-31"
             }
           ]
         }
@@ -53,9 +49,9 @@ internal class FellesordningenForAfpTest : KonsumentTest() {
 
     override fun utbetaltePerioder() = object : UtbetaltePerioder {
         override suspend fun hent(personidentifikatorer: Set<Personidentifikator>, fom: LocalDate, tom: LocalDate) = listOf(
-            UtbetaltPeriode(LocalDate.parse("2018-01-01"), LocalDate.parse("2018-01-31"), "999999999", 100),
-            UtbetaltPeriode(LocalDate.parse("2019-01-01"), LocalDate.parse("2019-01-31"), "999999998", 80),
-            UtbetaltPeriode(LocalDate.parse("2020-01-01"), LocalDate.parse("2020-01-31"), "999999997", 79),
+            UtbetaltPeriode(LocalDate.parse("2018-01-01"), LocalDate.parse("2018-01-31"), Organisasjonsnummer("999999999"), 100),
+            UtbetaltPeriode(LocalDate.parse("2019-01-01"), LocalDate.parse("2019-01-31"), Organisasjonsnummer("999999998"), 80),
+            UtbetaltPeriode(LocalDate.parse("2020-01-01"), LocalDate.parse("2020-01-31"), Organisasjonsnummer("999999999"), 79),
         )
     }
 

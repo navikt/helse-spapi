@@ -86,11 +86,10 @@ internal object FellesordningenForAfp: Konsument(
         return Request(personidentifikator, fom, tom, organisasjonsnummer, minimumSykdomsgrad)
     }
 
-    // TODO: Her skal vi nok filtrere på organisasjonsnummer
     @Language("JSON")
     internal fun response(utbetaltePerioder: List<UtbetaltPeriode>, request: Request) = """
         {
-          "utbetaltePerioder": ${utbetaltePerioder.filter { it.grad >= request.minimumSykdomsgrad }.map { """{ "fraOgMedDato": "${it.fom}", "tilOgMedDato": "${it.tom}"}""" }}
+          "utbetaltePerioder": ${utbetaltePerioder.filter { it.grad >= request.minimumSykdomsgrad }.filter { it.organisasjonsnummer == request.organisasjonsnummer }.map { """{ "fraOgMedDato": "${it.fom}", "tilOgMedDato": "${it.tom}"}""" }}
         }
     """
 }
