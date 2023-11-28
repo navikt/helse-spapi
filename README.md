@@ -11,6 +11,7 @@ Overordnet systemarkitekturskisse
 title: Konsumenter henter data
 ---
 flowchart LR
+    FO AFP -->|https| Spaπ
     Spaπ -->|https| spøkelse
     spøkelse -->|spleis-data| kafka[(spøkelse-db)]
     spøkelse -->|infotrygd-data| sykepengeperiode-api --> infotrygd[(infotrygd-replika)]
