@@ -8,9 +8,11 @@ Overordnet systemarkitekturskisse
 
 ```mermaid
 ---
-title: Konsumenter henter data
+title: FO AFP henter data
 ---
 flowchart LR
+    FO-AFP -->|https| Spaπ
+    Spaπ -->|https| PDL
     Spaπ -->|https| spøkelse
     spøkelse -->|spleis-data| kafka[(spøkelse-db)]
     spøkelse -->|infotrygd-data| sykepengeperiode-api --> infotrygd[(infotrygd-replika)]
@@ -26,11 +28,13 @@ flowchart LR
 
 ```mermaid
 ---
-title: Use Case FO AFP henter data 
+title: Use Case FO AFP henter data; Parametere er fødselsnummer (eller annen tilsvarende personidentifikator), tidligeste sluttdato for sykdomsperiode, seneste startdato for sykdomsperiode, og virksomhetsnummer for arbeidsgiveren vi er interessert i.
 ---
 flowchart TB
-    fo-afp -->|Gi meg data for fnr og uttaksdato| Spaπ
-    Spaπ -->|Gi meg data for fnr og uttaksdato| spøkelse
+    fo-afp -->|Gi meg data | Spaπ
+    Spaπ -->|Gi med historiske identer| PDL
+    PDL -->|Vær så god| Spaπ
+    Spaπ -->|I en loop: Gi meg data for alle disse identene og resten av paramterne| spøkelse
     spøkelse -->|Vær så god| Spaπ 
     Spaπ -->|Her er data vi skal gi til AFP| sporingslogg
     sporingslogg -->|Den er god| Spaπ 
@@ -42,16 +46,21 @@ flowchart TB
 title: Use Case AFP henter data, denne gangen som en sekvens med avgjørelser
 ---
 sequenceDiagram
-    FO-AFP ->> Spaπ: Gi meg data for FNR og UTTAKSDATO
+    FO-AFP ->> Spaπ: Gi meg data for personidentifikator, tidligste sluttdato, seneste startdato, og organisasjon 
     activate Spaπ
-    Spaπ ->> Spøkelse: Gi meg data for FNR og UTTAKSDATO
+    Spaπ ->> PDL: Gi meg historiske identer for personidentifikator
+    PDL -->> Spaπ: Her en liste med identer
+    loop Hver personidentifikator fra PDL
+    Spaπ ->> Spøkelse: Gi meg data for identifikator, datoer og organisasjon
     activate Spøkelse
-    Spøkelse ->> SpøkelseDB: Gi meg spleis-data for FNR og UTTAKSDATO
-    Spøkelse ->> InfotrygdReplikering: Gi meg infotrygd-data for FNR og UTTAKSDATO
-    Spøkelse ->> Spøkelse: Slå sammen data
+    Spøkelse ->> SpøkelseDB: Gi meg spleis-data for identifikator, datoer og organisasjon
+    Spøkelse ->> InfotrygdReplikering: Gi meg infotrygd-data for identifikator, datoer og organisasjon
+    Spøkelse ->> Spøkelse: Slå sammen data på tvers av kilde
     Spøkelse -->> Spaπ: Her er dataen
     deactivate Spøkelse
-    Spaπ ->> Sporingslogg: Dette er data vi ønkser å gi til FO AFP
+    end
+    Spaπ ->> Spaπ: Slå sammen data på tvers av identer
+    Spaπ ->> Sporingslogg: Dette er data vi ønsker å gi til FO AFP
     alt logging virker
         Sporingslogg -->> Spaπ: Logging er ok
         Spaπ -->> FO-AFP: Her er dataen du ville ha
