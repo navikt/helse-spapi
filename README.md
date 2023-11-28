@@ -10,7 +10,8 @@ Overordnet systemarkitekturskisse
 ---
 title: FO AFP henter data
 ---
-flowchart LR
+%%{init: {'theme':'forest'}}%%
+flowchart TB
     FO-AFP -->|https| Spaπ
     Spaπ -->|https| PDL
     Spaπ -->|https| spøkelse
@@ -22,7 +23,8 @@ flowchart LR
 ---
 title: Spøkelse cacher spleis-data
 ---
-flowchart LR
+%%{init: {'theme':'forest'}}%%
+flowchart TB
     spøkelse -->|leser fra kafka| kafka[/tbd.utbetaling/] --> database[(spøkelse-db)]
 ```
 
@@ -30,7 +32,8 @@ flowchart LR
 ---
 title: Use Case FO AFP henter data; Parametere er fødselsnummer (eller annen tilsvarende personidentifikator), tidligeste sluttdato for sykdomsperiode, seneste startdato for sykdomsperiode, og virksomhetsnummer for arbeidsgiveren vi er interessert i.
 ---
-flowchart TB
+%%{init: {'theme':'forest'}}%%
+flowchart LR
     fo-afp -->|Gi meg data | Spaπ
     Spaπ -->|Gi med historiske identer| PDL
     PDL -->|Vær så god| Spaπ
@@ -45,6 +48,7 @@ flowchart TB
 ---
 title: Use Case AFP henter data, denne gangen som en sekvens med avgjørelser
 ---
+%%{init: {'theme':'forest'}}%%
 sequenceDiagram
     FO-AFP ->> Spaπ: Gi meg data for personidentifikator, tidligste sluttdato, seneste startdato, og organisasjon 
     activate Spaπ
