@@ -30,7 +30,7 @@ internal open class Konsument(
     internal fun setupAuthentication(authenticationConfig: AuthenticationConfig, maskinportenJwkProvider: JwkProvider, maskinportenIssuer: String, audience: String) {
         authenticationConfig.jwt(id) {
             verifier(maskinportenJwkProvider, maskinportenIssuer) {
-                //withAudience(audience)
+                withAudience(audience)
                 withClaim("scope", scope)
             }
             validate { credentials -> JWTPrincipal(credentials.payload) }

@@ -25,7 +25,7 @@ internal class FellesordningenForAfpTest : KonsumentTest() {
         assertEquals(Forbidden, client.request(feilScope()).status)
         assertEquals(Forbidden, client.request(feilIssuer()).status)
         assertEquals(Forbidden, client.request(feilIssuerHeader()).status)
-        //assertEquals(Forbidden, client.request(feilAudience()).status)
+        assertEquals(Forbidden, client.request(feilAudience()).status)
         assertEquals(OK, client.request(riktigToken()).status)
     }
 
