@@ -1,13 +1,10 @@
 package no.nav.helse.spapi
 
-import com.fasterxml.jackson.databind.JsonNode
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
-import no.nav.helse.spapi.personidentifikator.Personidentifikator
-import no.nav.helse.spapi.personidentifikator.Personidentifikatorer
 import no.nav.helse.spapi.utbetalteperioder.UtbetaltePerioder
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
@@ -22,7 +19,9 @@ internal abstract class KonsumentTest{
     abstract fun utbetaltePerioder(): UtbetaltePerioder
 
     @BeforeAll
-    fun start() = maskinporten.start()
+    fun start(){
+        maskinporten.start()
+    }
 
     @AfterAll
     fun stop() = maskinporten.stop()
@@ -30,23 +29,7 @@ internal abstract class KonsumentTest{
 
     protected fun setupSpapi(block: suspend ApplicationTestBuilder.() -> Unit) {
         testApplication {
-            application { spapi(
-                config = mapOf(
-                    "MASKINPORTEN_JWKS_URI" to maskinporten.jwksUri(),
-                    "MASKINPORTEN_ISSUER" to maskinporten.navn(),
-                    "AUDIENCE" to maskinporten.audience()
-                ),
-                sporings = object : Sporingslogg() {
-                    override fun send(logginnslag: JsonNode) {}
-                },
-                accessToken = object : AccessToken() {
-                    override suspend fun hentNytt(scope: String) = "1" to 1L
-                },
-                utbetaltePerioder = utbetaltePerioder(),
-                personidentifikatorer = object : Personidentifikatorer {
-                    override suspend fun hentAlle(personidentifikator: Personidentifikator, konsument: Konsument) = setOf(personidentifikator)
-                }
-            )}
+            application { testSpapi(maskinporten, utbetaltePerioder()) }
             block()
         }
     }

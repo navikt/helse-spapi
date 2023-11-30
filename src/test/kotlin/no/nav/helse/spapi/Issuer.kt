@@ -63,9 +63,10 @@ internal class Issuer(
     internal fun jwksUri() = "${wireMockServer.baseUrl()}/jwks"
     internal fun navn() = navn
     internal fun audience() = audience
-    internal fun start() {
+    internal fun start(): Issuer {
         wireMockServer.start()
         wireMockServer.stubFor(WireMock.get(WireMock.urlPathEqualTo("/jwks")).willReturn(WireMock.okJson(jwks())))
+        return this
     }
     internal fun stop() = wireMockServer.stop()
 }
