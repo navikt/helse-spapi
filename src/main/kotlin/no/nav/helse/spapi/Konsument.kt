@@ -12,7 +12,6 @@ import io.ktor.server.routing.*
 import io.ktor.util.pipeline.*
 import no.nav.helse.spapi.personidentifikator.Personidentifikator
 import no.nav.helse.spapi.utbetalteperioder.UtbetaltPeriode
-import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.util.*
@@ -73,7 +72,7 @@ internal object FellesordningenForAfp: Konsument(
     behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b")
 ) {
     private val objectMapper = jacksonObjectMapper()
-    internal data class Request(val personidentifikator: Personidentifikator, val fom: LocalDate, val tom: LocalDate, val organisasjonsnummer: Organisasjonsnummer) {
+    internal data class Request(val personidentifikator: Personidentifikator, val fom: LocalDate, val tom: LocalDate, val organisasjonsnummer: Organisasjonsnummer, val minimumSykdomsgrad: Int?) {
         init { check(fom <= tom) { "Ugyldig periode $fom - $tom"} }
     }
     internal suspend fun request(call: ApplicationCall): Request {
@@ -82,16 +81,25 @@ internal object FellesordningenForAfp: Konsument(
         val organisasjonsnummer = Organisasjonsnummer(request.path("organisasjonsnummer").asText())
         val fom = LocalDate.parse(request.path("fraOgMedDato").asText())
         val tom = LocalDate.parse(request.path("tilOgMedDato").asText())
-        return Request(personidentifikator, fom, tom, organisasjonsnummer)
+        val minimumSykdomsgrad = request.path("minimumSykdomsgrad").takeUnless { it.isMissingNode || it.isNull }?.asInt()
+        return Request(personidentifikator, fom, tom, organisasjonsnummer, minimumSykdomsgrad)
     }
 
-    @Language("JSON")
-    internal fun response(utbetaltePerioder: List<UtbetaltPeriode>, request: Request) = """
-        {
-          "utbetaltePerioder": ${utbetaltePerioder.filter { it.organisasjonsnummer == request.organisasjonsnummer }.map { 
-            """{ "fraOgMedDato": "${it.fom}", "tilOgMedDato": "${it.tom}", "sykdomsgrad": ${it.grad}, "tags": ${it.tags.map { tag -> "\"$tag\"" }}}""" 
-          }}
-        }
-    """
+
+    internal fun response(utbetaltePerioder: List<UtbetaltPeriode>, request: Request): String {
+        val utlevertePerioder = utbetaltePerioder
+            .filter { it.organisasjonsnummer == request.organisasjonsnummer }
+            .filter { it.grad >= (request.minimumSykdomsgrad ?: 0) }
+            .map { objectMapper.createObjectNode()
+            .apply {
+                put("fraOgMedDato", "${it.fom}")
+                put("tilOgMedDato", "${it.tom}")
+                .apply { putArray("tags").let { tags -> it.tags.forEach(tags::add) } }
+                if (request.minimumSykdomsgrad == null) put("sykdomsgrad", it.grad)
+        }}
+        return objectMapper.createObjectNode().apply {
+            putArray("utbetaltePerioder").addAll(utlevertePerioder)
+        }.toString()
+    }
 }
 

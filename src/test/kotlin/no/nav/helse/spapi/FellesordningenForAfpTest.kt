@@ -30,7 +30,7 @@ internal class FellesordningenForAfpTest : KonsumentTest() {
     }
 
     @Test
-    fun `response til fellesordningen for afp`() = setupSpapi {
+    fun `response til fellesordningen for afp når de utelater minimimSykdomsgrad i requesten`() = setupSpapi {
         @Language("JSON")
         val forventetResponse = """
         {
@@ -53,6 +53,23 @@ internal class FellesordningenForAfpTest : KonsumentTest() {
         client.request(riktigToken()).assertResponse(forventetResponse)
     }
 
+    @Test
+    fun `response til fellesordningen for afp når de inkluderer minimumSykdomsgrad i requesten`() = setupSpapi {
+        @Language("JSON")
+        val forventetResponse = """
+        {
+          "utbetaltePerioder": [
+            {
+              "fraOgMedDato": "2018-01-01",
+              "tilOgMedDato": "2018-01-31",
+              "tags": ["UsikkerSykdomsgrad"]
+            }
+          ]
+        }
+        """
+        client.request(riktigToken(), minimumSykdomsgrad = 80).assertResponse(forventetResponse)
+    }
+
     override val scope = "nav:sykepenger:fellesordningenforafp.read"
 
     override fun utbetaltePerioder() = object : UtbetaltePerioder {
@@ -63,7 +80,7 @@ internal class FellesordningenForAfpTest : KonsumentTest() {
         )
     }
 
-    private suspend fun HttpClient.request(accessToken: String? = null) = post("/fellesordningen-for-afp") {
+    private suspend fun HttpClient.request(accessToken: String? = null, minimumSykdomsgrad: Int? = null) = post("/fellesordningen-for-afp") {
         accessToken?.let { header(Authorization, "Bearer $it") }
         @Language("JSON")
         val request = """
@@ -72,6 +89,7 @@ internal class FellesordningenForAfpTest : KonsumentTest() {
           "organisasjonsnummer": "999999999",
           "fraOgMedDato": "2018-01-01",
           "tilOgMedDato": "2018-01-31"
+          ${if (minimumSykdomsgrad != null) ",\"minimumSykdomsgrad\": $minimumSykdomsgrad" else ""}
         }
         """
         setBody(request)

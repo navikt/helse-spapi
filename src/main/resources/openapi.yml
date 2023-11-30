@@ -71,6 +71,7 @@ components:
   schemas:
     FellesordningenForAfpRequest:
       type: object
+      required: ["personidentifikator", "organisasjonsnummer", "fraOgMedDato", "tilOgMedDato"]
       properties:
         personidentifikator:
           type: string
@@ -92,8 +93,15 @@ components:
           format: date
           description: Til og med dato
           example: 2021-01-31
+        minimumSykdomsgrad:
+          type: integer
+          minimum: 1
+          maximum: 100
+          description: Anbefalt, men valgfri. Minimum sykdomsgrad som er aktuelt å utlevere informasjon om for å vurdere vilkårene for AFP for den aktuelle underenheten
+          example: 80
     FellesordningenForAfpUtbetaltPeriode:
       type: object
+      required: ["fraOgMedDato", "tilOgMedDato", "tags"]
       properties:
         fraOgMedDato:
           type: string
@@ -109,7 +117,7 @@ components:
           type: integer
           minimum: 1
           maximum: 100
-          description: Sykdomsgrad er graden som arbeidstaker har vært arbeidsufør for et arbeidsforhold i perioden – denne kan avvike fra sykmeldingsgraden i sykmeldingen
+          description: Utelates fra responsen om 'minimumSykdomsgrad' settes i requesten. Sykdomsgrad er graden som arbeidstaker har vært arbeidsufør for et arbeidsforhold i perioden – denne kan avvike fra sykmeldingsgraden i sykmeldingen
           example: 80
         tags:
           type: array
