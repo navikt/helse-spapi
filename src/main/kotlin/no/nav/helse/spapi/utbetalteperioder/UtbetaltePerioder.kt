@@ -53,13 +53,16 @@ internal class Spøkelse(config: Map<String, String>, private val client: HttpCl
                 tom = LocalDate.parse(it.path("tom").asText()),
                 organisasjonsnummer = it.path("organisasjonsnummer").takeUnless { orgnr -> orgnr.isMissingNode || orgnr.isNull }?.let { orgnr -> Organisasjonsnummer(orgnr.asText()) },
                 grad = it.path("grad").asInt(),
-                tags = it.path("tags").map { tag -> tag.asText() }.intersect(tagsAllowList)
+                tags = it.path("tags").map { tag -> tag.asText() }.eksponerteTags
             )
         }
     }
 
-    private companion object {
+    internal companion object {
         private val objectMapper = jacksonObjectMapper()
-        private val tagsAllowList = setOf("UsikkerGrad")
+        private val tags = mapOf(
+            "UsikkerGrad" to "UsikkerSykdomsgrad"
+        )
+        internal val List<String>.eksponerteTags get() = intersect(tags.keys).map(tags::getValue).toSet()
     }
 }

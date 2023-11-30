@@ -113,11 +113,11 @@ components:
           example: 80
         tags:
           type: array
-          description: Tags som gjelder perioden. Om perioden er markert med UsikkerGrad betyr dette at den bør ettergås manuelt
+          description: Tags som gjelder perioden. Om perioden er markert med UsikkerSykdomsgrad betyr dette at den bør ettergås manuelt
           items:
             type: string
             enum:
-              - UsikkerGrad
+              - UsikkerSykdomsgrad
     FellesordningenForAfpResponse:
       type: object
       properties:

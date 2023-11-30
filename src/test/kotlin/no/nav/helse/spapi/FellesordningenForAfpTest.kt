@@ -39,7 +39,7 @@ internal class FellesordningenForAfpTest : KonsumentTest() {
               "fraOgMedDato": "2018-01-01",
               "tilOgMedDato": "2018-01-31",
               "sykdomsgrad": 100,
-              "tags": ["UsikkerGrad"]
+              "tags": ["UsikkerSykdomsgrad"]
             },
             {
               "fraOgMedDato": "2020-01-01",
@@ -57,7 +57,7 @@ internal class FellesordningenForAfpTest : KonsumentTest() {
 
     override fun utbetaltePerioder() = object : UtbetaltePerioder {
         override suspend fun hent(personidentifikatorer: Set<Personidentifikator>, fom: LocalDate, tom: LocalDate) = listOf(
-            UtbetaltPeriode(LocalDate.parse("2018-01-01"), LocalDate.parse("2018-01-31"), Organisasjonsnummer("999999999"), 100, setOf("UsikkerGrad")),
+            UtbetaltPeriode(LocalDate.parse("2018-01-01"), LocalDate.parse("2018-01-31"), Organisasjonsnummer("999999999"), 100, setOf("UsikkerSykdomsgrad")),
             UtbetaltPeriode(LocalDate.parse("2019-01-01"), LocalDate.parse("2019-01-31"), Organisasjonsnummer("999999998"), 80, setOf()),
             UtbetaltPeriode(LocalDate.parse("2020-01-01"), LocalDate.parse("2020-01-31"), Organisasjonsnummer("999999999"), 79, setOf())
         )
