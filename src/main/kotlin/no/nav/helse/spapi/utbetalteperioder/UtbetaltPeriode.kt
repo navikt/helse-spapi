@@ -7,5 +7,6 @@ internal class UtbetaltPeriode(
     internal val fom: LocalDate,
     internal val tom: LocalDate,
     internal val organisasjonsnummer: Organisasjonsnummer?,
-    internal val grad: Int
+    internal val grad: Int,
+    internal val tags: Set<String>
 )

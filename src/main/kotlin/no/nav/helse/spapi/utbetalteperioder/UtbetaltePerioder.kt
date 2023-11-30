@@ -52,12 +52,14 @@ internal class Spøkelse(config: Map<String, String>, private val client: HttpCl
                 fom = LocalDate.parse(it.path("fom").asText()),
                 tom = LocalDate.parse(it.path("tom").asText()),
                 organisasjonsnummer = it.path("organisasjonsnummer").takeUnless { orgnr -> orgnr.isMissingNode || orgnr.isNull }?.let { orgnr -> Organisasjonsnummer(orgnr.asText()) },
-                grad = it.path("grad").asInt()
+                grad = it.path("grad").asInt(),
+                tags = it.path("tags").map { tag -> tag.asText() }.intersect(tagsAllowList)
             )
         }
     }
 
     private companion object {
         private val objectMapper = jacksonObjectMapper()
+        private val tagsAllowList = setOf("UsikkerGrad")
     }
 }

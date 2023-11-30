@@ -109,6 +109,13 @@ components:
           format: date
           description: Til og med dato
           example: 2021-01-31
+        tags:
+          type: array
+          description: Tags som gjelder perioden. Om perioden er markert med UsikkerGrad betyr dette at den bør ettergås manuelt
+          items:
+            type: string
+            enum:
+              - UsikkerGrad
     FellesordningenForAfpResponse:
       type: object
       properties:
