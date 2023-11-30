@@ -12,6 +12,7 @@ import io.ktor.server.engine.*
 import io.ktor.server.plugins.callid.*
 import io.ktor.server.plugins.callloging.*
 import io.ktor.server.plugins.statuspages.*
+import io.ktor.server.plugins.swagger.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -80,6 +81,7 @@ internal fun Application.spapi(
             if (prod) return@get call.respond(unavailableForLegalReasons, "451 Unavailable For Legal Reasons: Spaπ blir tilgjenglig i løpet av 2023 👩‍ ⚖️ Gled deg!")
             call.respondText("Velkommen til Spaπ! 👽")
         }
+        swaggerUI(path = "swagger", swaggerFile = "openapi.yml")
         // Endepunkt under /internal eksponeres ikke
         get("/internal/isalive") { call.respondText("ISALIVE") }
         get("/internal/isready") { call.respondText("READY") }

@@ -1,0 +1,124 @@
+openapi: "3.0.0"
+info:
+  title: Spaπ (SP-API)
+  description: |-
+    Spaπ tilbyr Sykepengeinformasjon til eksterne konsumenter som enten har hjemmel til å hente 
+    Sykepengeinformasjon. Konsumenter må logge seg inn med token fra  Maskinporten
+    
+    Linker til autentisering
+    - [Maskinporten](https://docs.digdir.no/docs/Maskinporten/)
+    - [Audience restricted tokens](https://docs.digdir.no/docs/Maskinporten/maskinporten_func_audience_restricted_tokens)
+    
+    Audience
+    - Test: `https://spapi.ekstern.dev.nav.no`
+    - Prod: `https://spapi.nav.no`
+
+  version: 1.0.0
+  license:
+    name: MIT
+    url: https://opensource.org/license/mit/
+tags:
+  - name: fellesordningen
+    description: Fellesordningen for AFP (afp.no)
+servers:
+  - url: https://spapi.ekstern.dev.nav.no
+    description: Test
+  - url: https://spapi.nav.no
+    description: Produksjon
+paths:
+  /fellesordning-for-afp:
+    post:
+      summary: Hent utbetalte perioder
+      tags:
+        - fellesordningen
+      description: |-
+        Hent utbetalte perioder én person
+        
+        Scope: `nav:sykepenger:fellesordningenforafp.read`
+      security:
+        - maskinporten: []
+      parameters:
+        - in: header
+          name: x-callid
+          description: En UUID konsumenten sender inn som brukes til videre logging og feilsøking.
+          schema:
+            type: string
+            format: uuid
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FellesordningenForAfpRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FellesordningenForAfpResponse'
+        '400':
+          description: Feil i request
+        '401':
+          description: Mangler access token
+        '403':
+          description: Feil scope/audience i token
+        '500':
+          description: Feil på tjeneste, meld fra og send med call-id
+components:
+  schemas:
+    FellesordningenForAfpRequest:
+      type: object
+      properties:
+        personidentifikator:
+          type: string
+          pattern: '^\d{11}$'
+          description: Personidentifikator for personen
+          example: 11111111111
+        organisasjonsnummer:
+          type: string
+          pattern: '^\d{9}$'
+          description: Organisasjonsnummer for den tilknyttete virksomheten
+          example: 999999999
+        fraOgMedDato:
+          type: string
+          format: date
+          description: Fra og med dato
+          example: 2021-01-01
+        tilOgMedDato:
+          type: string
+          format: date
+          description: Til og med dato
+          example: 2021-01-31
+        minimumSykdomsgrad:
+          type: integer
+          minimum: 1
+          maximum: 100
+          description: Den minste sykdomsgraden det er aktuelt å få utbetalte perioder for
+          example: 80
+    FellesordningenForAfpUtbetaltPeriode:
+      type: object
+      properties:
+        fraOgMedDato:
+          type: string
+          format: date
+          description: Fra og med dato
+          example: 2021-01-01
+        tilOgMedDato:
+          type: string
+          format: date
+          description: Til og med dato
+          example: 2021-01-31
+    FellesordningenForAfpResponse:
+      type: object
+      properties:
+        utbetaltePerioder:
+          type: array
+          description: Perioder med vedtak
+          items:
+            $ref: '#/components/schemas/FellesordningenForAfpUtbetaltPeriode'
+  securitySchemes:
+    maskinporten:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
