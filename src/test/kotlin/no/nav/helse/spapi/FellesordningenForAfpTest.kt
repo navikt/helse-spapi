@@ -38,7 +38,14 @@ internal class FellesordningenForAfpTest : KonsumentTest() {
             {
               "fraOgMedDato": "2018-01-01",
               "tilOgMedDato": "2018-01-31",
+              "sykdomsgrad": 100,
               "tags": ["UsikkerGrad"]
+            },
+            {
+              "fraOgMedDato": "2020-01-01",
+              "tilOgMedDato": "2020-01-31",
+              "sykdomsgrad": 79,
+              "tags": []
             }
           ]
         }
@@ -64,8 +71,7 @@ internal class FellesordningenForAfpTest : KonsumentTest() {
           "personidentifikator": "11111111111",
           "organisasjonsnummer": "999999999",
           "fraOgMedDato": "2018-01-01",
-          "tilOgMedDato": "2018-01-31",
-          "minimumSykdomsgrad": 80
+          "tilOgMedDato": "2018-01-31"
         }
         """
         setBody(request)

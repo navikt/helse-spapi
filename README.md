@@ -78,14 +78,6 @@ sequenceDiagram
 
 
 # API-definisjon
+[Swagger Test](https://spapi.ekstern.dev.nav.no/swagger)
 
-I påvente av at vi lager en swagger-greie eller tilsvarende
-
-Request:
-POST
-parametere er personidentifikator (11 siffer) og dato
-
-Response: 
-JSON-objekt som inneholder et resultat som er en liste med fom (dato), tom(dato) og grad (heltall)
-
-Alle datoer er på format `yyyy-mm-dd`
+[Swagger Produksjon](https://spapi.nav.no/swagger)

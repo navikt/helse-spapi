@@ -18,7 +18,7 @@ info:
     name: MIT
     url: https://opensource.org/license/mit/
 tags:
-  - name: fellesordningen
+  - name: Fellesordningen
     description: Fellesordningen for AFP (afp.no)
 servers:
   - url: https://spapi.ekstern.dev.nav.no
@@ -30,9 +30,11 @@ paths:
     post:
       summary: Hent utbetalte perioder
       tags:
-        - fellesordningen
+        - Fellesordningen
       description: |-
         Hent utbetalte perioder én person
+        
+        Utbetalte sykepengeperioder er eksklusiv arbeidsgiverperioden
         
         Scope: `nav:sykepenger:fellesordningenforafp.read`
       security:
@@ -78,7 +80,7 @@ components:
         organisasjonsnummer:
           type: string
           pattern: '^\d{9}$'
-          description: Organisasjonsnummer for den tilknyttete virksomheten
+          description: Organisasjonsnummer til underenheten som er tilsluttet ordningen
           example: 999999999
         fraOgMedDato:
           type: string
@@ -90,12 +92,6 @@ components:
           format: date
           description: Til og med dato
           example: 2021-01-31
-        minimumSykdomsgrad:
-          type: integer
-          minimum: 1
-          maximum: 100
-          description: Den minste sykdomsgraden det er aktuelt å få utbetalte perioder for
-          example: 80
     FellesordningenForAfpUtbetaltPeriode:
       type: object
       properties:
@@ -109,6 +105,12 @@ components:
           format: date
           description: Til og med dato
           example: 2021-01-31
+        sykdomsgrad:
+          type: integer
+          minimum: 1
+          maximum: 100
+          description: Sykdomsgrad er graden som arbeidstaker har vært arbeidsufør for et arbeidsforhold i perioden – denne kan avvike fra sykmeldingsgraden i sykmeldingen
+          example: 80
         tags:
           type: array
           description: Tags som gjelder perioden. Om perioden er markert med UsikkerGrad betyr dette at den bør ettergås manuelt

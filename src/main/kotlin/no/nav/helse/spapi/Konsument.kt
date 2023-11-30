@@ -73,7 +73,7 @@ internal object FellesordningenForAfp: Konsument(
     behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b")
 ) {
     private val objectMapper = jacksonObjectMapper()
-    internal data class Request(val personidentifikator: Personidentifikator, val fom: LocalDate, val tom: LocalDate, val organisasjonsnummer: Organisasjonsnummer, val minimumSykdomsgrad: Int) {
+    internal data class Request(val personidentifikator: Personidentifikator, val fom: LocalDate, val tom: LocalDate, val organisasjonsnummer: Organisasjonsnummer) {
         init { check(fom <= tom) { "Ugyldig periode $fom - $tom"} }
     }
     internal suspend fun request(call: ApplicationCall): Request {
@@ -82,15 +82,14 @@ internal object FellesordningenForAfp: Konsument(
         val organisasjonsnummer = Organisasjonsnummer(request.path("organisasjonsnummer").asText())
         val fom = LocalDate.parse(request.path("fraOgMedDato").asText())
         val tom = LocalDate.parse(request.path("tilOgMedDato").asText())
-        val minimumSykdomsgrad = request.path("minimumSykdomsgrad").takeUnless { it.isMissingNode || it.isNull }?.asInt() ?: throw IllegalArgumentException("Mangler minimumSykdomsgrad i requesten.")
-        return Request(personidentifikator, fom, tom, organisasjonsnummer, minimumSykdomsgrad)
+        return Request(personidentifikator, fom, tom, organisasjonsnummer)
     }
 
     @Language("JSON")
     internal fun response(utbetaltePerioder: List<UtbetaltPeriode>, request: Request) = """
         {
-          "utbetaltePerioder": ${utbetaltePerioder.filter { it.grad >= request.minimumSykdomsgrad }.filter { it.organisasjonsnummer == request.organisasjonsnummer }.map { 
-            """{ "fraOgMedDato": "${it.fom}", "tilOgMedDato": "${it.tom}", "tags": ${it.tags.map { tag -> "\"$tag\"" }}}""" 
+          "utbetaltePerioder": ${utbetaltePerioder.filter { it.organisasjonsnummer == request.organisasjonsnummer }.map { 
+            """{ "fraOgMedDato": "${it.fom}", "tilOgMedDato": "${it.tom}", "sykdomsgrad": ${it.grad}, "tags": ${it.tags.map { tag -> "\"$tag\"" }}}""" 
           }}
         }
     """
