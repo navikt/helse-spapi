@@ -72,19 +72,21 @@ internal object FellesordningenForAfp: Konsument(
     behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b")
 ) {
     private val objectMapper = jacksonObjectMapper()
-    internal data class Request(val personidentifikator: Personidentifikator, val fom: LocalDate, val tom: LocalDate, val organisasjonsnummer: Organisasjonsnummer, val minimumSykdomsgrad: Int?) {
-        init { check(fom <= tom) { "Ugyldig periode $fom - $tom"} }
-    }
+    internal data class Request(val personidentifikator: Personidentifikator, val fom: LocalDate, val tom: LocalDate, val organisasjonsnummer: Organisasjonsnummer, val minimumSykdomsgrad: Int?)
+
     internal suspend fun request(call: ApplicationCall): Request {
-        val request = objectMapper.readTree(call.receiveText())
-        val personidentifikator = Personidentifikator(request.path("personidentifikator").asText())
-        val organisasjonsnummer = Organisasjonsnummer(request.path("organisasjonsnummer").asText())
-        val fom = LocalDate.parse(request.path("fraOgMedDato").asText())
-        val tom = LocalDate.parse(request.path("tilOgMedDato").asText())
-        val minimumSykdomsgrad = request.path("minimumSykdomsgrad").takeUnless { it.isMissingNode || it.isNull }?.asInt()
+        val requestBody = call.requestBody()
+        val personidentifikator = requestBody.required("personidentifikator") { Personidentifikator(it.asText()) }
+        val organisasjonsnummer = requestBody.required("organisasjonsnummer") { Organisasjonsnummer(it.asText()) }
+        val fom = requestBody.required("fraOgMedDato") { LocalDate.parse(it.asText()) }
+        val tom = requestBody.required("tilOgMedDato") {
+            LocalDate.parse(it.asText()).also { tom -> check(fom <= tom) { "Ugyldig periode $fom til $tom" } }
+        }
+        val minimumSykdomsgrad = requestBody.optional("minimumSykdomsgrad") {
+            it.asInt().also { minimumSykdomsgrad -> check(minimumSykdomsgrad in 1..100) { "Må være mellom 1 og 100" } }
+        }
         return Request(personidentifikator, fom, tom, organisasjonsnummer, minimumSykdomsgrad)
     }
-
 
     internal fun response(utbetaltePerioder: List<UtbetaltPeriode>, request: Request): String {
         val utlevertePerioder = utbetaltePerioder

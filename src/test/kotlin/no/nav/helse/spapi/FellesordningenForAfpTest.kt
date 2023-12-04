@@ -5,6 +5,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.http.HttpHeaders.Authorization
+import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.http.HttpStatusCode.Companion.Forbidden
 import io.ktor.http.HttpStatusCode.Companion.OK
 import io.ktor.http.HttpStatusCode.Companion.Unauthorized
@@ -50,7 +51,10 @@ internal class FellesordningenForAfpTest : KonsumentTest() {
           ]
         }
         """
-        client.request(riktigToken()).assertResponse(forventetResponse)
+        client.request(riktigToken()).apply {
+            assertEquals(OK, status)
+            assertResponse(forventetResponse)
+        }
     }
 
     @Test
@@ -67,7 +71,20 @@ internal class FellesordningenForAfpTest : KonsumentTest() {
           ]
         }
         """
-        client.request(riktigToken(), minimumSykdomsgrad = 80).assertResponse(forventetResponse)
+        client.request(riktigToken(), minimumSykdomsgrad = 80).apply {
+            assertEquals(OK, status)
+            assertResponse(forventetResponse)
+        }
+    }
+
+    @Test
+    fun `manglende input gir 400`() =  setupSpapi {
+        assertEquals(BadRequest, client.request(riktigToken(), tomKey = "tomOgMedDato").status)
+    }
+
+    @Test
+    fun `ugyldig input gir 400`() =  setupSpapi {
+        assertEquals(BadRequest, client.request(riktigToken(), tomValue = "kittycat").status)
     }
 
     override val scope = "nav:sykepenger:fellesordningenforafp.read"
@@ -80,7 +97,7 @@ internal class FellesordningenForAfpTest : KonsumentTest() {
         )
     }
 
-    private suspend fun HttpClient.request(accessToken: String? = null, minimumSykdomsgrad: Int? = null) = post("/fellesordningen-for-afp") {
+    private suspend fun HttpClient.request(accessToken: String? = null, minimumSykdomsgrad: Int? = null, tomKey: String = "tilOgMedDato", tomValue: String = "2018-01-31") = post("/fellesordningen-for-afp") {
         accessToken?.let { header(Authorization, "Bearer $it") }
         @Language("JSON")
         val request = """
@@ -88,7 +105,7 @@ internal class FellesordningenForAfpTest : KonsumentTest() {
           "personidentifikator": "11111111111",
           "organisasjonsnummer": "999999999",
           "fraOgMedDato": "2018-01-01",
-          "tilOgMedDato": "2018-01-31"
+          "$tomKey": "$tomValue"
           ${if (minimumSykdomsgrad != null) ",\"minimumSykdomsgrad\": $minimumSykdomsgrad" else ""}
         }
         """

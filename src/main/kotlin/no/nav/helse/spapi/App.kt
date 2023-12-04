@@ -6,6 +6,7 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.http.ContentType.Application.Json
+import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.http.HttpStatusCode.Companion.InternalServerError
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -60,6 +61,12 @@ internal fun Application.spapi(
         filter { call -> !call.request.path().contains("internal") }
     }
     install(StatusPages) {
+        exception<UgyldigInputException> { call, cause ->
+            sikkerlogg.warn("Feil i request til ${call.request.httpMethod.value} - ${call.request.path()}: ${cause.message}")
+            @Language("JSON")
+            val errorResponse = """{"feilmelding": "${cause.message}", "feilreferanse": "${call.callId}"}"""
+            call.respondText(errorResponse, Json, BadRequest)
+        }
         exception<Throwable> { call, cause ->
             sikkerlogg.error("Feil ved håndtering av ${call.request.httpMethod.value} - ${call.request.path()}", cause)
             @Language("JSON")
