@@ -8,10 +8,10 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import no.nav.helse.spapi.AccessToken
 import no.nav.helse.spapi.Konsument
+import no.nav.helse.spapi.callId
 import no.nav.helse.spapi.hent
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
-import java.util.UUID
 
 internal interface Personidentifikatorer {
     suspend fun hentAlle(personidentifikator: Personidentifikator, konsument: Konsument): Set<Personidentifikator>
@@ -26,7 +26,7 @@ internal class Pdl(config: Map<String, String>, private val httpClient: HttpClie
             header(HttpHeaders.Authorization, "Bearer ${accessToken.get(scope)}")
             header(HttpHeaders.ContentType, ContentType.Application.Json)
             header(HttpHeaders.Accept, ContentType.Application.Json)
-            header("Nav-Call-Id", "${UUID.randomUUID()}")
+            callId("Nav-Call-Id")
             header("behandlingsnummer", konsument.behandlingsnummer)
             setBody(body(personidentifikator))
         }

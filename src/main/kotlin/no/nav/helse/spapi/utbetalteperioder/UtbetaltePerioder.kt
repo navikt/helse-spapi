@@ -11,6 +11,7 @@ import io.ktor.http.HttpHeaders.Authorization
 import io.ktor.http.HttpHeaders.ContentType
 import no.nav.helse.spapi.AccessToken
 import no.nav.helse.spapi.Organisasjonsnummer
+import no.nav.helse.spapi.callId
 import no.nav.helse.spapi.hent
 import no.nav.helse.spapi.personidentifikator.Personidentifikator
 import org.intellij.lang.annotations.Language
@@ -34,6 +35,7 @@ internal class Spøkelse(config: Map<String, String>, private val client: HttpCl
             header(Authorization, authorizationHeader)
             header(Accept, Json)
             header(ContentType, Json)
+            callId("x-callId")
             @Language("JSON")
             val body = """
                {

@@ -3,6 +3,7 @@ package no.nav.helse.spapi
 import com.auth0.jwk.JwkProviderBuilder
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.http.ContentType.Application.Json
 import io.ktor.http.HttpStatusCode.Companion.InternalServerError
@@ -22,6 +23,7 @@ import no.nav.helse.spapi.utbetalteperioder.Spøkelse
 import no.nav.helse.spapi.utbetalteperioder.UtbetaltePerioder
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
+import org.slf4j.MDC
 import org.slf4j.event.Level
 import java.net.URI
 import java.util.*
@@ -29,6 +31,8 @@ import java.util.concurrent.TimeUnit
 
 private val sikkerlogg = LoggerFactory.getLogger("tjenestekall")
 internal fun Map<String, String>.hent(key: String) = get(key) ?: throw IllegalStateException("Mangler config for $key")
+internal fun HttpRequestBuilder.callId(headernavn: String) = header(headernavn, "${UUID.fromString(MDC.get("callId"))}")
+private val String.erUUID get() = kotlin.runCatching { UUID.fromString(this) }.isSuccess
 
 fun main() {
     embeddedServer(ConfiguredCIO, port = 8080, module = Application::spapi).start(wait = true)
@@ -45,7 +49,7 @@ internal fun Application.spapi(
 
     install(CallId) {
         header("x-callId")
-        verify { it.isNotEmpty() }
+        verify { it.erUUID }
         generate { UUID.randomUUID().toString() }
     }
     install(CallLogging) {
