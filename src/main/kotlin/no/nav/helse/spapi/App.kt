@@ -89,29 +89,6 @@ internal fun Application.spapi(
         get("/internal/isalive") { call.respondText("ISALIVE") }
         get("/internal/isready") { call.respondText("READY") }
 
-        if (!prod) {
-            post("/test") {
-                val request = FellesordningenForAfp.request(call)
-                val (personidentifikator, fom, tom) = request
-
-                val perioder = utbetaltePerioder.hent(
-                    personidentifikatorer = personidentifikatorer.hentAlle(personidentifikator, FellesordningenForAfp),
-                    fom = fom,
-                    tom = tom
-                )
-
-                val response = FellesordningenForAfp.response(perioder, request)
-
-                sporings.logg(
-                    person = personidentifikator,
-                    konsument = FellesordningenForAfp,
-                    leverteData = response
-                )
-
-                call.respondText(response, Json)
-            }
-        }
-
         FellesordningenForAfp.setupApi(this) {
             if (prod) return@setupApi call.respond(unavailableForLegalReasons)
 
