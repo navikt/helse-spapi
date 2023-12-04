@@ -20,6 +20,7 @@ import no.nav.helse.spapi.personidentifikator.Pdl
 import no.nav.helse.spapi.personidentifikator.Personidentifikatorer
 import no.nav.helse.spapi.utbetalteperioder.Spøkelse
 import no.nav.helse.spapi.utbetalteperioder.UtbetaltePerioder
+import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
 import java.net.URI
@@ -56,8 +57,10 @@ internal fun Application.spapi(
     }
     install(StatusPages) {
         exception<Throwable> { call, cause ->
-            sikkerlogg.info("Feil ved håndtering av ${call.request.httpMethod.value} - ${call.request.path()}", cause)
-            call.respondText("Uventet feil. Feilreferanse ${call.callId}. Ta kontakt med NAV om feilen vedvarer.", status = InternalServerError)
+            sikkerlogg.error("Feil ved håndtering av ${call.request.httpMethod.value} - ${call.request.path()}", cause)
+            @Language("JSON")
+            val errorResponse = """{"feilmelding": "Uventet feil. Ta kontakt med NAV om feilen vedvarer.", "feilreferanse": "${call.callId}"}"""
+            call.respondText(errorResponse, Json, InternalServerError)
         }
     }
     environment.monitor.subscribe(ApplicationStopped) {
