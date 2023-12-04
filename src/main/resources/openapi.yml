@@ -25,8 +25,10 @@ servers:
     description: Test
   - url: https://spapi.nav.no
     description: Produksjon
+  - url: http://localhost:8080
+    description: Lokalt
 paths:
-  /fellesordning-for-afp:
+  /fellesordningen-for-afp:
     post:
       summary: Hent utbetalte perioder
       tags:
@@ -46,7 +48,6 @@ paths:
           schema:
             type: string
             format: uuid
-          required: true
       requestBody:
         content:
           application/json:
@@ -61,12 +62,20 @@ paths:
                 $ref: '#/components/schemas/FellesordningenForAfpResponse'
         '400':
           description: Feil i request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Valderingsfeil'
         '401':
           description: Mangler access token
         '403':
           description: Feil scope/audience i token
         '500':
-          description: Feil på tjeneste, meld fra og send med call-id
+          description: Feil på tjeneste, meld fra og send med feilreferanse
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UhåndtertFeil'
 components:
   schemas:
     FellesordningenForAfpRequest:
@@ -134,6 +143,32 @@ components:
           description: Perioder med vedtak
           items:
             $ref: '#/components/schemas/FellesordningenForAfpUtbetaltPeriode'
+    Valderingsfeil:
+      type: object
+      required: ["feilmelding", "feilreferanse"]
+      properties:
+        feilmelding:
+          type: string
+          description: Detaljert beskrivelse av feilen
+          example: Ugyldig verdi i feltet ‘tilOgMedDato’ i request body. (var “29.09.1990”)
+        feilreferanse:
+          type: string
+          format: uuid
+          description: Id som identifiserer requesten
+          example: fd209ea5-4b3e-4185-991a-918a944c1c18
+    UhåndtertFeil:
+      type: object
+      required: ["feilmelding", "feilreferanse"]
+      properties:
+        feilmelding:
+          type: string
+          description: En ikke håndtert feilsituasjon har oppstått
+          example: Uventet feil. Ta kontakt med NAV om feilen vedvarer.
+        feilreferanse:
+          type: string
+          format: uuid
+          description: Id som identifiserer requesten
+          example: 6b120ff7-ea67-4d00-b2ea-ff054c6e4b43
   securitySchemes:
     maskinporten:
       type: http

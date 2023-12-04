@@ -34,6 +34,12 @@ private val sikkerlogg = LoggerFactory.getLogger("tjenestekall")
 internal fun Map<String, String>.hent(key: String) = get(key) ?: throw IllegalStateException("Mangler config for $key")
 internal fun HttpRequestBuilder.callId(headernavn: String) = header(headernavn, "${UUID.fromString(MDC.get("callId"))}")
 private val String.erUUID get() = kotlin.runCatching { UUID.fromString(this) }.isSuccess
+private suspend fun ApplicationCall.respondError(status: HttpStatusCode, melding: String? = null) {
+    val feilmelding = melding ?: "Uventet feil. Ta kontakt med NAV om feilen vedvarer."
+    @Language("JSON")
+    val errorResponse = """{"feilmelding": "$feilmelding", "feilreferanse": "$callId"}"""
+    respondText(errorResponse, Json, status)
+}
 
 fun main() {
     embeddedServer(ConfiguredCIO, port = 8080, module = Application::spapi).start(wait = true)
@@ -63,15 +69,11 @@ internal fun Application.spapi(
     install(StatusPages) {
         exception<UgyldigInputException> { call, cause ->
             sikkerlogg.warn("Feil i request til ${call.request.httpMethod.value} - ${call.request.path()}: ${cause.message}")
-            @Language("JSON")
-            val errorResponse = """{"feilmelding": "${cause.message}", "feilreferanse": "${call.callId}"}"""
-            call.respondText(errorResponse, Json, BadRequest)
+            call.respondError(BadRequest, cause.message)
         }
         exception<Throwable> { call, cause ->
             sikkerlogg.error("Feil ved håndtering av ${call.request.httpMethod.value} - ${call.request.path()}", cause)
-            @Language("JSON")
-            val errorResponse = """{"feilmelding": "Uventet feil. Ta kontakt med NAV om feilen vedvarer.", "feilreferanse": "${call.callId}"}"""
-            call.respondText(errorResponse, Json, InternalServerError)
+            call.respondError(InternalServerError)
         }
     }
     environment.monitor.subscribe(ApplicationStopped) {

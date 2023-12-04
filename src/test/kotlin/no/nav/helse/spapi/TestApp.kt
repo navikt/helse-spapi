@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode
 import io.ktor.server.application.*
 import io.ktor.server.cio.*
 import io.ktor.server.engine.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.ktor.util.*
 import no.nav.helse.spapi.personidentifikator.Personidentifikator
 import no.nav.helse.spapi.personidentifikator.Personidentifikatorer
 import no.nav.helse.spapi.utbetalteperioder.UtbetaltPeriode
@@ -18,6 +21,13 @@ fun main() {
         testSpapi(maskinporten, object : UtbetaltePerioder {
             override suspend fun hent(personidentifikatorer: Set<Personidentifikator>, fom: LocalDate, tom: LocalDate) = emptyList<UtbetaltPeriode>()
         })
+        routing {
+            get("/token") {
+                // http://localhost:8080/token?scope=nav:sykepenger:fellesordningenforafp.read -> Gir token med tilgang for Fellesordningen for AFP
+                val claims = call.request.queryParameters.toMap().mapValues { (_, value) -> value.first() }
+                call.respondText(maskinporten.accessToken(claims))
+            }
+        }
     }.start(wait = true)
 }
 
