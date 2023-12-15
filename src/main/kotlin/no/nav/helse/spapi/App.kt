@@ -89,22 +89,14 @@ internal fun Application.spapi(
         FellesordningenForAfp.setupAuthentication(this, maskinportenJwkProvider, maskinportenIssuer, audience)
     }
 
-    val prod = config["NAIS_CLUSTER_NAME"] == "prod-gcp"
-    val unavailableForLegalReasons = HttpStatusCode(451, "Unavailable For Legal Reasons")
-
     routing {
-        get("/velkommen") {
-            if (prod) return@get call.respond(unavailableForLegalReasons, "451 Unavailable For Legal Reasons: Spaπ blir tilgjenglig i løpet av 2023 👩‍ ⚖️ Gled deg!")
-            call.respondText("Velkommen til Spaπ! 👽")
-        }
+        get("/velkommen") { call.respondText("Velkommen til Spaπ! 👽") }
         swaggerUI(path = "swagger", swaggerFile = "openapi.yml")
         // Endepunkt under /internal eksponeres ikke
         get("/internal/isalive") { call.respondText("ISALIVE") }
         get("/internal/isready") { call.respondText("READY") }
 
         FellesordningenForAfp.setupApi(this) {
-            if (prod) return@setupApi call.respond(unavailableForLegalReasons)
-
             val request = FellesordningenForAfp.request(call)
             val (personidentifikator, fom, tom) = request
 

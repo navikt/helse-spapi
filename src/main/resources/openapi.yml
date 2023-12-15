@@ -38,6 +38,8 @@ paths:
         
         Utbetalte sykepengeperioder er eksklusiv arbeidsgiverperioden
         
+        Om den tilsluttede virksomheten har endret organisasjonsnummer innenfor tidsintervallet det etterespørres informasjon må det sendes en request per organisasjonsnummer.
+        
         Scope: `nav:sykepenger:fellesordningenforafp.read`
       security:
         - maskinporten: []
