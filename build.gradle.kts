@@ -1,14 +1,14 @@
 plugins {
-    kotlin("jvm") version "1.9.20"
+    kotlin("jvm") version "1.9.22"
 }
 
-val ktorVersion = "2.3.6"
-val logbackClassicVersion = "1.4.11"
+val ktorVersion = "2.3.7"
+val logbackClassicVersion = "1.4.14"
 val logbackEncoderVersion = "7.4"
-val jacksonVersion = "2.15.0"
+val jacksonVersion = "2.16.1"
 val junitJupiterVersion = "5.10.1"
 val wiremockVersion = "3.3.1"
-val kafkaVersion = "3.6.0"
+val kafkaVersion = "3.6.1"
 val jsonAssertVersion = "1.5.1"
 
 val mainClass = "no.nav.helse.spapi.AppKt"
