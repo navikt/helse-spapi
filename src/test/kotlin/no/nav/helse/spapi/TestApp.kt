@@ -41,8 +41,8 @@ internal fun Application.testSpapi(maskinporten: Issuer, utbetaltePerioder: Utbe
         sporings = object : Sporingslogg() {
             override fun send(logginnslag: JsonNode) {}
         },
-        accessToken = object : AccessToken() {
-            override suspend fun hentNytt(scope: String) = "1" to 1L
+        accessToken = object : AccessToken {
+            override fun get(scope: String) = "1"
         },
         utbetaltePerioder = utbetaltePerioder,
         personidentifikatorer = object : Personidentifikatorer {

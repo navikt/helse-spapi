@@ -34,6 +34,7 @@ dependencies {
 
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     implementation("org.apache.kafka:kafka-clients:$kafkaVersion")
+    implementation("com.github.navikt.tbd-libs:azure-token-client-default:2024.01.19-13.10-ef3c0f8d")
 
     testImplementation("io.ktor:ktor-server-tests:$ktorVersion")
     testImplementation("org.wiremock:wiremock:$wiremockVersion")
@@ -45,8 +46,22 @@ dependencies {
 }
 
 repositories {
+    val githubPassword: String? by project
     mavenCentral()
+    /* ihht. https://github.com/navikt/utvikling/blob/main/docs/teknisk/Konsumere%20biblioteker%20fra%20Github%20Package%20Registry.md
+        så plasseres github-maven-repo (med autentisering) før nav-mirror slik at github actions kan anvende førstnevnte.
+        Det er fordi nav-mirroret kjører i Google Cloud og da ville man ellers fått unødvendige utgifter til datatrafikk mellom Google Cloud og GitHub
+     */
+    maven {
+        url = uri("https://maven.pkg.github.com/navikt/maven-release")
+        credentials {
+            username = "x-access-token"
+            password = githubPassword
+        }
+    }
+    maven("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
 }
+
 
 tasks {
     compileKotlin {

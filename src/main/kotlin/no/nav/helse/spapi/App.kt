@@ -49,7 +49,7 @@ internal fun Application.spapi(
     config: Map<String, String> = System.getenv(),
     sporings: Sporingslogg = Kafka(config),
     client: HttpClient = HttpClient(CIO),
-    accessToken: AccessToken = Azure(config, client),
+    accessToken: AccessToken = Azure(),
     utbetaltePerioder: UtbetaltePerioder = Spøkelse(config, client, accessToken),
     personidentifikatorer: Personidentifikatorer = Pdl(config, client, accessToken)
 ) {
