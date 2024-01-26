@@ -41,7 +41,8 @@ internal class Spøkelse(config: Map<String, String>, private val client: HttpCl
                {
                   "personidentifikatorer": ${personidentifikatorer.map { "\"$it\"" }},
                   "fom": "$fom",
-                  "tom": "$tom"
+                  "tom": "$tom",
+                  "oppløsning": ["organisasjonsnummer", "grad"]
                } 
             """
             setBody(body)
