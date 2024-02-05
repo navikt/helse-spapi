@@ -72,6 +72,7 @@ internal object FellesordningenForAfp: Konsument(
     behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b")
 ) {
     private val objectMapper = jacksonObjectMapper()
+    private val sikkerlogg = LoggerFactory.getLogger("tjenestekall")
     internal data class Request(val personidentifikator: Personidentifikator, val fom: LocalDate, val tom: LocalDate, val organisasjonsnummer: Organisasjonsnummer, val minimumSykdomsgrad: Int?)
 
     internal suspend fun request(call: ApplicationCall): Request {
@@ -85,7 +86,9 @@ internal object FellesordningenForAfp: Konsument(
         val minimumSykdomsgrad = requestBody.optional("minimumSykdomsgrad") {
             it.asInt().also { minimumSykdomsgrad -> check(minimumSykdomsgrad in 1..100) { "Må være mellom 1 og 100" } }
         }
-        return Request(personidentifikator, fom, tom, organisasjonsnummer, minimumSykdomsgrad)
+        return Request(personidentifikator, fom, tom, organisasjonsnummer, minimumSykdomsgrad).also {
+            sikkerlogg.info("Mottok request fra $this:\n\t$it")
+        }
     }
 
     internal fun response(utbetaltePerioder: List<UtbetaltPeriode>, request: Request): String {
