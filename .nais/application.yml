@@ -56,6 +56,10 @@ spec:
     pool: {{kafkaPool}}
   secureLogs:
     enabled: true
+  observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: java
   env:
     - name: AUDIENCE
       value: {{ingress}}
