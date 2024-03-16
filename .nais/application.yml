@@ -12,10 +12,10 @@ spec:
     - {{ingress}}
   liveness:
     path: /internal/isalive
-    initialDelay: 5
+    initialDelay: 10
   readiness:
     path: /internal/isready
-    initialDelay: 5
+    initialDelay: 10
   resources:
     limits:
       cpu: 500m
