@@ -139,3 +139,41 @@ internal object FellesordningenForAfp: EnKonsument<FellesordningenForAfp.Request
         }.toString()
     }
 }
+
+internal abstract class OffentligAfp(
+    navn: String,
+    organisasjonsnummer: Organisasjonsnummer,
+    id: String,
+    scope: String
+) : EnKonsument<OffentligAfp.Request>(navn, organisasjonsnummer, id, scope, "B709", Behandlingsgrunnlag("GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b")) {
+    internal data class Request(override val personidentifikator: Personidentifikator, override val fom: LocalDate, override val tom: LocalDate, val organisasjonsnummer: Organisasjonsnummer, val minimumSykdomsgrad: Int): KonsumentRequest
+
+    override suspend fun request(call: ApplicationCall): Request {
+        val requestBody = call.requestBody()
+        val personidentifikator = requestBody.required("personidentifikator") { Personidentifikator(it.asText()) }
+        val organisasjonsnummer = requestBody.required("organisasjonsnummer") { Organisasjonsnummer(it.asText()) }
+        val fom = requestBody.required("fraOgMedDato") { LocalDate.parse(it.asText()) }
+        val tom = requestBody.required("tilOgMedDato") {
+            LocalDate.parse(it.asText()).also { tom -> check(fom <= tom) { "Ugyldig periode $fom til $tom" } }
+        }
+        val minimumSykdomsgrad = requestBody.required("minimumSykdomsgrad") {
+            it.asInt().also { minimumSykdomsgrad -> check(minimumSykdomsgrad in 1..100) { "Må være mellom 1 og 100" } }
+        }
+        return Request(personidentifikator, fom, tom, organisasjonsnummer, minimumSykdomsgrad)
+    }
+
+    override suspend fun response(utbetaltePerioder: List<UtbetaltPeriode>, request: Request): String {
+        val utlevertePerioder = utbetaltePerioder
+            .filter { it.organisasjonsnummer == request.organisasjonsnummer }
+            .filter { it.grad >= request.minimumSykdomsgrad }
+            .map { objectMapper.createObjectNode()
+                .apply {
+                    put("fraOgMedDato", "${it.fom}")
+                    put("tilOgMedDato", "${it.tom}")
+                    .apply { putArray("tags").let { tags -> it.tags.forEach(tags::add) } }
+                }}
+        return objectMapper.createObjectNode().apply {
+            putArray("utbetaltePerioder").addAll(utlevertePerioder)
+        }.toString()
+    }
+}
