@@ -51,7 +51,8 @@ internal fun Application.spapi(
     client: HttpClient = HttpClient(CIO),
     accessToken: AccessToken = Azure(),
     utbetaltePerioder: UtbetaltePerioder = Spøkelse(config, client, accessToken),
-    personidentifikatorer: Personidentifikatorer = Pdl(config, client, accessToken)
+    personidentifikatorer: Personidentifikatorer = Pdl(config, client, accessToken),
+    konsumenter: Set<Konsument> = setOf(FellesordningenForAfp)
 ) {
 
     install(CallId) {
@@ -86,7 +87,7 @@ internal fun Application.spapi(
             .build()
         val maskinportenIssuer = config.hent("MASKINPORTEN_ISSUER")
         val audience = config.hent("AUDIENCE")
-        FellesordningenForAfp.setupAuthentication(this, maskinportenJwkProvider, maskinportenIssuer, audience)
+        konsumenter.forEach { it.registerAuthentication(this, maskinportenJwkProvider, maskinportenIssuer, audience) }
     }
 
     routing {
@@ -95,27 +96,7 @@ internal fun Application.spapi(
         // Endepunkt under /internal eksponeres ikke
         get("/internal/isalive") { call.respondText("ISALIVE") }
         get("/internal/isready") { call.respondText("READY") }
-
-        FellesordningenForAfp.setupApi(this) {
-            val request = FellesordningenForAfp.request(call)
-            val (personidentifikator, fom, tom) = request
-
-            val perioder = utbetaltePerioder.hent(
-                personidentifikatorer = personidentifikatorer.hentAlle(personidentifikator, FellesordningenForAfp),
-                fom = fom,
-                tom = tom
-            )
-
-            val response = FellesordningenForAfp.response(perioder, request)
-
-            sporings.logg(
-                person = personidentifikator,
-                konsument = FellesordningenForAfp,
-                leverteData = response
-            )
-
-            call.respondText(response, Json)
-        }
+        konsumenter.forEach { it.registerApi(this, utbetaltePerioder, personidentifikatorer, sporings) }
     }
 }
 
