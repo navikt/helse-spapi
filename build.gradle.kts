@@ -10,6 +10,7 @@ val junitJupiterVersion = "5.10.2"
 val wiremockVersion = "3.3.1"
 val kafkaVersion = "3.6.1"
 val jsonAssertVersion = "1.5.1"
+val handlebarsVersion = "4.4.0"
 
 val mainClass = "no.nav.helse.spapi.AppKt"
 
@@ -42,7 +43,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
     testImplementation("org.skyscreamer:jsonassert:$jsonAssertVersion")
-
+    testImplementation("com.github.jknack:handlebars:$handlebarsVersion")
 }
 
 repositories {

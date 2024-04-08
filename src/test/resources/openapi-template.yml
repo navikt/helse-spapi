@@ -9,75 +9,83 @@ info:
     - [Maskinporten](https://docs.digdir.no/docs/Maskinporten/)
     - [Audience restricted tokens](https://docs.digdir.no/docs/Maskinporten/maskinporten_func_audience_restricted_tokens)
     
-    Audience
-    - Test: `https://spapi.ekstern.dev.nav.no`
-    - Prod: `https://spapi.nav.no`
-
+    Audience:
+    {{# if prod}}`https://spapi.nav.no`
+    {{else}}`https://spapi.ekstern.dev.nav.no`
+    {{/if}}
   version: 1.0.0
   license:
     name: MIT
     url: https://opensource.org/license/mit/
-tags:
-  - name: Fellesordningen
-    description: Fellesordningen for AFP (afp.no)
 servers:
-  - url: https://spapi.ekstern.dev.nav.no
-    description: Test
+  {{# if prod }}
   - url: https://spapi.nav.no
     description: Produksjon
+  {{else}}
+  - url: https://spapi.ekstern.dev.nav.no
+    description: Test
   - url: http://localhost:8080
     description: Lokalt
+  {{/if}}
+tags:
+{{# each konsumenter as |konsument| }}
+  - name: {{konsument.navn}}
+    description: orgnr. {{konsument.organisasjonsnummer}}
+{{/each}}
 paths:
-  /fellesordningen-for-afp:
-    post:
-      summary: Hent utbetalte perioder
-      tags:
-        - Fellesordningen
-      description: |-
-        Hent utbetalte perioder én person
-        
-        Utbetalte sykepengeperioder er eksklusiv arbeidsgiverperioden
-        
-        Om den tilsluttede virksomheten har endret organisasjonsnummer innenfor tidsintervallet det etterespørres informasjon må det sendes en request per organisasjonsnummer.
-        
-        Scope: `nav:sykepenger:fellesordningenforafp.read`
-      security:
-        - maskinporten: []
-      parameters:
-        - in: header
-          name: x-callid
-          description: En UUID konsumenten sender inn som brukes til videre logging og feilsøking.
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        content:
-          application/json:
+  {{# each konsumenter as |konsument| }}
+    /{{konsument.id}}:
+      post:
+        summary: Hent utbetalte perioder
+        operationId: woff
+        tags:
+          - {{konsument.navn}}
+        description: |-
+          Hent utbetalte perioder én person
+          
+          Utbetalte sykepengeperioder er eksklusiv arbeidsgiverperioden
+          
+          Om den tilsluttede virksomheten har endret organisasjonsnummer innenfor tidsintervallet det etterespørres informasjon må det sendes en request per organisasjonsnummer.
+          
+          Scope: `{{konsument.scope}}`
+        security:
+          - maskinporten: []
+        parameters:
+          - in: header
+            name: x-callid
+            description: En UUID konsumenten sender inn som brukes til videre logging og feilsøking.
             schema:
-              $ref: '#/components/schemas/FellesordningenForAfpRequest'
-      responses:
-        '200':
-          description: OK
+              type: string
+              format: uuid
+        requestBody:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FellesordningenForAfpResponse'
-        '400':
-          description: Feil i request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Valderingsfeil'
-        '401':
-          description: Mangler access token
-        '403':
-          description: Feil scope/audience i token
-        '500':
-          description: Feil på tjeneste, meld fra og send med feilreferanse
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UhåndtertFeil'
+                $ref: '#/components/schemas/FellesordningenForAfpRequest'
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/FellesordningenForAfpResponse'
+          '400':
+            description: Feil i request
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Valderingsfeil'
+          '401':
+            description: Mangler access token
+          '403':
+            description: Feil scope/audience i token
+          '500':
+            description: Feil på tjeneste, meld fra og send med feilreferanse
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/UhåndtertFeil'
+  {{/each}}
 components:
   schemas:
     FellesordningenForAfpRequest:

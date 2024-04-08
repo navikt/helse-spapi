@@ -27,9 +27,9 @@ internal interface KonsumentRequest {
 internal typealias Konsument = EnKonsument<out KonsumentRequest>
 
 internal abstract class EnKonsument<Req: KonsumentRequest>(
-    private val navn: String,
+    internal val navn: String,
     internal val organisasjonsnummer: Organisasjonsnummer,
-    private val id: String,
+    internal val id: String,
     internal val scope: String,
     internal val behandlingsnummer: String,
     internal val behandlingsgrunnlag: Behandlingsgrunnlag
