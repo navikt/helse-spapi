@@ -18,6 +18,7 @@ import io.ktor.server.plugins.swagger.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import no.nav.helse.spapi.EnKonsument.Companion.konsumenter
 import no.nav.helse.spapi.personidentifikator.Pdl
 import no.nav.helse.spapi.personidentifikator.Personidentifikatorer
 import no.nav.helse.spapi.utbetalteperioder.Spøkelse
@@ -32,6 +33,7 @@ import java.util.concurrent.TimeUnit
 
 private val sikkerlogg = LoggerFactory.getLogger("tjenestekall")
 internal fun Map<String, String>.hent(key: String) = get(key) ?: throw IllegalStateException("Mangler config for $key")
+internal val Map<String, String>.miljø get() = if (get("NAIS_CLUSTER_NAME")?.lowercase()?.contains("prod") == true) "prod" else "dev"
 internal fun HttpRequestBuilder.callId(headernavn: String) = header(headernavn, "${UUID.fromString(MDC.get("callId"))}")
 private val String.erUUID get() = kotlin.runCatching { UUID.fromString(this) }.isSuccess
 private suspend fun ApplicationCall.respondError(status: HttpStatusCode, melding: String? = null) {
@@ -51,8 +53,7 @@ internal fun Application.spapi(
     client: HttpClient = HttpClient(CIO),
     accessToken: AccessToken = Azure(),
     utbetaltePerioder: UtbetaltePerioder = Spøkelse(config, client, accessToken),
-    personidentifikatorer: Personidentifikatorer = Pdl(config, client, accessToken),
-    konsumenter: Set<Konsument> = setOf(FellesordningenForAfp)
+    personidentifikatorer: Personidentifikatorer = Pdl(config, client, accessToken)
 ) {
 
     install(CallId) {
@@ -87,7 +88,7 @@ internal fun Application.spapi(
             .build()
         val maskinportenIssuer = config.hent("MASKINPORTEN_ISSUER")
         val audience = config.hent("AUDIENCE")
-        konsumenter.forEach { it.registerAuthentication(this, maskinportenJwkProvider, maskinportenIssuer, audience) }
+        config.konsumenter.forEach { it.registerAuthentication(this, maskinportenJwkProvider, maskinportenIssuer, audience) }
     }
 
     routing {
@@ -96,7 +97,7 @@ internal fun Application.spapi(
         // Endepunkt under /internal eksponeres ikke
         get("/internal/isalive") { call.respondText("ISALIVE") }
         get("/internal/isready") { call.respondText("READY") }
-        konsumenter.forEach { it.registerApi(this, utbetaltePerioder, personidentifikatorer, sporings) }
+        config.konsumenter.forEach { it.registerApi(this, utbetaltePerioder, personidentifikatorer, sporings) }
     }
 }
 

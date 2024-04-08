@@ -30,7 +30,7 @@ internal abstract class EnKonsument<Req: KonsumentRequest>(
     private val navn: String,
     internal val organisasjonsnummer: Organisasjonsnummer,
     private val id: String,
-    private val scope: String,
+    internal val scope: String,
     internal val behandlingsnummer: String,
     internal val behandlingsgrunnlag: Behandlingsgrunnlag
 ) {
@@ -80,10 +80,23 @@ internal abstract class EnKonsument<Req: KonsumentRequest>(
 
     abstract suspend fun response(utbetaltePerioder: List<UtbetaltPeriode>, request: Req): String
 
-    protected companion object {
-        protected val sikkerlogg = LoggerFactory.getLogger("tjenestekall")
+    internal companion object {
+        private val sikkerlogg = LoggerFactory.getLogger("tjenestekall")
         @JvmStatic
         protected val objectMapper = jacksonObjectMapper()
+
+        private val String.innholdFraResource get() = object {}.javaClass.getResource(this)?.readText() ?: error("Fant ikke resource <$this>")
+
+        private val AlleKonsumenter = setOf<Konsument>(
+            FellesordningenForAfp
+        )
+        internal val Map<String, String>.konsumenter get() = objectMapper
+            .readTree("/$miljø-nais.json".innholdFraResource)
+            .path("consumers")
+            .associate { Organisasjonsnummer(it.path("orgno").asText()) to "nav:sykepenger:${it.path("scope").asText()}" }
+            .map { (organisasjonsnummer, scope) ->
+                AlleKonsumenter.singleOrNull { it.organisasjonsnummer == organisasjonsnummer && it.scope == scope } ?: error("Fant ikke konsument med orgnr $organisasjonsnummer og scope $scope")
+            }
 
         private suspend fun ApplicationCall.respondChallenge() {
             try {

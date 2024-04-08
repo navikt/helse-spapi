@@ -56,7 +56,7 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
           RESOURCE: .nais/application.yml
-          VARS: .nais/dev.json
+          VARS: src/main/resources/dev-nais.json
           IMAGE: ${{ needs.build.outputs.image }}
 
   deployProd:
@@ -70,5 +70,5 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
           RESOURCE: .nais/application.yml
-          VARS: .nais/prod.json
+          VARS: src/main/resources/prod-nais.json
           IMAGE: ${{ needs.build.outputs.image }}
