@@ -1,6 +1,7 @@
 package no.nav.helse.spapi
 
 import com.auth0.jwk.JwkProvider
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -51,9 +52,10 @@ internal abstract class EnKonsument<Req: KonsumentRequest>(
         sikkerlogg.info("Registrerer API for $this")
         routing.authenticate(id) {
             post("/$id") {
-                val request = request(call)
+                val requestBody = call.requestBody()
+                sikkerlogg.info("Mottok request fra ${this@EnKonsument}:\n\t$requestBody")
 
-                sikkerlogg.info("Mottok request fra ${this@EnKonsument}:\n\t$it")
+                val request = request(requestBody)
 
                 val perioder = utbetaltePerioder.hent(
                     personidentifikatorer = personidentifikatorer.hentAlle(request.personidentifikator, this@EnKonsument),
@@ -74,7 +76,7 @@ internal abstract class EnKonsument<Req: KonsumentRequest>(
         }
     }
 
-    abstract suspend fun request(call: ApplicationCall): Req
+    abstract suspend fun request(requestBody: JsonNode): Req
 
     abstract suspend fun response(utbetaltePerioder: List<UtbetaltPeriode>, request: Req): String
 
@@ -109,8 +111,7 @@ internal object FellesordningenForAfp: EnKonsument<FellesordningenForAfp.Request
 ) {
     internal data class Request(override val personidentifikator: Personidentifikator, override val fom: LocalDate, override val tom: LocalDate, val organisasjonsnummer: Organisasjonsnummer, val minimumSykdomsgrad: Int?): KonsumentRequest
 
-    override suspend fun request(call: ApplicationCall): Request {
-        val requestBody = call.requestBody()
+    override suspend fun request(requestBody: JsonNode): Request {
         val personidentifikator = requestBody.required("personidentifikator") { Personidentifikator(it.asText()) }
         val organisasjonsnummer = requestBody.required("organisasjonsnummer") { Organisasjonsnummer(it.asText()) }
         val fom = requestBody.required("fraOgMedDato") { LocalDate.parse(it.asText()) }
@@ -148,8 +149,7 @@ internal abstract class OffentligAfp(
 ) : EnKonsument<OffentligAfp.Request>(navn, organisasjonsnummer, id, scope, "B709", Behandlingsgrunnlag("GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b")) {
     internal data class Request(override val personidentifikator: Personidentifikator, override val fom: LocalDate, override val tom: LocalDate, val organisasjonsnummer: Organisasjonsnummer, val minimumSykdomsgrad: Int): KonsumentRequest
 
-    override suspend fun request(call: ApplicationCall): Request {
-        val requestBody = call.requestBody()
+    override suspend fun request(requestBody: JsonNode): Request {
         val personidentifikator = requestBody.required("personidentifikator") { Personidentifikator(it.asText()) }
         val organisasjonsnummer = requestBody.required("organisasjonsnummer") { Organisasjonsnummer(it.asText()) }
         val fom = requestBody.required("fraOgMedDato") { LocalDate.parse(it.asText()) }
