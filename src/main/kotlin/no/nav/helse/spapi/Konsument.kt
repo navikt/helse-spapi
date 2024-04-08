@@ -87,8 +87,15 @@ internal abstract class EnKonsument<Req: KonsumentRequest>(
 
         private val String.innholdFraResource get() = object {}.javaClass.getResource(this)?.readText() ?: error("Fant ikke resource <$this>")
 
-        private val AlleKonsumenter = setOf<Konsument>(
-            FellesordningenForAfp
+        private val AlleKonsumenter = setOf(
+            FellesordningenForAfp,
+            KommunalLandspensjonskasse,
+            StatensPensjonskasse,
+            StorebrandPensjonstjenester,
+            StorebrandLivsforsikring,
+            OsloPensjonsforsikring,
+            GablerPensjonstjenester,
+            Aksio
         )
         internal val Map<String, String>.konsumenter get() = objectMapper
             .readTree("/$miljø-nais.json".innholdFraResource)
@@ -190,3 +197,46 @@ internal abstract class OffentligAfp(
         }.toString()
     }
 }
+
+internal object OsloPensjonsforsikring: OffentligAfp(
+    navn = "Oslo pensjonsforsikring",
+    organisasjonsnummer = Organisasjonsnummer("982759412"),
+    id = "oslo-pensjonsforsikring",
+    scope = "nav:sykepenger:oslopensjonsforsikring.read",
+)
+internal object StatensPensjonskasse: OffentligAfp(
+    navn = "Statens pensjonskasse",
+    organisasjonsnummer = Organisasjonsnummer("982583462"),
+    id = "statens-pensjonskasse",
+    scope = "nav:sykepenger:statenspensjonskasse.read",
+)
+internal object StorebrandLivsforsikring: OffentligAfp(
+    navn = "Storebrand livsforsikring",
+    organisasjonsnummer = Organisasjonsnummer("958995369"),
+    id = "storebrand-livsforsikring",
+    scope = "nav:sykepenger:storebrandlivsforsikring.read",
+)
+internal object KommunalLandspensjonskasse: OffentligAfp(
+    navn = "Kommunal landspensjonskasse",
+    organisasjonsnummer = Organisasjonsnummer("938708606"),
+    id = "kommunal-landspensjonskasse",
+    scope = "nav:sykepenger:kommunallandspensjonskasse.read",
+)
+internal object StorebrandPensjonstjenester: OffentligAfp(
+    navn = "Storebrand pensjonstjenester",
+    organisasjonsnummer = Organisasjonsnummer("931936492"),
+    id = "storebrand-pensjonstjenester",
+    scope = "nav:sykepenger:storebrandpensjonstjenester.read",
+)
+internal object GablerPensjonstjenester: OffentligAfp(
+    navn = "Gabler pensjonstjenester",
+    organisasjonsnummer = Organisasjonsnummer("916833520"),
+    id = "gabler-pensjonstjenester",
+    scope = "nav:sykepenger:gablerpensjonstjenester.read",
+)
+internal object Aksio: OffentligAfp(
+    navn = "Aksio",
+    organisasjonsnummer = Organisasjonsnummer("927613298"),
+    id = "aksio",
+    scope = "nav:sykepenger:aksio.read",
+)
