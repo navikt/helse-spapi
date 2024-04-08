@@ -27,14 +27,20 @@ class OpenApiGenerator {
             "id" to it.id,
             "navn" to it.navn,
             "scope" to it.scope,
-            "organisasjonsnummer" to it.organisasjonsnummer
+            "organisasjonsnummer" to it.organisasjonsnummer,
+            "prefix" to when {
+                it is FellesordningenForAfp -> "FellesordningenForAfp"
+                it is OffentligAfp -> "OffentligAfp"
+                else -> error("Ukjent konsument ${it.navn}")
+            }
         )}
 
         val path = "src/main/resources/${config.miljø}-openapi.yml".absolutePath
 
         val yml = Handlebars(ClassPathTemplateLoader("/", ".yml")).compile("openapi-template").apply(mapOf(
             "konsumenter" to konsumenter,
-            "prod" to (config.miljø == "prod")
+            "prod" to (config.miljø == "prod"),
+            "offentligAfp" to (konsumenter.any { it is OffentligAfp })
         ))
 
         path.writeBytes(yml.toByteArray())

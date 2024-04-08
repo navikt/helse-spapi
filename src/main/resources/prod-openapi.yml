@@ -2,8 +2,8 @@ openapi: "3.0.0"
 info:
   title: Spaπ (SP-API)
   description: |-
-    Spaπ tilbyr Sykepengeinformasjon til eksterne konsumenter som enten har hjemmel til å hente 
-    Sykepengeinformasjon. Konsumenter må logge seg inn med token fra  Maskinporten
+    Spaπ tilbyr Sykepengeinformasjon til eksterne konsumenter som har hjemmel til å hente 
+    Sykepengeinformasjon. Konsumenter må logge seg inn med token fra Maskinporten
     
     Linker til autentisering
     - [Maskinporten](https://docs.digdir.no/docs/Maskinporten/)
@@ -30,16 +30,17 @@ paths:
   
     /fellesordningen-for-afp:
       post:
-        summary: Hent utbetalte perioder
-        operationId: woff
+        summary: Hente utbetalte perioder
         tags:
           - Fellesordningen for AFP
         description: |-
-          Hent utbetalte perioder én person
+          Hente utbetalte perioder for én person
           
-          Utbetalte sykepengeperioder er eksklusiv arbeidsgiverperioden
+          Utbetalte sykepengeperioder er eksklusiv arbeidsgiverperioden.
           
-          Om den tilsluttede virksomheten har endret organisasjonsnummer innenfor tidsintervallet det etterespørres informasjon må det sendes en request per organisasjonsnummer.
+          Om den tilsluttede virksomheten har endret organisasjonsnummer innenfor tidsintervallet det etterspørres informasjon må det sendes en request per organisasjonsnummer.
+          
+          Om personen har endret personidentifikator innenfor tidsintervallet det etterspørres informasjon må det sendes en request per personidentifikator.
           
           Scope: `nav:sykepenger:fellesordningenforafp.read`
         security:
@@ -51,6 +52,7 @@ paths:
             schema:
               type: string
               format: uuid
+
         requestBody:
           content:
             application/json:
@@ -78,7 +80,7 @@ paths:
             content:
               application/json:
                 schema:
-                  $ref: '#/components/schemas/UhåndtertFeil'
+                  $ref: '#/components/schemas/UhaandtertFeil'
   
 components:
   schemas:
@@ -144,7 +146,7 @@ components:
       properties:
         utbetaltePerioder:
           type: array
-          description: Perioder med vedtak
+          description: Perioder med utbetaling
           items:
             $ref: '#/components/schemas/FellesordningenForAfpUtbetaltPeriode'
     Valderingsfeil:
@@ -160,7 +162,7 @@ components:
           format: uuid
           description: Id som identifiserer requesten
           example: fd209ea5-4b3e-4185-991a-918a944c1c18
-    UhåndtertFeil:
+    UhaandtertFeil:
       type: object
       required: ["feilmelding", "feilreferanse"]
       properties:
@@ -173,6 +175,7 @@ components:
           format: uuid
           description: Id som identifiserer requesten
           example: 6b120ff7-ea67-4d00-b2ea-ff054c6e4b43
+    
   securitySchemes:
     maskinporten:
       type: http

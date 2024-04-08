@@ -2,8 +2,8 @@ openapi: "3.0.0"
 info:
   title: Spaπ (SP-API)
   description: |-
-    Spaπ tilbyr Sykepengeinformasjon til eksterne konsumenter som enten har hjemmel til å hente 
-    Sykepengeinformasjon. Konsumenter må logge seg inn med token fra  Maskinporten
+    Spaπ tilbyr Sykepengeinformasjon til eksterne konsumenter som har hjemmel til å hente 
+    Sykepengeinformasjon. Konsumenter må logge seg inn med token fra Maskinporten
     
     Linker til autentisering
     - [Maskinporten](https://docs.digdir.no/docs/Maskinporten/)
@@ -36,16 +36,17 @@ paths:
   {{# each konsumenter as |konsument| }}
     /{{konsument.id}}:
       post:
-        summary: Hent utbetalte perioder
-        operationId: woff
+        summary: Hente utbetalte perioder
         tags:
           - {{konsument.navn}}
         description: |-
-          Hent utbetalte perioder én person
+          Hente utbetalte perioder for én person
           
-          Utbetalte sykepengeperioder er eksklusiv arbeidsgiverperioden
+          Utbetalte sykepengeperioder er eksklusiv arbeidsgiverperioden.
           
-          Om den tilsluttede virksomheten har endret organisasjonsnummer innenfor tidsintervallet det etterespørres informasjon må det sendes en request per organisasjonsnummer.
+          Om den tilsluttede virksomheten har endret organisasjonsnummer innenfor tidsintervallet det etterspørres informasjon må det sendes en request per organisasjonsnummer.
+          
+          Om personen har endret personidentifikator innenfor tidsintervallet det etterspørres informasjon må det sendes en request per personidentifikator.
           
           Scope: `{{konsument.scope}}`
         security:
@@ -57,18 +58,19 @@ paths:
             schema:
               type: string
               format: uuid
+
         requestBody:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FellesordningenForAfpRequest'
+                $ref: '#/components/schemas/{{konsument.prefix}}Request'
         responses:
           '200':
             description: OK
             content:
               application/json:
                 schema:
-                  $ref: '#/components/schemas/FellesordningenForAfpResponse'
+                  $ref: '#/components/schemas/{{konsument.prefix}}Response'
           '400':
             description: Feil i request
             content:
@@ -84,7 +86,7 @@ paths:
             content:
               application/json:
                 schema:
-                  $ref: '#/components/schemas/UhåndtertFeil'
+                  $ref: '#/components/schemas/UhaandtertFeil'
   {{/each}}
 components:
   schemas:
@@ -150,7 +152,7 @@ components:
       properties:
         utbetaltePerioder:
           type: array
-          description: Perioder med vedtak
+          description: Perioder med utbetaling
           items:
             $ref: '#/components/schemas/FellesordningenForAfpUtbetaltPeriode'
     Valderingsfeil:
@@ -166,7 +168,7 @@ components:
           format: uuid
           description: Id som identifiserer requesten
           example: fd209ea5-4b3e-4185-991a-918a944c1c18
-    UhåndtertFeil:
+    UhaandtertFeil:
       type: object
       required: ["feilmelding", "feilreferanse"]
       properties:
@@ -179,6 +181,60 @@ components:
           format: uuid
           description: Id som identifiserer requesten
           example: 6b120ff7-ea67-4d00-b2ea-ff054c6e4b43
+    {{#if offenligAfp}}
+    OffentligAfpRequest:
+        type: object
+        required: ["personidentifikator", "organisasjonsnummer", "fraOgMedDato", "tilOgMedDato", "minimumSykdomsgrad"]
+        properties:
+          personidentifikator:
+            type: string
+            pattern: '^\d{11}$'
+            description: Personidentifikator for personen
+            example: 11111111111
+          organisasjonsnummer:
+            type: string
+            pattern: '^\d{9}$'
+            description: Organisasjonsnummer til underenheten som er tilsluttet ordningen
+            example: 999999999
+          fraOgMedDato:
+            type: string
+            format: date
+            description: Fra og med dato
+            example: 2021-01-01
+          tilOgMedDato:
+            type: string
+            format: date
+            description: Til og med dato
+            example: 2021-01-31
+          minimumSykdomsgrad:
+            type: integer
+            minimum: 1
+            maximum: 100
+            description: Minimum sykdomsgrad som er aktuelt å utlevere informasjon om for å vurdere vilkårene for AFP for den aktuelle underenheten
+            example: 80
+      OffentligAfpUtbetaltPeriode:
+        type: object
+        required: ["fraOgMedDato", "tilOgMedDato"]
+        properties:
+          fraOgMedDato:
+            type: string
+            format: date
+            description: Fra og med dato
+            example: 2021-01-01
+          tilOgMedDato:
+            type: string
+            format: date
+            description: Til og med dato
+            example: 2021-01-31
+      OffentligAfpResponse:
+        type: object
+        properties:
+          utbetaltePerioder:
+            type: array
+            description: Perioder med utbetaling
+            items:
+              $ref: '#/components/schemas/OffentligAfpUtbetaltPeriode'
+    {{/if}}
   securitySchemes:
     maskinporten:
       type: http
