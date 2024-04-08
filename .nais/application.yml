@@ -34,14 +34,14 @@ spec:
     enabled: true
     scopes:
       exposes:
-        - name: "fellesordningenforafp.read"
+        {{# each consumers as |consumer| }}
+        - name: "{{consumer.scope}}"
           enabled: true
           product: "sykepenger"
           consumers:
-            {{# each consumers as |consumer| }}
             - name: "{{consumer.name}}"
               orgno: "{{consumer.orgno}}"
-            {{/each}}
+        {{/each}}
   azure:
     application:
       enabled: true

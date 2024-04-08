@@ -7,10 +7,8 @@
   "pdlHost": "pdl-api.dev-fss-pub.nais.io",
   "pdlScope": "api://dev-fss.pdl.pdl-api/.default",
   "consumers": [{
+    "scope": "fellesordningenforafp.read",
     "name": "Fellesordningen for AFP",
     "orgno": "987414502"
-  }, {
-    "name": "NAV",
-    "orgno": "889640782"
   }]
 }
