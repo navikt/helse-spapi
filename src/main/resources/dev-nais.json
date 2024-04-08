@@ -10,5 +10,13 @@
     "scope": "fellesordningenforafp.read",
     "name": "Fellesordningen for AFP",
     "orgno": "987414502"
+  },{
+    "scope": "statenspensjonskasse.read",
+    "name": "Statens pensjonskasse",
+    "orgno": "982583462"
+  },{
+    "scope": "kommunallandspensjonskasse.read",
+    "name": "Kommunal landspensjonskasse",
+    "orgno": "938708606"
   }]
 }
