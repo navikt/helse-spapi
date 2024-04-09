@@ -2,8 +2,10 @@ openapi: "3.0.0"
 info:
   title: Spaπ (SP-API)
   description: |-
-    Spaπ tilbyr Sykepengeinformasjon til eksterne konsumenter som har hjemmel til å hente 
-    Sykepengeinformasjon. Konsumenter må logge seg inn med token fra Maskinporten
+    Spaπ tilbyr Sykepengeinformasjon til eksterne konsumenter som har hjemmel til å hente det. 
+    Konsumenter må logge seg inn med token fra Maskinporten med rett `audience` & `scope`.
+    
+    Alle oppslag spores, slik at personene det gjøres oppslag på vil kunne se at konsumenten har hentet sykepengeinformasjon om dem.
     
     Linker til autentisering
     - [Maskinporten](https://docs.digdir.no/docs/Maskinporten/)
@@ -324,7 +326,7 @@ components:
             example: 80
     OffentligAfpUtbetaltPeriode:
       type: object
-      required: ["fraOgMedDato", "tilOgMedDato"]
+      required: ["fraOgMedDato", "tilOgMedDato", "tags"]
       properties:
         fraOgMedDato:
           type: string
@@ -336,6 +338,13 @@ components:
           format: date
           description: Til og med dato
           example: 2021-01-31
+        tags:
+          type: array
+          description: Tags som gjelder perioden. Om perioden er markert med UsikkerSykdomsgrad betyr dette at den bør ettergås manuelt
+          items:
+            type: string
+            enum:
+              - UsikkerSykdomsgrad
     OffentligAfpResponse:
       type: object
       properties:

@@ -2,8 +2,10 @@ openapi: "3.0.0"
 info:
   title: Spaπ (SP-API)
   description: |-
-    Spaπ tilbyr Sykepengeinformasjon til eksterne konsumenter som har hjemmel til å hente 
-    Sykepengeinformasjon. Konsumenter må logge seg inn med token fra Maskinporten
+    Spaπ tilbyr Sykepengeinformasjon til eksterne konsumenter som har hjemmel til å hente det. 
+    Konsumenter må logge seg inn med token fra Maskinporten med rett `audience` & `scope`.
+    
+    Alle oppslag spores, slik at personene det gjøres oppslag på vil kunne se at konsumenten har hentet sykepengeinformasjon om dem.
     
     Linker til autentisering
     - [Maskinporten](https://docs.digdir.no/docs/Maskinporten/)

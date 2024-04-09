@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.server.application.*
 import io.ktor.server.request.*
+import no.nav.helse.spapi.personidentifikator.Personidentifikator
 import java.lang.IllegalArgumentException
+import java.time.LocalDate
 
 internal class UgyldigInputException(melding: String, cause: Throwable? = null): IllegalArgumentException(melding, cause)
 
@@ -24,4 +26,18 @@ internal fun <T> JsonNode.optional(path: String, transformer: (jsonNode: JsonNod
     return try { transformer(jsonNode) } catch (throwable: Throwable) {
         throw UgyldigInputException("Ugyldig verdi i feltet '$path' i request body: ${throwable.message} (verdien var ${jsonNode.asText()})")
     }
+}
+
+internal val JsonNode.personidentifikator get() = required("personidentifikator") { Personidentifikator(it.asText()) }
+internal val JsonNode.organisasjonsnummer get() = required("organisasjonsnummer") { Organisasjonsnummer(it.asText()) }
+internal val JsonNode.periode get(): Pair<LocalDate, LocalDate> {
+    val fom = required("fraOgMedDato") { LocalDate.parse(it.asText()) }
+    val tom = required("tilOgMedDato") { LocalDate.parse(it.asText()).also { tom -> check(fom <= tom) { "Ugyldig periode $fom til $tom" } } }
+    return tom to tom
+}
+internal val JsonNode.requiredMinimumSykdomsgrad get() = required("minimumSykdomsgrad") {
+    it.asInt().also { minimumSykdomsgrad -> check(minimumSykdomsgrad in 1..100) { "Må være mellom 1 og 100" } }
+}
+internal val JsonNode.optionalMinimumSykdomsgrad get() = optional("minimumSykdomsgrad") {
+    it.asInt().also { minimumSykdomsgrad -> check(minimumSykdomsgrad in 1..100) { "Må være mellom 1 og 100" } }
 }
