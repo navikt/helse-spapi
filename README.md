@@ -1,6 +1,6 @@
 Spaπ eksponerer sykepengeperioder til eksterne konsumenter.
 
-I første omgang er dette kun Fellesordningen for AFP.
+I første omgang deles dette med privat og offentlig AFP.
 
 ---
 Overordnet systemarkitekturskisse
