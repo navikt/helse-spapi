@@ -33,7 +33,7 @@ internal val JsonNode.organisasjonsnummer get() = required("organisasjonsnummer"
 internal val JsonNode.periode get(): Pair<LocalDate, LocalDate> {
     val fom = required("fraOgMedDato") { LocalDate.parse(it.asText()) }
     val tom = required("tilOgMedDato") { LocalDate.parse(it.asText()).also { tom -> check(fom <= tom) { "Ugyldig periode $fom til $tom" } } }
-    return tom to tom
+    return fom to tom
 }
 internal val JsonNode.requiredMinimumSykdomsgrad get() = required("minimumSykdomsgrad") {
     it.asInt().also { minimumSykdomsgrad -> check(minimumSykdomsgrad in 1..100) { "Må være mellom 1 og 100" } }
