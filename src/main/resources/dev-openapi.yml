@@ -36,6 +36,21 @@ tags:
   - name: Kommunal landspensjonskasse
     description: orgnr. 938708606
 
+  - name: Oslo pensjonsforsikring
+    description: orgnr. 982759412
+
+  - name: Storebrand livsforsikring
+    description: orgnr. 958995369
+
+  - name: Storebrand pensjonstjenester
+    description: orgnr. 931936492
+
+  - name: Gabler pensjonstjenester
+    description: orgnr. 916833520
+
+  - name: Aksio
+    description: orgnr. 927613298
+
 paths:
   
     /fellesordningen-for-afp:
@@ -161,6 +176,276 @@ paths:
           Om personen har endret personidentifikator innenfor tidsintervallet det etterspørres informasjon må det sendes en request per personidentifikator.
           
           Scope: `nav:sykepenger:kommunallandspensjonskasse.read`
+        security:
+          - maskinporten: []
+        parameters:
+          - in: header
+            name: x-callid
+            description: En UUID konsumenten sender inn som brukes til videre logging og feilsøking.
+            schema:
+              type: string
+              format: uuid
+
+        requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OffentligAfpRequest'
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/OffentligAfpResponse'
+          '400':
+            description: Feil i request
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Valderingsfeil'
+          '401':
+            description: Mangler access token
+          '403':
+            description: Feil scope/audience i token
+          '500':
+            description: Feil på tjeneste, meld fra og send med feilreferanse
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/UhaandtertFeil'
+  
+    /oslo-pensjonsforsikring:
+      post:
+        summary: Hente utbetalte perioder
+        tags:
+          - Oslo pensjonsforsikring
+        description: |-
+          Hente utbetalte perioder for én person
+          
+          Utbetalte sykepengeperioder er eksklusiv arbeidsgiverperioden.
+          
+          Om den tilsluttede virksomheten har endret organisasjonsnummer innenfor tidsintervallet det etterspørres informasjon må det sendes en request per organisasjonsnummer.
+          
+          Om personen har endret personidentifikator innenfor tidsintervallet det etterspørres informasjon må det sendes en request per personidentifikator.
+          
+          Scope: `nav:sykepenger:oslopensjonsforsikring.read`
+        security:
+          - maskinporten: []
+        parameters:
+          - in: header
+            name: x-callid
+            description: En UUID konsumenten sender inn som brukes til videre logging og feilsøking.
+            schema:
+              type: string
+              format: uuid
+
+        requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OffentligAfpRequest'
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/OffentligAfpResponse'
+          '400':
+            description: Feil i request
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Valderingsfeil'
+          '401':
+            description: Mangler access token
+          '403':
+            description: Feil scope/audience i token
+          '500':
+            description: Feil på tjeneste, meld fra og send med feilreferanse
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/UhaandtertFeil'
+  
+    /storebrand-livsforsikring:
+      post:
+        summary: Hente utbetalte perioder
+        tags:
+          - Storebrand livsforsikring
+        description: |-
+          Hente utbetalte perioder for én person
+          
+          Utbetalte sykepengeperioder er eksklusiv arbeidsgiverperioden.
+          
+          Om den tilsluttede virksomheten har endret organisasjonsnummer innenfor tidsintervallet det etterspørres informasjon må det sendes en request per organisasjonsnummer.
+          
+          Om personen har endret personidentifikator innenfor tidsintervallet det etterspørres informasjon må det sendes en request per personidentifikator.
+          
+          Scope: `nav:sykepenger:storebrandlivsforsikring.read`
+        security:
+          - maskinporten: []
+        parameters:
+          - in: header
+            name: x-callid
+            description: En UUID konsumenten sender inn som brukes til videre logging og feilsøking.
+            schema:
+              type: string
+              format: uuid
+
+        requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OffentligAfpRequest'
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/OffentligAfpResponse'
+          '400':
+            description: Feil i request
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Valderingsfeil'
+          '401':
+            description: Mangler access token
+          '403':
+            description: Feil scope/audience i token
+          '500':
+            description: Feil på tjeneste, meld fra og send med feilreferanse
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/UhaandtertFeil'
+  
+    /storebrand-pensjonstjenester:
+      post:
+        summary: Hente utbetalte perioder
+        tags:
+          - Storebrand pensjonstjenester
+        description: |-
+          Hente utbetalte perioder for én person
+          
+          Utbetalte sykepengeperioder er eksklusiv arbeidsgiverperioden.
+          
+          Om den tilsluttede virksomheten har endret organisasjonsnummer innenfor tidsintervallet det etterspørres informasjon må det sendes en request per organisasjonsnummer.
+          
+          Om personen har endret personidentifikator innenfor tidsintervallet det etterspørres informasjon må det sendes en request per personidentifikator.
+          
+          Scope: `nav:sykepenger:storebrandpensjonstjenester.read`
+        security:
+          - maskinporten: []
+        parameters:
+          - in: header
+            name: x-callid
+            description: En UUID konsumenten sender inn som brukes til videre logging og feilsøking.
+            schema:
+              type: string
+              format: uuid
+
+        requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OffentligAfpRequest'
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/OffentligAfpResponse'
+          '400':
+            description: Feil i request
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Valderingsfeil'
+          '401':
+            description: Mangler access token
+          '403':
+            description: Feil scope/audience i token
+          '500':
+            description: Feil på tjeneste, meld fra og send med feilreferanse
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/UhaandtertFeil'
+  
+    /gabler-pensjonstjenester:
+      post:
+        summary: Hente utbetalte perioder
+        tags:
+          - Gabler pensjonstjenester
+        description: |-
+          Hente utbetalte perioder for én person
+          
+          Utbetalte sykepengeperioder er eksklusiv arbeidsgiverperioden.
+          
+          Om den tilsluttede virksomheten har endret organisasjonsnummer innenfor tidsintervallet det etterspørres informasjon må det sendes en request per organisasjonsnummer.
+          
+          Om personen har endret personidentifikator innenfor tidsintervallet det etterspørres informasjon må det sendes en request per personidentifikator.
+          
+          Scope: `nav:sykepenger:gablerpensjonstjenester.read`
+        security:
+          - maskinporten: []
+        parameters:
+          - in: header
+            name: x-callid
+            description: En UUID konsumenten sender inn som brukes til videre logging og feilsøking.
+            schema:
+              type: string
+              format: uuid
+
+        requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OffentligAfpRequest'
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/OffentligAfpResponse'
+          '400':
+            description: Feil i request
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Valderingsfeil'
+          '401':
+            description: Mangler access token
+          '403':
+            description: Feil scope/audience i token
+          '500':
+            description: Feil på tjeneste, meld fra og send med feilreferanse
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/UhaandtertFeil'
+  
+    /aksio:
+      post:
+        summary: Hente utbetalte perioder
+        tags:
+          - Aksio
+        description: |-
+          Hente utbetalte perioder for én person
+          
+          Utbetalte sykepengeperioder er eksklusiv arbeidsgiverperioden.
+          
+          Om den tilsluttede virksomheten har endret organisasjonsnummer innenfor tidsintervallet det etterspørres informasjon må det sendes en request per organisasjonsnummer.
+          
+          Om personen har endret personidentifikator innenfor tidsintervallet det etterspørres informasjon må det sendes en request per personidentifikator.
+          
+          Scope: `nav:sykepenger:aksio.read`
         security:
           - maskinporten: []
         parameters:

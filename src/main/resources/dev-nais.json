@@ -18,5 +18,27 @@
     "scope": "kommunallandspensjonskasse.read",
     "name": "Kommunal landspensjonskasse",
     "orgno": "938708606"
+  },
+  {
+    "scope": "oslopensjonsforsikring.read",
+    "name": "Oslo pensjonsforsikring",
+    "orgno": "982759412"
+  },
+  {
+    "scope": "storebrandlivsforsikring.read",
+    "name": "Storebrand livsforsikring",
+    "orgno": "958995369"
+  },{
+    "scope": "storebrandpensjonstjenester.read",
+    "name": "Storebrand pensjonstjenester",
+    "orgno": "931936492"
+  },{
+    "scope": "gablerpensjonstjenester.read",
+    "name": "Gabler pensjonstjenester",
+    "orgno": "916833520"
+  },{
+    "scope": "aksio.read",
+    "name": "Aksio",
+    "orgno": "927613298"
   }]
 }
