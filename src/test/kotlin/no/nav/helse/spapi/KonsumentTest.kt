@@ -39,6 +39,7 @@ internal abstract class KonsumentTest{
 
     protected fun riktigToken() = maskinporten.accessToken(mapOf("scope" to scope))
     protected fun feilScope() = maskinporten.accessToken(mapOf("scope" to "$scope-med-feil"))
+    protected fun valgfrittScope(valgfrittScope: String) = maskinporten.accessToken(mapOf("scope" to valgfrittScope))
     protected fun feilIssuerHeader() = maskinporten.accessToken(mapOf("scope" to scope, "iss" to "feil-issuer"))
     protected fun feilIssuer() = feilIssuer.accessToken(mapOf("scope" to scope))
     protected fun feilAudience() = maskinporten.accessToken(mapOf("scope" to scope, "aud" to "feil-audience"))
