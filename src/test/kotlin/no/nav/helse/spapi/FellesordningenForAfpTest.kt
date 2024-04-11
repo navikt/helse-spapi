@@ -94,7 +94,11 @@ internal class FellesordningenForAfpTest : KonsumentTest() {
             UtbetaltPeriode(LocalDate.parse("2018-01-01"), LocalDate.parse("2018-01-31"), Organisasjonsnummer("999999999"), 100, setOf("UsikkerSykdomsgrad")),
             UtbetaltPeriode(LocalDate.parse("2019-01-01"), LocalDate.parse("2019-01-31"), Organisasjonsnummer("999999998"), 80, setOf()),
             UtbetaltPeriode(LocalDate.parse("2020-01-01"), LocalDate.parse("2020-01-31"), Organisasjonsnummer("999999999"), 79, setOf())
-        )
+        ).also {
+            assertEquals(LocalDate.parse("2018-01-01"), fom)
+            assertEquals(LocalDate.parse("2018-01-31"), tom)
+            assertEquals(setOf(Personidentifikator("11111111111")), personidentifikatorer)
+        }
     }
 
     private suspend fun HttpClient.request(accessToken: String? = null, minimumSykdomsgrad: Int? = null, tomKey: String = "tilOgMedDato", tomValue: String = "2018-01-31") = post("/fellesordningen-for-afp") {
