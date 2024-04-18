@@ -49,7 +49,7 @@ internal class Issuer(
 
     private fun MutableMap<String, String>.hentOgFjern(key: String) = get(key)?.also { remove(key) }
 
-    internal fun accessToken(claims: Map<String, String> = emptyMap()): String {
+    internal fun accessToken(claims: Map<String, String> = emptyMap(), organisasjonsnummer: Organisasjonsnummer? = null): String {
         val benyttetClaims = claims.toMutableMap()
         val issuer = benyttetClaims.hentOgFjern("iss") ?: this.navn
         val audience = benyttetClaims.hentOgFjern("aud") ?: this.audience
@@ -58,6 +58,7 @@ internal class Issuer(
             .withAudience(audience)
             .withKeyId("key-1234")
             .also { claims.forEach { (key, value) -> it.withClaim(key, value) } }
+            .also { organisasjonsnummer?.let { orgnr -> it.withClaim("consumer", mapOf("ID" to "0192:$orgnr"))} }
             .sign(algorithm)
     }
     internal fun jwksUri() = "${wireMockServer.baseUrl()}/jwks"

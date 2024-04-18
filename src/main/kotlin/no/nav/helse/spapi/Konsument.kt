@@ -44,6 +44,8 @@ internal abstract class Konsument(
             post("/$id") {
                 val requestBody = call.requestBody()
                 sikkerlogg.info("Mottok request fra ${this@Konsument}:\n\t$requestBody")
+                val utledetKonsument = call.utledKonsument()
+                if (utledetKonsument != this@Konsument) sikkerlogg.warn("Utledet konsument er $utledetKonsument. Forventet ${this@Konsument}")
 
                 val request = request(requestBody)
 
@@ -114,6 +116,10 @@ internal abstract class Konsument(
             } catch (throwable: Throwable) {
                 respond(HttpStatusCode.Unauthorized, "Bearer token må settes i Authorization header for å hente data fra Spaπ!")
             }
+        }
+        private fun ApplicationCall.utledKonsument(): Konsument? {
+            val organisasjonsnummer = principal<JWTPrincipal>()?.payload?.getClaim("consumer")?.asMap()?.get("ID")?.toString()?.substringAfter(":") ?: return null
+            return AlleKonsumenter.firstOrNull { it.organisasjonsnummer.toString() == organisasjonsnummer }
         }
     }
 }

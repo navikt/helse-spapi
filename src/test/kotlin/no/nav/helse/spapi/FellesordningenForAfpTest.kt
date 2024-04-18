@@ -51,7 +51,7 @@ internal class FellesordningenForAfpTest : KonsumentTest() {
           ]
         }
         """
-        client.request(riktigToken()).apply {
+        client.request(riktigToken(Organisasjonsnummer("987414502"))).apply {
             assertEquals(OK, status)
             assertResponse(forventetResponse)
         }

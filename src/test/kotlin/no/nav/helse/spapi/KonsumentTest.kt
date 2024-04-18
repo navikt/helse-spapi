@@ -37,7 +37,7 @@ internal abstract class KonsumentTest{
     private val maskinporten = Issuer(navn = "maskinporten", audience = "https://spapi")
     private val feilIssuer = Issuer(navn = "ikke-maskinporten", audience = "https://spapi")
 
-    protected fun riktigToken() = maskinporten.accessToken(mapOf("scope" to scope))
+    protected fun riktigToken(organisasjonsnummer: Organisasjonsnummer? = null) = maskinporten.accessToken(mapOf("scope" to scope), organisasjonsnummer)
     protected fun feilScope() = maskinporten.accessToken(mapOf("scope" to "$scope-med-feil"))
     protected fun valgfrittScope(valgfrittScope: String) = maskinporten.accessToken(mapOf("scope" to valgfrittScope))
     protected fun feilIssuerHeader() = maskinporten.accessToken(mapOf("scope" to scope, "iss" to "feil-issuer"))
