@@ -65,14 +65,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/{{konsument.prefix}}Request'
+                $ref: '#/components/schemas/Request{{konsument.suffix}}'
         responses:
           '200':
             description: OK
             content:
               application/json:
                 schema:
-                  $ref: '#/components/schemas/{{konsument.prefix}}Response'
+                  $ref: '#/components/schemas/Response{{konsument.suffix}}'
           '400':
             description: Feil i request
             content:
@@ -92,7 +92,7 @@ paths:
   {{/each}}
 components:
   schemas:
-    FellesordningenForAfpRequest:
+    RequestV1:
       type: object
       required: ["personidentifikator", "organisasjonsnummer", "fraOgMedDato", "tilOgMedDato"]
       properties:
@@ -122,7 +122,7 @@ components:
           maximum: 100
           description: Anbefalt, men valgfri. Minimum sykdomsgrad som er aktuelt å utlevere informasjon om for å vurdere vilkårene for AFP for den aktuelle underenheten
           example: 80
-    FellesordningenForAfpUtbetaltPeriode:
+    UtbetaltPeriodeV1:
       type: object
       required: ["fraOgMedDato", "tilOgMedDato", "tags"]
       properties:
@@ -149,14 +149,14 @@ components:
             type: string
             enum:
               - UsikkerSykdomsgrad
-    FellesordningenForAfpResponse:
+    ResponseV1:
       type: object
       properties:
         utbetaltePerioder:
           type: array
           description: Perioder med utbetaling
           items:
-            $ref: '#/components/schemas/FellesordningenForAfpUtbetaltPeriode'
+            $ref: '#/components/schemas/UtbetaltPeriodeV1'
     Valderingsfeil:
       type: object
       required: ["feilmelding", "feilreferanse"]
@@ -183,8 +183,8 @@ components:
           format: uuid
           description: Id som identifiserer requesten
           example: 6b120ff7-ea67-4d00-b2ea-ff054c6e4b43
-    {{#if offentligAfp}}
-    OffentligAfpRequest:
+    {{#if V2}}
+    RequestV2:
         type: object
         required: ["personidentifikator", "organisasjonsnummer", "fraOgMedDato", "tilOgMedDato", "minimumSykdomsgrad"]
         properties:
@@ -214,7 +214,7 @@ components:
             maximum: 100
             description: Minimum sykdomsgrad som er aktuelt å utlevere informasjon om for å vurdere vilkårene for AFP for den aktuelle underenheten
             example: 80
-    OffentligAfpUtbetaltPeriode:
+    UtbetaltPeriodeV2:
       type: object
       required: ["fraOgMedDato", "tilOgMedDato", "tags"]
       properties:
@@ -235,14 +235,14 @@ components:
             type: string
             enum:
               - UsikkerSykdomsgrad
-    OffentligAfpResponse:
+    ResponseV2:
       type: object
       properties:
         utbetaltePerioder:
           type: array
           description: Perioder med utbetaling
           items:
-            $ref: '#/components/schemas/OffentligAfpUtbetaltPeriode'
+            $ref: '#/components/schemas/UtbetaltPeriodeV2'
   {{/if}}
   securitySchemes:
     maskinporten:

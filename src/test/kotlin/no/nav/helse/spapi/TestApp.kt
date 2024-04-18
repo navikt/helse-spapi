@@ -17,7 +17,7 @@ import java.time.LocalDate
 fun main() {
     val maskinporten = Issuer(navn = "maskinporten", audience = "https://spapi").start()
     Runtime.getRuntime().addShutdownHook(Thread{ maskinporten.stop() })
-    embeddedServer(CIO, port = 8080) {
+    embeddedServer(CIO, port = 8085) {
         testSpapi(maskinporten, object : UtbetaltePerioder {
             override suspend fun hent(personidentifikatorer: Set<Personidentifikator>, fom: LocalDate, tom: LocalDate) = emptyList<UtbetaltPeriode>()
         })

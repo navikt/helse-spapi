@@ -82,14 +82,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FellesordningenForAfpRequest'
+                $ref: '#/components/schemas/RequestV1'
         responses:
           '200':
             description: OK
             content:
               application/json:
                 schema:
-                  $ref: '#/components/schemas/FellesordningenForAfpResponse'
+                  $ref: '#/components/schemas/ResponseV1'
           '400':
             description: Feil i request
             content:
@@ -136,14 +136,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OffentligAfpRequest'
+                $ref: '#/components/schemas/RequestV2'
         responses:
           '200':
             description: OK
             content:
               application/json:
                 schema:
-                  $ref: '#/components/schemas/OffentligAfpResponse'
+                  $ref: '#/components/schemas/ResponseV2'
           '400':
             description: Feil i request
             content:
@@ -190,14 +190,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OffentligAfpRequest'
+                $ref: '#/components/schemas/RequestV2'
         responses:
           '200':
             description: OK
             content:
               application/json:
                 schema:
-                  $ref: '#/components/schemas/OffentligAfpResponse'
+                  $ref: '#/components/schemas/ResponseV2'
           '400':
             description: Feil i request
             content:
@@ -244,14 +244,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OffentligAfpRequest'
+                $ref: '#/components/schemas/RequestV2'
         responses:
           '200':
             description: OK
             content:
               application/json:
                 schema:
-                  $ref: '#/components/schemas/OffentligAfpResponse'
+                  $ref: '#/components/schemas/ResponseV2'
           '400':
             description: Feil i request
             content:
@@ -298,14 +298,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OffentligAfpRequest'
+                $ref: '#/components/schemas/RequestV2'
         responses:
           '200':
             description: OK
             content:
               application/json:
                 schema:
-                  $ref: '#/components/schemas/OffentligAfpResponse'
+                  $ref: '#/components/schemas/ResponseV2'
           '400':
             description: Feil i request
             content:
@@ -352,14 +352,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OffentligAfpRequest'
+                $ref: '#/components/schemas/RequestV2'
         responses:
           '200':
             description: OK
             content:
               application/json:
                 schema:
-                  $ref: '#/components/schemas/OffentligAfpResponse'
+                  $ref: '#/components/schemas/ResponseV2'
           '400':
             description: Feil i request
             content:
@@ -406,14 +406,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OffentligAfpRequest'
+                $ref: '#/components/schemas/RequestV2'
         responses:
           '200':
             description: OK
             content:
               application/json:
                 schema:
-                  $ref: '#/components/schemas/OffentligAfpResponse'
+                  $ref: '#/components/schemas/ResponseV2'
           '400':
             description: Feil i request
             content:
@@ -460,14 +460,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OffentligAfpRequest'
+                $ref: '#/components/schemas/RequestV2'
         responses:
           '200':
             description: OK
             content:
               application/json:
                 schema:
-                  $ref: '#/components/schemas/OffentligAfpResponse'
+                  $ref: '#/components/schemas/ResponseV2'
           '400':
             description: Feil i request
             content:
@@ -487,7 +487,7 @@ paths:
   
 components:
   schemas:
-    FellesordningenForAfpRequest:
+    RequestV1:
       type: object
       required: ["personidentifikator", "organisasjonsnummer", "fraOgMedDato", "tilOgMedDato"]
       properties:
@@ -517,7 +517,7 @@ components:
           maximum: 100
           description: Anbefalt, men valgfri. Minimum sykdomsgrad som er aktuelt å utlevere informasjon om for å vurdere vilkårene for AFP for den aktuelle underenheten
           example: 80
-    FellesordningenForAfpUtbetaltPeriode:
+    UtbetaltPeriodeV1:
       type: object
       required: ["fraOgMedDato", "tilOgMedDato", "tags"]
       properties:
@@ -544,14 +544,14 @@ components:
             type: string
             enum:
               - UsikkerSykdomsgrad
-    FellesordningenForAfpResponse:
+    ResponseV1:
       type: object
       properties:
         utbetaltePerioder:
           type: array
           description: Perioder med utbetaling
           items:
-            $ref: '#/components/schemas/FellesordningenForAfpUtbetaltPeriode'
+            $ref: '#/components/schemas/UtbetaltPeriodeV1'
     Valderingsfeil:
       type: object
       required: ["feilmelding", "feilreferanse"]
@@ -579,7 +579,7 @@ components:
           description: Id som identifiserer requesten
           example: 6b120ff7-ea67-4d00-b2ea-ff054c6e4b43
     
-    OffentligAfpRequest:
+    RequestV2:
         type: object
         required: ["personidentifikator", "organisasjonsnummer", "fraOgMedDato", "tilOgMedDato", "minimumSykdomsgrad"]
         properties:
@@ -609,7 +609,7 @@ components:
             maximum: 100
             description: Minimum sykdomsgrad som er aktuelt å utlevere informasjon om for å vurdere vilkårene for AFP for den aktuelle underenheten
             example: 80
-    OffentligAfpUtbetaltPeriode:
+    UtbetaltPeriodeV2:
       type: object
       required: ["fraOgMedDato", "tilOgMedDato", "tags"]
       properties:
@@ -630,14 +630,14 @@ components:
             type: string
             enum:
               - UsikkerSykdomsgrad
-    OffentligAfpResponse:
+    ResponseV2:
       type: object
       properties:
         utbetaltePerioder:
           type: array
           description: Perioder med utbetaling
           items:
-            $ref: '#/components/schemas/OffentligAfpUtbetaltPeriode'
+            $ref: '#/components/schemas/UtbetaltPeriodeV2'
   
   securitySchemes:
     maskinporten:

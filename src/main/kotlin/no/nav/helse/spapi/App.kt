@@ -18,7 +18,7 @@ import io.ktor.server.plugins.swagger.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import no.nav.helse.spapi.EnKonsument.Companion.konsumenter
+import no.nav.helse.spapi.Konsument.Companion.konsumenter
 import no.nav.helse.spapi.personidentifikator.Pdl
 import no.nav.helse.spapi.personidentifikator.Personidentifikatorer
 import no.nav.helse.spapi.utbetalteperioder.Spøkelse

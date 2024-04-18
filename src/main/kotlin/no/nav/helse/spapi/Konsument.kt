@@ -10,28 +10,18 @@ import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import no.nav.helse.spapi.personidentifikator.Personidentifikator
 import no.nav.helse.spapi.personidentifikator.Personidentifikatorer
 import no.nav.helse.spapi.utbetalteperioder.UtbetaltPeriode
 import no.nav.helse.spapi.utbetalteperioder.UtbetaltePerioder
 import org.slf4j.LoggerFactory
-import java.time.LocalDate
 import java.util.*
 
-internal interface KonsumentRequest {
-    val fom: LocalDate
-    val tom: LocalDate
-    val personidentifikator: Personidentifikator
-}
-
-internal typealias Konsument = EnKonsument<out KonsumentRequest>
-
-internal abstract class EnKonsument<Req: KonsumentRequest>(
+internal abstract class Konsument(
     internal val navn: String,
     internal val organisasjonsnummer: Organisasjonsnummer,
     internal val id: String,
     internal val scope: String,
-    internal val behandlingsnummer: String,
+    internal val behandlingsnummer: String ,
     internal val behandlingsgrunnlag: Behandlingsgrunnlag
 ) {
     override fun toString() = navn
@@ -53,12 +43,12 @@ internal abstract class EnKonsument<Req: KonsumentRequest>(
         routing.authenticate(id) {
             post("/$id") {
                 val requestBody = call.requestBody()
-                sikkerlogg.info("Mottok request fra ${this@EnKonsument}:\n\t$requestBody")
+                sikkerlogg.info("Mottok request fra ${this@Konsument}:\n\t$requestBody")
 
                 val request = request(requestBody)
 
                 val perioder = utbetaltePerioder.hent(
-                    personidentifikatorer = personidentifikatorer.hentAlle(request.personidentifikator, this@EnKonsument),
+                    personidentifikatorer = personidentifikatorer.hentAlle(request.personidentifikator, this@Konsument),
                     fom = request.fom,
                     tom = request.tom
                 )
@@ -67,7 +57,7 @@ internal abstract class EnKonsument<Req: KonsumentRequest>(
 
                 sporings.logg(
                     person = request.personidentifikator,
-                    konsument = this@EnKonsument,
+                    konsument = this@Konsument,
                     leverteData = response
                 )
 
@@ -76,14 +66,21 @@ internal abstract class EnKonsument<Req: KonsumentRequest>(
         }
     }
 
-    abstract suspend fun request(requestBody: JsonNode): Req
+    abstract suspend fun request(requestBody: JsonNode): KonsumentRequestV2
 
-    abstract suspend fun response(utbetaltePerioder: List<UtbetaltPeriode>, request: Req): String
+    private fun response(utbetaltePerioder: List<UtbetaltPeriode>, request: KonsumentRequestV2): String {
+        val utlevertePerioder = request.filtrer(utbetaltePerioder).map { objectMapper.readTree(request.json(it)) }
+        return objectMapper.createObjectNode().apply {
+            putArray("utbetaltePerioder").addAll(utlevertePerioder)
+        }.toString()
+    }
 
     internal companion object {
         private val sikkerlogg = LoggerFactory.getLogger("tjenestekall")
-        @JvmStatic
-        protected val objectMapper = jacksonObjectMapper()
+        private val objectMapper = jacksonObjectMapper()
+        private suspend fun ApplicationCall.requestBody() = try { objectMapper.readTree(receiveText()) } catch (throwable: Throwable) {
+            objectMapper.createObjectNode()
+        }
 
         private val String.innholdFraResource get() = object {}.javaClass.getResource(this)?.readText() ?: error("Fant ikke resource <$this>")
 
@@ -118,24 +115,10 @@ internal abstract class EnKonsument<Req: KonsumentRequest>(
                 respond(HttpStatusCode.Unauthorized, "Bearer token må settes i Authorization header for å hente data fra Spaπ!")
             }
         }
-
-        @JvmStatic
-        protected fun List<UtbetaltPeriode>.json(medSykdomsgrad: Boolean) = map {
-            objectMapper.createObjectNode().apply {
-                put("fraOgMedDato", "${it.fom}")
-                put("tilOgMedDato", "${it.tom}")
-                .apply { putArray("tags").let { tags -> it.tags.forEach(tags::add) } }
-                if (medSykdomsgrad) put("sykdomsgrad", it.grad)
-            }
-        }.let { utlevertePerioder ->
-            objectMapper.createObjectNode().apply {
-                putArray("utbetaltePerioder").addAll(utlevertePerioder)
-            }.toString()
-        }
     }
 }
 
-internal object FellesordningenForAfp: EnKonsument<FellesordningenForAfp.Request>(
+internal object FellesordningenForAfp: Konsument(
     navn = "Fellesordningen for AFP",
     organisasjonsnummer = Organisasjonsnummer("987414502"),
     id = "fellesordningen-for-afp",
@@ -143,89 +126,77 @@ internal object FellesordningenForAfp: EnKonsument<FellesordningenForAfp.Request
     behandlingsnummer = "B709",
     behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b")
 ) {
-    internal data class Request(override val personidentifikator: Personidentifikator, override val fom: LocalDate, override val tom: LocalDate, val organisasjonsnummer: Organisasjonsnummer, val minimumSykdomsgrad: Int?): KonsumentRequest
-
-    override suspend fun request(requestBody: JsonNode) = requestBody.periode.let { (fom, tom) -> Request(
-        personidentifikator = requestBody.personidentifikator,
-        fom = fom,
-        tom = tom,
-        organisasjonsnummer = requestBody.organisasjonsnummer,
-        minimumSykdomsgrad = requestBody.optionalMinimumSykdomsgrad
-    )}
-
-    override suspend fun response(utbetaltePerioder: List<UtbetaltPeriode>, request: Request) = utbetaltePerioder
-        .filter { it.organisasjonsnummer == request.organisasjonsnummer }
-        .filter { it.grad >= (request.minimumSykdomsgrad ?: 0) }
-        .json(medSykdomsgrad = request.minimumSykdomsgrad == null)
+    override suspend fun request(requestBody: JsonNode) = RequiredOrganisasjonsnummerOptionalMinimumSykdomsgrad(requestBody)
 }
 
-internal abstract class OffentligAfp(
-    navn: String,
-    organisasjonsnummer: Organisasjonsnummer,
-    id: String,
-    scope: String
-) : EnKonsument<OffentligAfp.Request>(navn, organisasjonsnummer, id, scope, "B709", Behandlingsgrunnlag("GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b")) {
-    internal data class Request(
-        override val personidentifikator: Personidentifikator,
-        override val fom: LocalDate,
-        override val tom: LocalDate,
-        val organisasjonsnummer: Organisasjonsnummer,
-        val minimumSykdomsgrad: Int
-    ) : KonsumentRequest
-
-    override suspend fun request(requestBody: JsonNode) = requestBody.periode.let { (fom, tom) -> Request(
-        personidentifikator = requestBody.personidentifikator,
-        fom = fom,
-        tom = tom,
-        organisasjonsnummer = requestBody.organisasjonsnummer,
-        minimumSykdomsgrad = requestBody.requiredMinimumSykdomsgrad
-    )}
-
-    override suspend fun response(utbetaltePerioder: List<UtbetaltPeriode>, request: Request) = utbetaltePerioder
-        .filter { it.organisasjonsnummer == request.organisasjonsnummer }
-        .filter { it.grad >= request.minimumSykdomsgrad }
-        .json(medSykdomsgrad = false)
-}
-
-internal object OsloPensjonsforsikring: OffentligAfp(
+internal object OsloPensjonsforsikring: Konsument(
     navn = "Oslo pensjonsforsikring",
     organisasjonsnummer = Organisasjonsnummer("982759412"),
     id = "oslo-pensjonsforsikring",
     scope = "nav:sykepenger:oslopensjonsforsikring.read",
-)
-internal object StatensPensjonskasse: OffentligAfp(
+    behandlingsnummer = "B709",
+    behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b")
+) {
+    override suspend fun request(requestBody: JsonNode) = RequiredOrganisasjonsnummerRequiredMinimumSykdomsgrad(requestBody)
+}
+
+internal object StatensPensjonskasse: Konsument(
     navn = "Statens pensjonskasse",
     organisasjonsnummer = Organisasjonsnummer("982583462"),
     id = "statens-pensjonskasse",
     scope = "nav:sykepenger:statenspensjonskasse.read",
-)
-internal object StorebrandLivsforsikring: OffentligAfp(
+    behandlingsnummer = "B709",
+    behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b")
+) {
+    override suspend fun request(requestBody: JsonNode) = RequiredOrganisasjonsnummerRequiredMinimumSykdomsgrad(requestBody)
+}
+internal object StorebrandLivsforsikring: Konsument(
     navn = "Storebrand livsforsikring",
     organisasjonsnummer = Organisasjonsnummer("958995369"),
     id = "storebrand-livsforsikring",
     scope = "nav:sykepenger:storebrandlivsforsikring.read",
-)
-internal object KommunalLandspensjonskasse: OffentligAfp(
+    behandlingsnummer = "B709",
+    behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b")
+) {
+    override suspend fun request(requestBody: JsonNode) = RequiredOrganisasjonsnummerRequiredMinimumSykdomsgrad(requestBody)
+}
+internal object KommunalLandspensjonskasse: Konsument(
     navn = "Kommunal landspensjonskasse",
     organisasjonsnummer = Organisasjonsnummer("938708606"),
     id = "kommunal-landspensjonskasse",
     scope = "nav:sykepenger:kommunallandspensjonskasse.read",
-)
-internal object StorebrandPensjonstjenester: OffentligAfp(
+    behandlingsnummer = "B709",
+    behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b")
+) {
+    override suspend fun request(requestBody: JsonNode) = RequiredOrganisasjonsnummerRequiredMinimumSykdomsgrad(requestBody)
+}
+internal object StorebrandPensjonstjenester: Konsument(
     navn = "Storebrand pensjonstjenester",
     organisasjonsnummer = Organisasjonsnummer("931936492"),
     id = "storebrand-pensjonstjenester",
     scope = "nav:sykepenger:storebrandpensjonstjenester.read",
-)
-internal object GablerPensjonstjenester: OffentligAfp(
+    behandlingsnummer = "B709",
+    behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b")
+) {
+    override suspend fun request(requestBody: JsonNode) = RequiredOrganisasjonsnummerRequiredMinimumSykdomsgrad(requestBody)
+}
+internal object GablerPensjonstjenester: Konsument(
     navn = "Gabler pensjonstjenester",
     organisasjonsnummer = Organisasjonsnummer("916833520"),
     id = "gabler-pensjonstjenester",
     scope = "nav:sykepenger:gablerpensjonstjenester.read",
-)
-internal object Aksio: OffentligAfp(
+    behandlingsnummer = "B709",
+    behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b")
+) {
+    override suspend fun request(requestBody: JsonNode) = RequiredOrganisasjonsnummerRequiredMinimumSykdomsgrad(requestBody)
+}
+internal object Aksio: Konsument(
     navn = "Aksio",
     organisasjonsnummer = Organisasjonsnummer("927613298"),
     id = "aksio",
     scope = "nav:sykepenger:aksio.read",
-)
+    behandlingsnummer = "B709",
+    behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b")
+) {
+    override suspend fun request(requestBody: JsonNode) = RequiredOrganisasjonsnummerRequiredMinimumSykdomsgrad(requestBody)
+}

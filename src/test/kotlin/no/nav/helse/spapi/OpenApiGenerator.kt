@@ -1,8 +1,11 @@
 package no.nav.helse.spapi
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.jknack.handlebars.Handlebars
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader
-import no.nav.helse.spapi.EnKonsument.Companion.konsumenter
+import kotlinx.coroutines.runBlocking
+import no.nav.helse.spapi.Konsument.Companion.konsumenter
+import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable
 import java.nio.file.Paths
@@ -28,11 +31,7 @@ class OpenApiGenerator {
             "navn" to it.navn,
             "scope" to it.scope,
             "organisasjonsnummer" to it.organisasjonsnummer,
-            "prefix" to when (it) {
-                is FellesordningenForAfp -> "FellesordningenForAfp"
-                is OffentligAfp -> "OffentligAfp"
-                else -> error("Ukjent konsument ${it.navn}")
-            }
+            "suffix" to it.suffix
         )}
 
         val path = "src/main/resources/${config.miljø}-openapi.yml".absolutePath
@@ -40,11 +39,22 @@ class OpenApiGenerator {
         val yml = Handlebars(ClassPathTemplateLoader("/", ".yml")).compile("openapi-template").apply(mapOf(
             "konsumenter" to konsumenter,
             "prod" to (config.miljø == "prod"),
-            "offentligAfp" to (config.konsumenter.any { it is OffentligAfp })
+            "V2" to konsumenter.map { it["suffix"] }.any { it == "V2" }
         ))
 
         path.writeBytes(yml.toByteArray())
     }
 
-    private val String.absolutePath get() = Paths.get("${Paths.get("").absolutePathString()}/$this")
+    private companion object {
+        private val String.absolutePath get() = Paths.get("${Paths.get("").absolutePathString()}/$this")
+        @Language("JSON")
+        private val tullerequest = """
+            { "personidentifikator": "11111111111", "organisasjonsnummer": "999999999", "fraOgMedDato": "2018-01-01", "tilOgMedDato": "2018-12-31", "minimumSykdomsgrad": 80 }
+        """.let { jacksonObjectMapper().readTree(it) }
+        private val Konsument.suffix get() = when (val request = runBlocking { request(tullerequest) } ) {
+            is RequiredOrganisasjonsnummerOptionalMinimumSykdomsgrad -> "V1"
+            is RequiredOrganisasjonsnummerRequiredMinimumSykdomsgrad -> "V2"
+            else -> error("Mangler suffix for ${request.javaClass.simpleName}")
+        }
+    }
 }
