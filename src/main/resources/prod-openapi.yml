@@ -175,7 +175,6 @@ components:
           format: uuid
           description: Id som identifiserer requesten
           example: 6b120ff7-ea67-4d00-b2ea-ff054c6e4b43
-    
   securitySchemes:
     maskinporten:
       type: http

@@ -9,7 +9,7 @@ import org.intellij.lang.annotations.Language
 import java.lang.IllegalArgumentException
 import java.time.LocalDate
 
-internal interface KonsumentRequestV2 {
+internal interface KonsumentRequest {
     val fom: LocalDate
     val tom: LocalDate
     val personidentifikator: Personidentifikator
@@ -23,7 +23,7 @@ internal class RequiredOrganisasjonsnummerOptionalMinimumSykdomsgrad private con
     override val personidentifikator: Personidentifikator,
     private val organisasjonsnummer: Organisasjonsnummer,
     private val minimumSykdomsgrad: Int?
-): KonsumentRequestV2 {
+): KonsumentRequest {
 
     internal constructor(requestBody: JsonNode): this(
         fom = requestBody.periode.first,
@@ -44,36 +44,6 @@ internal class RequiredOrganisasjonsnummerOptionalMinimumSykdomsgrad private con
           "tilOgMedDato": "${utbetaltPeriode.tom}",
           "tags": ${utbetaltPeriode.tags.map { "\"$it\"" }}
           ${if (minimumSykdomsgrad == null) ",\"sykdomsgrad\": ${utbetaltPeriode.grad}" else ""}
-        }
-    """
-}
-
-internal class RequiredOrganisasjonsnummerRequiredMinimumSykdomsgrad private constructor(
-    override val fom: LocalDate,
-    override val tom: LocalDate,
-    override val personidentifikator: Personidentifikator,
-    private val organisasjonsnummer: Organisasjonsnummer,
-    private val minimumSykdomsgrad: Int
-): KonsumentRequestV2 {
-
-    internal constructor(requestBody: JsonNode): this(
-        fom = requestBody.periode.first,
-        tom = requestBody.periode.second,
-        personidentifikator = requestBody.personidentifikator,
-        organisasjonsnummer = requestBody.organisasjonsnummer,
-        minimumSykdomsgrad = requestBody.requiredMinimumSykdomsgrad
-    )
-
-    override fun filtrer(utbetaltePerioder: List<UtbetaltPeriode>) = utbetaltePerioder
-        .filter { it.organisasjonsnummer == organisasjonsnummer }
-        .filter { it.grad >= minimumSykdomsgrad }
-
-    @Language("JSON")
-    override fun json(utbetaltPeriode: UtbetaltPeriode) = """
-        {
-          "fraOgMedDato": "${utbetaltPeriode.fom}",
-          "tilOgMedDato": "${utbetaltPeriode.tom}",
-          "tags": ${utbetaltPeriode.tags.map { "\"$it\"" }}
         }
     """
 }
@@ -99,9 +69,6 @@ private val JsonNode.periode get(): Pair<LocalDate, LocalDate> {
     val fom = required("fraOgMedDato") { LocalDate.parse(it.asText()) }
     val tom = required("tilOgMedDato") { LocalDate.parse(it.asText()).also { tom -> check(fom <= tom) { "Ugyldig periode $fom til $tom" } } }
     return fom to tom
-}
-private val JsonNode.requiredMinimumSykdomsgrad get() = required("minimumSykdomsgrad") {
-    it.asInt().also { minimumSykdomsgrad -> check(minimumSykdomsgrad in 1..100) { "Må være mellom 1 og 100" } }
 }
 private val JsonNode.optionalMinimumSykdomsgrad get() = optional("minimumSykdomsgrad") {
     it.asInt().also { minimumSykdomsgrad -> check(minimumSykdomsgrad in 1..100) { "Må være mellom 1 og 100" } }

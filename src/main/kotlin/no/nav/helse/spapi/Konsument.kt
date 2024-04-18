@@ -66,9 +66,9 @@ internal abstract class Konsument(
         }
     }
 
-    abstract suspend fun request(requestBody: JsonNode): KonsumentRequestV2
+    open suspend fun request(requestBody: JsonNode): KonsumentRequest = RequiredOrganisasjonsnummerOptionalMinimumSykdomsgrad(requestBody)
 
-    private fun response(utbetaltePerioder: List<UtbetaltPeriode>, request: KonsumentRequestV2): String {
+    private fun response(utbetaltePerioder: List<UtbetaltPeriode>, request: KonsumentRequest): String {
         val utlevertePerioder = request.filtrer(utbetaltePerioder).map { objectMapper.readTree(request.json(it)) }
         return objectMapper.createObjectNode().apply {
             putArray("utbetaltePerioder").addAll(utlevertePerioder)
@@ -125,10 +125,7 @@ internal object FellesordningenForAfp: Konsument(
     scope = "nav:sykepenger:fellesordningenforafp.read",
     behandlingsnummer = "B709",
     behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b")
-) {
-    override suspend fun request(requestBody: JsonNode) = RequiredOrganisasjonsnummerOptionalMinimumSykdomsgrad(requestBody)
-}
-
+)
 internal object OsloPensjonsforsikring: Konsument(
     navn = "Oslo pensjonsforsikring",
     organisasjonsnummer = Organisasjonsnummer("982759412"),
@@ -136,10 +133,7 @@ internal object OsloPensjonsforsikring: Konsument(
     scope = "nav:sykepenger:oslopensjonsforsikring.read",
     behandlingsnummer = "B709",
     behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b")
-) {
-    override suspend fun request(requestBody: JsonNode) = RequiredOrganisasjonsnummerRequiredMinimumSykdomsgrad(requestBody)
-}
-
+)
 internal object StatensPensjonskasse: Konsument(
     navn = "Statens pensjonskasse",
     organisasjonsnummer = Organisasjonsnummer("982583462"),
@@ -147,9 +141,7 @@ internal object StatensPensjonskasse: Konsument(
     scope = "nav:sykepenger:statenspensjonskasse.read",
     behandlingsnummer = "B709",
     behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b")
-) {
-    override suspend fun request(requestBody: JsonNode) = RequiredOrganisasjonsnummerRequiredMinimumSykdomsgrad(requestBody)
-}
+)
 internal object StorebrandLivsforsikring: Konsument(
     navn = "Storebrand livsforsikring",
     organisasjonsnummer = Organisasjonsnummer("958995369"),
@@ -157,9 +149,7 @@ internal object StorebrandLivsforsikring: Konsument(
     scope = "nav:sykepenger:storebrandlivsforsikring.read",
     behandlingsnummer = "B709",
     behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b")
-) {
-    override suspend fun request(requestBody: JsonNode) = RequiredOrganisasjonsnummerRequiredMinimumSykdomsgrad(requestBody)
-}
+)
 internal object KommunalLandspensjonskasse: Konsument(
     navn = "Kommunal landspensjonskasse",
     organisasjonsnummer = Organisasjonsnummer("938708606"),
@@ -167,9 +157,7 @@ internal object KommunalLandspensjonskasse: Konsument(
     scope = "nav:sykepenger:kommunallandspensjonskasse.read",
     behandlingsnummer = "B709",
     behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b")
-) {
-    override suspend fun request(requestBody: JsonNode) = RequiredOrganisasjonsnummerOptionalMinimumSykdomsgrad(requestBody)
-}
+)
 internal object StorebrandPensjonstjenester: Konsument(
     navn = "Storebrand pensjonstjenester",
     organisasjonsnummer = Organisasjonsnummer("931936492"),
@@ -177,9 +165,7 @@ internal object StorebrandPensjonstjenester: Konsument(
     scope = "nav:sykepenger:storebrandpensjonstjenester.read",
     behandlingsnummer = "B709",
     behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b")
-) {
-    override suspend fun request(requestBody: JsonNode) = RequiredOrganisasjonsnummerRequiredMinimumSykdomsgrad(requestBody)
-}
+)
 internal object GablerPensjonstjenester: Konsument(
     navn = "Gabler pensjonstjenester",
     organisasjonsnummer = Organisasjonsnummer("916833520"),
@@ -187,9 +173,7 @@ internal object GablerPensjonstjenester: Konsument(
     scope = "nav:sykepenger:gablerpensjonstjenester.read",
     behandlingsnummer = "B709",
     behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b")
-) {
-    override suspend fun request(requestBody: JsonNode) = RequiredOrganisasjonsnummerRequiredMinimumSykdomsgrad(requestBody)
-}
+)
 internal object Aksio: Konsument(
     navn = "Aksio",
     organisasjonsnummer = Organisasjonsnummer("927613298"),
@@ -197,6 +181,4 @@ internal object Aksio: Konsument(
     scope = "nav:sykepenger:aksio.read",
     behandlingsnummer = "B709",
     behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b")
-) {
-    override suspend fun request(requestBody: JsonNode) = RequiredOrganisasjonsnummerRequiredMinimumSykdomsgrad(requestBody)
-}
+)

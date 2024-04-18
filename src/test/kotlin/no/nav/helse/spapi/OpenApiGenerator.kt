@@ -38,8 +38,7 @@ class OpenApiGenerator {
 
         val yml = Handlebars(ClassPathTemplateLoader("/", ".yml")).compile("openapi-template").apply(mapOf(
             "konsumenter" to konsumenter,
-            "prod" to (config.miljø == "prod"),
-            "V2" to konsumenter.map { it["suffix"] }.any { it == "V2" }
+            "prod" to (config.miljø == "prod")
         ))
 
         path.writeBytes(yml.toByteArray())
@@ -53,7 +52,6 @@ class OpenApiGenerator {
         """.let { jacksonObjectMapper().readTree(it) }
         private val Konsument.suffix get() = when (val request = runBlocking { request(tullerequest) } ) {
             is RequiredOrganisasjonsnummerOptionalMinimumSykdomsgrad -> "V1"
-            is RequiredOrganisasjonsnummerRequiredMinimumSykdomsgrad -> "V2"
             else -> error("Mangler suffix for ${request.javaClass.simpleName}")
         }
     }

@@ -34,7 +34,31 @@ internal class StatensPensjonskasseTest : KonsumentTest() {
 
     @Test
     fun `response til statens pensjonskasse for statens pensjonskasse når de utelater minimimSykdomsgrad i requesten`() = setupSpapi {
-        assertEquals(BadRequest, client.request(accessToken = riktigToken(), minimumSykdomsgrad = null).status)
+        @Language("JSON")
+        val forventetResponse = """
+        {
+          "utbetaltePerioder": [
+            {
+              "fraOgMedDato": "2018-01-01",
+              "tilOgMedDato": "2018-01-31",
+              "tags": [
+                "UsikkerSykdomsgrad"
+              ],
+              "sykdomsgrad": 100
+            },
+            {
+              "fraOgMedDato": "2020-01-01",
+              "tilOgMedDato": "2020-01-31",
+              "tags": [],
+              "sykdomsgrad": 79
+            }
+          ]
+        }
+        """
+        client.request(riktigToken(), minimumSykdomsgrad = null).apply {
+            assertEquals(OK, status)
+            assertResponse(forventetResponse)
+        }
     }
 
     @Test
