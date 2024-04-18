@@ -65,8 +65,6 @@ paths:
           
           Om den tilsluttede virksomheten har endret organisasjonsnummer innenfor tidsintervallet det etterspørres informasjon må det sendes en request per organisasjonsnummer.
           
-          Om personen har endret personidentifikator innenfor tidsintervallet det etterspørres informasjon må det sendes en request per personidentifikator.
-          
           Scope: `nav:sykepenger:fellesordningenforafp.read`
         security:
           - maskinporten: []
@@ -118,8 +116,6 @@ paths:
           Utbetalte sykepengeperioder er eksklusiv arbeidsgiverperioden.
           
           Om den tilsluttede virksomheten har endret organisasjonsnummer innenfor tidsintervallet det etterspørres informasjon må det sendes en request per organisasjonsnummer.
-          
-          Om personen har endret personidentifikator innenfor tidsintervallet det etterspørres informasjon må det sendes en request per personidentifikator.
           
           Scope: `nav:sykepenger:statenspensjonskasse.read`
         security:
@@ -173,8 +169,6 @@ paths:
           
           Om den tilsluttede virksomheten har endret organisasjonsnummer innenfor tidsintervallet det etterspørres informasjon må det sendes en request per organisasjonsnummer.
           
-          Om personen har endret personidentifikator innenfor tidsintervallet det etterspørres informasjon må det sendes en request per personidentifikator.
-          
           Scope: `nav:sykepenger:kommunallandspensjonskasse.read`
         security:
           - maskinporten: []
@@ -226,8 +220,6 @@ paths:
           Utbetalte sykepengeperioder er eksklusiv arbeidsgiverperioden.
           
           Om den tilsluttede virksomheten har endret organisasjonsnummer innenfor tidsintervallet det etterspørres informasjon må det sendes en request per organisasjonsnummer.
-          
-          Om personen har endret personidentifikator innenfor tidsintervallet det etterspørres informasjon må det sendes en request per personidentifikator.
           
           Scope: `nav:sykepenger:oslopensjonsforsikring.read`
         security:
@@ -281,8 +273,6 @@ paths:
           
           Om den tilsluttede virksomheten har endret organisasjonsnummer innenfor tidsintervallet det etterspørres informasjon må det sendes en request per organisasjonsnummer.
           
-          Om personen har endret personidentifikator innenfor tidsintervallet det etterspørres informasjon må det sendes en request per personidentifikator.
-          
           Scope: `nav:sykepenger:storebrandlivsforsikring.read`
         security:
           - maskinporten: []
@@ -334,8 +324,6 @@ paths:
           Utbetalte sykepengeperioder er eksklusiv arbeidsgiverperioden.
           
           Om den tilsluttede virksomheten har endret organisasjonsnummer innenfor tidsintervallet det etterspørres informasjon må det sendes en request per organisasjonsnummer.
-          
-          Om personen har endret personidentifikator innenfor tidsintervallet det etterspørres informasjon må det sendes en request per personidentifikator.
           
           Scope: `nav:sykepenger:storebrandpensjonstjenester.read`
         security:
@@ -389,8 +377,6 @@ paths:
           
           Om den tilsluttede virksomheten har endret organisasjonsnummer innenfor tidsintervallet det etterspørres informasjon må det sendes en request per organisasjonsnummer.
           
-          Om personen har endret personidentifikator innenfor tidsintervallet det etterspørres informasjon må det sendes en request per personidentifikator.
-          
           Scope: `nav:sykepenger:gablerpensjonstjenester.read`
         security:
           - maskinporten: []
@@ -442,8 +428,6 @@ paths:
           Utbetalte sykepengeperioder er eksklusiv arbeidsgiverperioden.
           
           Om den tilsluttede virksomheten har endret organisasjonsnummer innenfor tidsintervallet det etterspørres informasjon må det sendes en request per organisasjonsnummer.
-          
-          Om personen har endret personidentifikator innenfor tidsintervallet det etterspørres informasjon må det sendes en request per personidentifikator.
           
           Scope: `nav:sykepenger:aksio.read`
         security:

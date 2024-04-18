@@ -48,8 +48,6 @@ paths:
           
           Om den tilsluttede virksomheten har endret organisasjonsnummer innenfor tidsintervallet det etterspørres informasjon må det sendes en request per organisasjonsnummer.
           
-          Om personen har endret personidentifikator innenfor tidsintervallet det etterspørres informasjon må det sendes en request per personidentifikator.
-          
           Scope: `{{konsument.scope}}`
         security:
           - maskinporten: []
