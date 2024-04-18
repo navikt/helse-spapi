@@ -184,14 +184,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RequestV2'
+                $ref: '#/components/schemas/RequestV1'
         responses:
           '200':
             description: OK
             content:
               application/json:
                 schema:
-                  $ref: '#/components/schemas/ResponseV2'
+                  $ref: '#/components/schemas/ResponseV1'
           '400':
             description: Feil i request
             content:

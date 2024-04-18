@@ -168,7 +168,7 @@ internal object KommunalLandspensjonskasse: Konsument(
     behandlingsnummer = "B709",
     behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b")
 ) {
-    override suspend fun request(requestBody: JsonNode) = RequiredOrganisasjonsnummerRequiredMinimumSykdomsgrad(requestBody)
+    override suspend fun request(requestBody: JsonNode) = RequiredOrganisasjonsnummerOptionalMinimumSykdomsgrad(requestBody)
 }
 internal object StorebrandPensjonstjenester: Konsument(
     navn = "Storebrand pensjonstjenester",
