@@ -6,6 +6,7 @@
   "spokelseScope": "api://prod-gcp.tbd.spokelse/.default",
   "pdlHost": "pdl-api.prod-fss-pub.nais.io",
   "pdlScope": "api://prod-fss.pdl.pdl-api/.default",
+  "fellesApi": false,
   "consumers": [{
     "scope": "fellesordningenforafp.read",
     "name": "Fellesordningen for AFP",

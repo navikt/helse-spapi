@@ -42,6 +42,14 @@ spec:
             - name: "{{consumer.name}}"
               orgno: "{{consumer.orgno}}"
         {{/each}}
+        - name: "avtalefestetpensjon.read"
+          enabled: {{fellesApi}}
+          product: "sykepenger"
+          consumers:
+            {{# each consumers as |consumer| }}
+            - name: "{{consumer.name}}"
+              orgno: "{{consumer.orgno}}"
+            {{/each}}
   azure:
     application:
       enabled: true

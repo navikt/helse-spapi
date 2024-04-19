@@ -23,7 +23,7 @@ internal class Api(vararg konsumenter: Konsument, private val id: String, privat
     }
 
     internal fun registerAuthentication(authenticationConfig: AuthenticationConfig, maskinportenJwkProvider: JwkProvider, maskinportenIssuer: String, audience: String) {
-        sikkerlogg.info("Registrerer Authentication for $konsumenter på id $id")
+        sikkerlogg.info("Registrerer Authentication på id $id for ${konsumenter.joinToString()}")
         authenticationConfig.jwt(id) {
             verifier(maskinportenJwkProvider, maskinportenIssuer) {
                 withAudience(audience)
@@ -35,7 +35,7 @@ internal class Api(vararg konsumenter: Konsument, private val id: String, privat
     }
 
     internal fun registerApi(routing: Routing, utbetaltePerioder: UtbetaltePerioder, personidentifikatorer: Personidentifikatorer, sporings: Sporingslogg) {
-        sikkerlogg.info("Registrerer API for $konsumenter på endepunkt /$id")
+        sikkerlogg.info("Registrerer API på endepunkt /$id for ${konsumenter.joinToString()}")
         routing.authenticate(id) {
             post("/$id") {
                 val requestBody = call.requestBody()

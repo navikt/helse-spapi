@@ -18,6 +18,7 @@ import io.ktor.server.plugins.swagger.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import no.nav.helse.spapi.Konsument.Companion.fellesApi
 import no.nav.helse.spapi.Konsument.Companion.konsumenter
 import no.nav.helse.spapi.personidentifikator.Pdl
 import no.nav.helse.spapi.personidentifikator.Personidentifikatorer
@@ -82,7 +83,8 @@ internal fun Application.spapi(
         client.close()
     }
     val konsumenter = config.konsumenter
-    val apier = konsumenter.map { Api(it) }
+    val fellesApi = if (config.fellesApi) Api(*konsumenter.toTypedArray(), id = "avtalefestet-pensjon", scope = "nav:sykepenger:avtalefestetpensjon.read") else null
+    val apier = (konsumenter.map { Api(it) } + fellesApi).filterNotNull()
 
     authentication {
         val maskinportenJwkProvider = JwkProviderBuilder(URI(config.hent("MASKINPORTEN_JWKS_URI")).toURL())

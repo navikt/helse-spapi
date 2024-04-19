@@ -29,8 +29,12 @@ internal abstract class Konsument(
             GablerPensjonstjenester,
             Aksio
         )
-        internal val Map<String, String>.konsumenter get() = objectMapper
-            .readTree("/$miljø-nais.json".innholdFraResource)
+
+        private val Map<String, String>.naisFil get() = objectMapper.readTree("/$miljø-nais.json".innholdFraResource)
+
+        internal val Map<String, String>.fellesApi get() = naisFil.path("fellesApi").asBoolean()
+
+        internal val Map<String, String>.konsumenter get() = naisFil
             .path("consumers")
             .associate { Organisasjonsnummer(it.path("orgno").asText()) to "nav:sykepenger:${it.path("scope").asText()}" }
             .map { (organisasjonsnummer, scope) ->

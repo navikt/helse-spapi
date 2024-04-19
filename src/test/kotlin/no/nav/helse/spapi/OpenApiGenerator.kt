@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.jknack.handlebars.Handlebars
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader
 import kotlinx.coroutines.runBlocking
+import no.nav.helse.spapi.Konsument.Companion.fellesApi
 import no.nav.helse.spapi.Konsument.Companion.konsumenter
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Test
@@ -37,11 +38,22 @@ class OpenApiGenerator {
         val path = "src/main/resources/${config.miljø}-openapi.yml".absolutePath
 
         val yml = Handlebars(ClassPathTemplateLoader("/", ".yml")).compile("openapi-template").apply(mapOf(
-            "konsumenter" to konsumenter,
+            "konsumenter" to (konsumenter + fellesApi(config)).filterNotNull(),
             "prod" to (config.miljø == "prod")
         ))
 
         path.writeBytes(yml.toByteArray())
+    }
+
+    private fun fellesApi(config: Map<String, String>): Map<String, Any>? {
+        if (!config.fellesApi) return null
+        return mapOf(
+            "id" to "avtalefestet-pensjon",
+            "navn" to "Avtalefestet pensjon",
+            "scope" to "nav:sykepenger:avtalefestetpensjon.read",
+            "organisasjonsnummer" to config.konsumenter.joinToString { it.organisasjonsnummer.toString() },
+            "suffix" to "V1"
+        )
     }
 
     private companion object {
