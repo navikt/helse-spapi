@@ -115,6 +115,7 @@ internal class StatensPensjonskasseTest : KonsumentTest() {
 
 
     override val scope = "nav:sykepenger:statenspensjonskasse.read"
+    override val organisasjonsnummer = Organisasjonsnummer("982583462")
 
     override fun utbetaltePerioder() = object : UtbetaltePerioder {
         override suspend fun hent(personidentifikatorer: Set<Personidentifikator>, fom: LocalDate, tom: LocalDate) = listOf(

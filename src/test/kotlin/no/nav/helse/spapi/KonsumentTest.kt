@@ -16,6 +16,7 @@ import org.skyscreamer.jsonassert.JSONAssert
 internal abstract class KonsumentTest{
 
     abstract val scope: String
+    abstract val organisasjonsnummer: Organisasjonsnummer
     abstract fun utbetaltePerioder(): UtbetaltePerioder
 
     @BeforeAll
@@ -37,12 +38,13 @@ internal abstract class KonsumentTest{
     private val maskinporten = Issuer(navn = "maskinporten", audience = "https://spapi")
     private val feilIssuer = Issuer(navn = "ikke-maskinporten", audience = "https://spapi")
 
-    protected fun riktigToken(organisasjonsnummer: Organisasjonsnummer? = null) = maskinporten.accessToken(mapOf("scope" to scope), organisasjonsnummer)
-    protected fun feilScope() = maskinporten.accessToken(mapOf("scope" to "$scope-med-feil"))
-    protected fun valgfrittScope(valgfrittScope: String) = maskinporten.accessToken(mapOf("scope" to valgfrittScope))
-    protected fun feilIssuerHeader() = maskinporten.accessToken(mapOf("scope" to scope, "iss" to "feil-issuer"))
-    protected fun feilIssuer() = feilIssuer.accessToken(mapOf("scope" to scope))
-    protected fun feilAudience() = maskinporten.accessToken(mapOf("scope" to scope, "aud" to "feil-audience"))
+    protected fun riktigToken() = maskinporten.accessToken(mapOf("scope" to scope), organisasjonsnummer)
+    protected fun feilOrganisasjonsnummer(organisasjonsnummer: Organisasjonsnummer) = maskinporten.accessToken(mapOf("scope" to scope), organisasjonsnummer)
+    protected fun feilScope() = maskinporten.accessToken(mapOf("scope" to "$scope-med-feil"), organisasjonsnummer)
+    protected fun valgfrittScope(valgfrittScope: String) = maskinporten.accessToken(mapOf("scope" to valgfrittScope), organisasjonsnummer)
+    protected fun feilIssuerHeader() = maskinporten.accessToken(mapOf("scope" to scope, "iss" to "feil-issuer"), organisasjonsnummer)
+    protected fun feilIssuer() = feilIssuer.accessToken(mapOf("scope" to scope), organisasjonsnummer)
+    protected fun feilAudience() = maskinporten.accessToken(mapOf("scope" to scope, "aud" to "feil-audience"), organisasjonsnummer)
 
     protected suspend fun HttpResponse.assertResponse(forventet: String) = JSONAssert.assertEquals(forventet, bodyAsText(), true)
 }

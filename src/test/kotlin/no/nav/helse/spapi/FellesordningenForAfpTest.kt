@@ -51,7 +51,7 @@ internal class FellesordningenForAfpTest : KonsumentTest() {
           ]
         }
         """
-        client.request(riktigToken(Organisasjonsnummer("987414502"))).apply {
+        client.request(riktigToken()).apply {
             assertEquals(OK, status)
             assertResponse(forventetResponse)
         }
@@ -88,6 +88,7 @@ internal class FellesordningenForAfpTest : KonsumentTest() {
     }
 
     override val scope = "nav:sykepenger:fellesordningenforafp.read"
+    override val organisasjonsnummer = Organisasjonsnummer("987414502")
 
     override fun utbetaltePerioder() = object : UtbetaltePerioder {
         override suspend fun hent(personidentifikatorer: Set<Personidentifikator>, fom: LocalDate, tom: LocalDate) = listOf(

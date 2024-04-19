@@ -81,6 +81,9 @@ internal fun Application.spapi(
     environment.monitor.subscribe(ApplicationStopped) {
         client.close()
     }
+    val konsumenter = config.konsumenter
+    val apier = konsumenter.map { Api(it) }
+
     authentication {
         val maskinportenJwkProvider = JwkProviderBuilder(URI(config.hent("MASKINPORTEN_JWKS_URI")).toURL())
             .cached(10, 24, TimeUnit.HOURS)
@@ -88,7 +91,7 @@ internal fun Application.spapi(
             .build()
         val maskinportenIssuer = config.hent("MASKINPORTEN_ISSUER")
         val audience = config.hent("AUDIENCE")
-        config.konsumenter.forEach { it.registerAuthentication(this, maskinportenJwkProvider, maskinportenIssuer, audience) }
+        apier.forEach { it.registerAuthentication(this, maskinportenJwkProvider, maskinportenIssuer, audience) }
     }
 
     routing {
@@ -97,7 +100,7 @@ internal fun Application.spapi(
         // Endepunkt under /internal eksponeres ikke
         get("/internal/isalive") { call.respondText("ISALIVE") }
         get("/internal/isready") { call.respondText("READY") }
-        config.konsumenter.forEach { it.registerApi(this, utbetaltePerioder, personidentifikatorer, sporings) }
+        apier.forEach { it.registerApi(this, utbetaltePerioder, personidentifikatorer, sporings) }
     }
 }
 
