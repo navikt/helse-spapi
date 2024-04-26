@@ -19,17 +19,12 @@ info:
     name: MIT
     url: https://opensource.org/license/mit/
 servers:
-  
   - url: https://spapi.nav.no
     description: Produksjon
-  
 tags:
-
   - name: Fellesordningen for AFP
     description: orgnr. 987414502
-
 paths:
-  
     /fellesordningen-for-afp:
       post:
         summary: Hente utbetalte perioder
@@ -52,7 +47,6 @@ paths:
             schema:
               type: string
               format: uuid
-
         requestBody:
           content:
             application/json:
@@ -81,7 +75,6 @@ paths:
               application/json:
                 schema:
                   $ref: '#/components/schemas/UhaandtertFeil'
-  
 components:
   schemas:
     RequestV1:
