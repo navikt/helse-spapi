@@ -30,17 +30,17 @@ servers:
     description: Lokalt
   {{/if}}
 tags:
-{{# each konsumenter as |konsument| }}
-  - name: {{konsument.navn}}
-    description: orgnr. {{konsument.organisasjonsnummer}}
+{{# each apis as |api| }}
+  - name: {{api.navn}}
+    description: orgnr. {{api.organisasjonsnummer}}
 {{/each}}
 paths:
-  {{# each konsumenter as |konsument| }}
-    /{{konsument.id}}:
+  {{# each apis as |api| }}
+    /{{api.id}}:
       post:
         summary: Hente utbetalte perioder
         tags:
-          - {{konsument.navn}}
+          - {{api.navn}}
         description: |-
           Hente utbetalte perioder for én person
           
@@ -48,7 +48,7 @@ paths:
           
           Om den tilsluttede virksomheten har endret organisasjonsnummer innenfor tidsintervallet det etterspørres informasjon må det sendes en request per organisasjonsnummer.
           
-          Scope: `{{konsument.scope}}`
+          Scope: `{{api.scope}}`
         security:
           - maskinporten: []
         parameters:
@@ -63,14 +63,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Request{{konsument.suffix}}'
+                $ref: '#/components/schemas/RequestV1'
         responses:
           '200':
             description: OK
             content:
               application/json:
                 schema:
-                  $ref: '#/components/schemas/Response{{konsument.suffix}}'
+                  $ref: '#/components/schemas/ResponseV1'
           '400':
             description: Feil i request
             content:

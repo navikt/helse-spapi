@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
-internal class StatensPensjonskasseTest : KonsumentTest() {
+internal class AvtalefestetPensjonTest : KonsumentTest() {
 
     @Test
     fun `tilgang for statens pensjonskasse`() = setupSpapi {
@@ -114,8 +114,8 @@ internal class StatensPensjonskasseTest : KonsumentTest() {
     }
 
 
-    override val scope = "nav:sykepenger:statenspensjonskasse.read"
-    override val organisasjonsnummer = Organisasjonsnummer("982583462")
+    override val scope = "nav:sykepenger:avtalefestetpensjon.read"
+    override val organisasjonsnummer = (Konsument.AlleKonsumenter - FellesordningenForAfp).random().organisasjonsnummer
 
     override fun utbetaltePerioder() = object : UtbetaltePerioder {
         override suspend fun hent(personidentifikatorer: Set<Personidentifikator>, fom: LocalDate, tom: LocalDate) = listOf(
@@ -129,7 +129,7 @@ internal class StatensPensjonskasseTest : KonsumentTest() {
         }
     }
 
-    private suspend fun HttpClient.request(accessToken: String? = null, minimumSykdomsgrad: Int? = 80, tomKey: String = "tilOgMedDato", tomValue: String = "2018-01-31") = post("/statens-pensjonskasse") {
+    private suspend fun HttpClient.request(accessToken: String? = null, minimumSykdomsgrad: Int? = 80, tomKey: String = "tilOgMedDato", tomValue: String = "2018-01-31") = post("/avtalefestet-pensjon") {
         accessToken?.let { header(Authorization, "Bearer $it") }
         @Language("JSON")
         val request = """

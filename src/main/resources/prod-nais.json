@@ -6,10 +6,14 @@
   "spokelseScope": "api://prod-gcp.tbd.spokelse/.default",
   "pdlHost": "pdl-api.prod-fss-pub.nais.io",
   "pdlScope": "api://prod-fss.pdl.pdl-api/.default",
-  "fellesApi": false,
-  "consumers": [{
-    "scope": "fellesordningenforafp.read",
-    "name": "Fellesordningen for AFP",
-    "orgno": "987414502"
-  }]
+  "apis": [
+    {
+      "id": "fellesordningen-for-afp",
+      "navn": "Fellesordningen for AFP",
+      "scope": "fellesordningenforafp.read",
+      "consumers": [
+        { "navn": "Fellesordningen for AFP", "organisasjonsnummer": "987414502" }
+      ]
+    }
+  ]
 }

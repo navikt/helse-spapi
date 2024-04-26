@@ -6,40 +6,44 @@
   "spokelseScope": "api://dev-gcp.tbd.spokelse/.default",
   "pdlHost": "pdl-api.dev-fss-pub.nais.io",
   "pdlScope": "api://dev-fss.pdl.pdl-api/.default",
-  "fellesApi": true,
-  "consumers": [{
-    "scope": "fellesordningenforafp.read",
-    "name": "Fellesordningen for AFP",
-    "orgno": "987414502"
-  },{
-    "scope": "statenspensjonskasse.read",
-    "name": "Statens pensjonskasse",
-    "orgno": "982583462"
-  },{
-    "scope": "kommunallandspensjonskasse.read",
-    "name": "Kommunal landspensjonskasse",
-    "orgno": "938708606"
-  },
-  {
-    "scope": "oslopensjonsforsikring.read",
-    "name": "Oslo pensjonsforsikring",
-    "orgno": "982759412"
-  },
-  {
-    "scope": "storebrandlivsforsikring.read",
-    "name": "Storebrand livsforsikring",
-    "orgno": "958995369"
-  },{
-    "scope": "storebrandpensjonstjenester.read",
-    "name": "Storebrand pensjonstjenester",
-    "orgno": "931936492"
-  },{
-    "scope": "gablerpensjonstjenester.read",
-    "name": "Gabler pensjonstjenester",
-    "orgno": "916833520"
-  },{
-    "scope": "aksio.read",
-    "name": "Aksio",
-    "orgno": "927613298"
-  }]
+  "apis": [
+    {
+      "id": "fellesordningen-for-afp",
+      "navn": "Fellesordningen for AFP",
+      "scope": "fellesordningenforafp.read",
+      "consumers": [
+        { "navn": "Fellesordningen for AFP", "organisasjonsnummer": "987414502" }
+      ]
+    },
+    {
+      "id": "avtalefestet-pensjon",
+      "navn": "Avtalefestet pensjon",
+      "scope": "avtalefestetpensjon.read",
+      "consumers": [
+        { "navn": "Statens pensjonskasse", "organisasjonsnummer": "982583462" },
+        { "navn": "Kommunal landspensjonskasse", "organisasjonsnummer": "938708606" },
+        { "navn": "Oslo pensjonsforsikring", "organisasjonsnummer": "982759412" },
+        { "navn": "Storebrand livsforsikring", "organisasjonsnummer": "958995369" },
+        { "navn": "Storebrand pensjonstjenester", "organisasjonsnummer": "931936492"},
+        { "navn": "Gabler pensjonstjenester",  "organisasjonsnummer": "916833520"},
+        { "navn": "Aksio", "organisasjonsnummer": "927613298" }
+      ]
+    },
+    {
+      "id": "statens-pensjonskasse",
+      "navn": "Statens pensjonskasse",
+      "scope": "statenspensjonskasse.read",
+      "consumers": [
+        { "navn": "Statens pensjonskasse", "organisasjonsnummer": "982583462" }
+      ]
+    },
+    {
+      "id": "storebrand-pensjonstjenester",
+      "navn": "Storebrand pensjonstjenester",
+      "scope": "storebrandpensjonstjenester.read",
+      "consumers": [
+        { "navn": "Storebrand pensjonstjenester", "organisasjonsnummer": "931936492"}
+      ]
+    }
+  ]
 }

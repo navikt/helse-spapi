@@ -9,19 +9,19 @@ import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import no.nav.helse.spapi.Konsument.Companion.AlleKonsumenter
 import no.nav.helse.spapi.personidentifikator.Personidentifikatorer
 import no.nav.helse.spapi.utbetalteperioder.UtbetaltPeriode
 import no.nav.helse.spapi.utbetalteperioder.UtbetaltePerioder
 import org.slf4j.LoggerFactory
 import java.util.*
 
-internal class Api(vararg konsumenter: Konsument, private val id: String, private val scope: String) {
-    internal constructor(konsument: Konsument): this(konsument, id = konsument.id, scope = konsument.scope)
+internal class Api(internal val id: String, scope: String, internal val navn: String, internal val konsumenter: Set<Konsument>) {
+    internal val scope = "nav:sykepenger:$scope"
 
-    private val konsumenter = konsumenter.toSet().also {
+    init {
         check(konsumenter.isNotEmpty()) { "Må sette minst en konsument!" }
     }
-
     internal fun registerAuthentication(authenticationConfig: AuthenticationConfig, maskinportenJwkProvider: JwkProvider, maskinportenIssuer: String, audience: String) {
         sikkerlogg.info("Registrerer Authentication på id $id for ${konsumenter.joinToString()}")
         authenticationConfig.jwt(id) {
@@ -70,7 +70,7 @@ internal class Api(vararg konsumenter: Konsument, private val id: String, privat
         }.toString()
     }
 
-    private companion object {
+    internal companion object {
         private val sikkerlogg = LoggerFactory.getLogger("tjenestekall")
         private val objectMapper = jacksonObjectMapper()
         private suspend fun ApplicationCall.requestBody() = try { objectMapper.readTree(receiveText()) } catch (throwable: Throwable) {
@@ -92,6 +92,16 @@ internal class Api(vararg konsumenter: Konsument, private val id: String, privat
         private fun ApplicationCall.konsument(konsumenter: Set<Konsument>): Konsument {
             val organisasjonsnummer = principal<JWTPrincipal>()?.payload?.getClaim("consumer")?.asMap()?.get("ID")?.toString()?.substringAfter(":") ?: error("Klarte ikke utlede konsuement fra token")
             return konsumenter.singleOrNull { it.organisasjonsnummer.toString() == organisasjonsnummer } ?: error("Konsument med orgnr $organisasjonsnummer er ikke registrert.")
+        }
+
+        private val String.innholdFraResource get() = object {}.javaClass.getResource(this)?.readText() ?: error("Fant ikke resource <$this>")
+        private val Map<String, String>.naisFil get() = objectMapper.readTree("/$miljø-nais.json".innholdFraResource)
+
+        internal val Map<String, String>.apis get() = naisFil.path("apis").map { api ->
+            val konsumenter = api.path("consumers").map { it.path("organisasjonsnummer").asText() }.map { organisasjonsnummer ->
+                AlleKonsumenter.singleOrNull { it.organisasjonsnummer.toString() == organisasjonsnummer } ?: error("Konsument med $organisasjonsnummer er ikke definert")
+            }.toSet()
+            Api(id = api.path("id").asText(), scope = api.path("scope").asText(), navn = api.path("navn").asText(), konsumenter = konsumenter)
         }
     }
 }
