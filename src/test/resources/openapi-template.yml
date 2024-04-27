@@ -20,22 +20,22 @@ info:
     name: MIT
     url: https://opensource.org/license/mit/
 servers:
-  {{~# if prod }}
+  {{# if prod }}
   - url: https://spapi.nav.no
     description: Produksjon
-  {{~else}}
+  {{else}}
   - url: https://spapi.ekstern.dev.nav.no
     description: Test
   - url: http://localhost:8080
     description: Lokalt
-  {{~/if}}
+  {{/if}}
 tags:
-{{~# each apis as |api| }}
+{{# each apis as |api| }}
   - name: {{api.navn}}
     description: orgnr. {{api.organisasjonsnummer}}
-{{~/each}}
+{{/each}}
 paths:
-  {{~# each apis as |api| }}
+  {{# each apis as |api| }}
     /{{api.id}}:
       post:
         summary: Hente utbetalte perioder
@@ -58,6 +58,7 @@ paths:
             schema:
               type: string
               format: uuid
+
         requestBody:
           content:
             application/json:
@@ -86,7 +87,7 @@ paths:
               application/json:
                 schema:
                   $ref: '#/components/schemas/UhaandtertFeil'
-  {{~/each}}
+  {{/each}}
 components:
   schemas:
     RequestV1:

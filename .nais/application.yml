@@ -34,16 +34,16 @@ spec:
     enabled: true
     scopes:
       exposes:
-        {{~# each apis as |api| }}
+        {{# each apis as |api| }}
         - name: "{{api.scope}}"
           enabled: true
           product: "sykepenger"
           consumers:
-            {{~# each api.consumers as |consumer| }}
+            {{# each api.consumers as |consumer| }}
             - name: "{{consumer.navn}}"
               orgno: "{{consumer.organisasjonsnummer}}"
-            {{~/each}}
-        {{~/each}}
+            {{/each}}
+        {{/each}}
   azure:
     application:
       enabled: true
