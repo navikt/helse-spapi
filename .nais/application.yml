@@ -42,7 +42,7 @@ spec:
             {{# each api.consumers as |consumer| }}
             - name: "{{consumer.navn}}"
               orgno: "{{consumer.organisasjonsnummer}}"
-            {{/each}}
+            {{/each~}}
         {{/each}}
   azure:
     application:
