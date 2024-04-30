@@ -28,10 +28,10 @@ servers:
 tags:
 
   - name: Fellesordningen for AFP
-    description: orgnr. 987414502
+    description: orgnr. 987414502, 889640782
 
   - name: Avtalefestet pensjon
-    description: orgnr. 982583462, 938708606, 982759412, 958995369, 931936492, 916833520, 927613298
+    description: orgnr. 982583462, 938708606, 982759412, 958995369, 931936492, 916833520, 927613298, 889640782
 
   - name: Statens pensjonskasse
     description: orgnr. 982583462

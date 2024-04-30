@@ -12,7 +12,8 @@
       "navn": "Fellesordningen for AFP",
       "scope": "fellesordningenforafp.read",
       "consumers": [
-        { "navn": "Fellesordningen for AFP", "organisasjonsnummer": "987414502" }
+        { "navn": "Fellesordningen for AFP", "organisasjonsnummer": "987414502" },
+        { "navn": "NAV", "organisasjonsnummer": "889640782" }
       ]
     },
     {
@@ -26,7 +27,8 @@
         { "navn": "Storebrand livsforsikring", "organisasjonsnummer": "958995369" },
         { "navn": "Storebrand pensjonstjenester", "organisasjonsnummer": "931936492"},
         { "navn": "Gabler pensjonstjenester",  "organisasjonsnummer": "916833520"},
-        { "navn": "Aksio", "organisasjonsnummer": "927613298" }
+        { "navn": "Aksio", "organisasjonsnummer": "927613298" },
+        { "navn": "NAV", "organisasjonsnummer": "889640782" }
       ]
     },
     {

@@ -20,7 +20,8 @@ internal abstract class Konsument(
             StorebrandLivsforsikring,
             OsloPensjonsforsikring,
             GablerPensjonstjenester,
-            Aksio
+            Aksio,
+            Nav
         )
     }
 }
@@ -70,6 +71,12 @@ internal object GablerPensjonstjenester: Konsument(
 internal object Aksio: Konsument(
     navn = "Aksio",
     organisasjonsnummer = Organisasjonsnummer("927613298"),
+    behandlingsnummer = "B709",
+    behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b")
+)
+internal object Nav: Konsument(
+    navn = "NAV",
+    organisasjonsnummer = Organisasjonsnummer("889640782"),
     behandlingsnummer = "B709",
     behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b")
 )
