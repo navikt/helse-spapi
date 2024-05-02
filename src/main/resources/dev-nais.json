@@ -38,14 +38,6 @@
       "consumers": [
         { "navn": "Statens pensjonskasse", "organisasjonsnummer": "982583462" }
       ]
-    },
-    {
-      "id": "storebrand-pensjonstjenester",
-      "navn": "Storebrand pensjonstjenester",
-      "scope": "storebrandpensjonstjenester.read",
-      "consumers": [
-        { "navn": "Storebrand pensjonstjenester", "organisasjonsnummer": "931936492"}
-      ]
     }
   ]
 }
