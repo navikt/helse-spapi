@@ -30,14 +30,6 @@
         { "navn": "Aksio", "organisasjonsnummer": "927613298" },
         { "navn": "NAV", "organisasjonsnummer": "889640782" }
       ]
-    },
-    {
-      "id": "statens-pensjonskasse",
-      "navn": "Statens pensjonskasse",
-      "scope": "statenspensjonskasse.read",
-      "consumers": [
-        { "navn": "Statens pensjonskasse", "organisasjonsnummer": "982583462" }
-      ]
     }
   ]
 }
