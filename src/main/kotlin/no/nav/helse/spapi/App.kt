@@ -11,8 +11,10 @@ import io.ktor.http.HttpStatusCode.Companion.InternalServerError
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.engine.*
+import io.ktor.server.plugins.*
 import io.ktor.server.plugins.callid.*
 import io.ktor.server.plugins.callloging.*
+import io.ktor.server.plugins.ratelimit.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.plugins.swagger.*
 import io.ktor.server.request.*
@@ -30,6 +32,7 @@ import org.slf4j.event.Level
 import java.net.URI
 import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 private val sikkerlogg = LoggerFactory.getLogger("tjenestekall")
 internal fun Map<String, String>.hent(key: String) = get(key) ?: throw IllegalStateException("Mangler config for $key")
@@ -55,6 +58,12 @@ internal fun Application.spapi(
     utbetaltePerioder: UtbetaltePerioder = Spøkelse(config, client, accessToken),
     personidentifikatorer: Personidentifikatorer = Pdl(config, client, accessToken)
 ) {
+    install(RateLimit) {
+        global {
+            rateLimiter(limit = 50, refillPeriod = 60.seconds)
+            requestKey {  call -> call.request.origin.remoteAddress }
+        }
+    }
 
     install(CallId) {
         header("x-callId")
