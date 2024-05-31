@@ -80,6 +80,8 @@ paths:
             description: Mangler access token
           '403':
             description: Feil scope/audience i token
+          '429':
+            description: For mange forespørsler på kort tid, prøv igjen om noen minutter
           '500':
             description: Feil på tjeneste, meld fra og send med feilreferanse
             content:
@@ -132,6 +134,8 @@ paths:
             description: Mangler access token
           '403':
             description: Feil scope/audience i token
+          '429':
+            description: For mange forespørsler på kort tid, prøv igjen om noen minutter
           '500':
             description: Feil på tjeneste, meld fra og send med feilreferanse
             content:
