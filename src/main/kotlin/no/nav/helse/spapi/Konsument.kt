@@ -9,7 +9,7 @@ internal abstract class Konsument(
     internal val behandlingsgrunnlag: Behandlingsgrunnlag
 ) {
     override fun toString() = navn
-    open suspend fun request(requestBody: JsonNode): KonsumentRequest = RequiredOrganisasjonsnummerOptionalMinimumSykdomsgrad(requestBody)
+    open suspend fun request(requestBody: JsonNode, versjon: Int): KonsumentRequest = RequiredOrganisasjonsnummerOptionalMinimumSykdomsgrad(requestBody)
 
     internal companion object {
         internal val AlleKonsumenter = setOf(

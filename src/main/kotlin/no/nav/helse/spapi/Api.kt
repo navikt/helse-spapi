@@ -37,12 +37,13 @@ internal class Api(internal val id: String, scope: String, internal val navn: St
     internal fun registerApi(routing: Routing, utbetaltePerioder: UtbetaltePerioder, personidentifikatorer: Personidentifikatorer, sporings: Sporingslogg) {
         sikkerlogg.info("Registrerer API på endepunkt /$id for ${konsumenter.joinToString()}")
         routing.authenticate(id) {
-            post("/$id") {
+            post("/$id/{versjon?}") {
                 val requestBody = call.requestBody()
+                val versjon = call.versjon()
                 val konsument = call.konsument(konsumenter)
-                sikkerlogg.info("Mottok request fra ${konsument}:\n\t$requestBody")
+                sikkerlogg.info("Mottok request på versjon $versjon fra ${konsument}:\n\t$requestBody")
 
-                val request = konsument.request(requestBody)
+                val request = konsument.request(requestBody, versjon)
 
                 val perioder = utbetaltePerioder.hent(
                     personidentifikatorer = personidentifikatorer.hentAlle(request.personidentifikator, konsument),
@@ -76,6 +77,8 @@ internal class Api(internal val id: String, scope: String, internal val navn: St
         private suspend fun ApplicationCall.requestBody() = try { objectMapper.readTree(receiveText()) } catch (throwable: Throwable) {
             objectMapper.createObjectNode()
         }
+        private fun ApplicationCall.versjon() = try { parameters["versjon"]?.lowercase()?.removePrefix("v")?.toInt() ?: 1 } catch (throwable: Throwable) { 1 }
+
         private suspend fun ApplicationCall.respondChallenge() {
             try {
                 val jwt = request.header(HttpHeaders.Authorization)
