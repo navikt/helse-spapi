@@ -67,6 +67,7 @@ internal class Api(internal val id: String, scope: String, internal val navn: St
     private fun response(utbetaltePerioder: List<UtbetaltPeriode>, request: KonsumentRequest): String {
         val utlevertePerioder = request.filtrer(utbetaltePerioder).map { objectMapper.readTree(request.json(it)) }
         return objectMapper.createObjectNode().apply {
+            request.berik(this)
             putArray("utbetaltePerioder").addAll(utlevertePerioder)
         }.toString()
     }

@@ -2,14 +2,12 @@ package no.nav.helse.spapi
 
 import io.ktor.client.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
 import io.ktor.http.HttpHeaders.Authorization
 import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.http.HttpStatusCode.Companion.Forbidden
+import io.ktor.http.HttpStatusCode.Companion.NotFound
 import io.ktor.http.HttpStatusCode.Companion.OK
 import io.ktor.http.HttpStatusCode.Companion.Unauthorized
-import io.ktor.server.testing.*
 import no.nav.helse.spapi.personidentifikator.Personidentifikator
 import no.nav.helse.spapi.utbetalteperioder.UtbetaltPeriode
 import no.nav.helse.spapi.utbetalteperioder.UtbetaltePerioder
@@ -33,7 +31,7 @@ internal class AvtalefestetPensjonTest : KonsumentTest() {
     }
 
     @Test
-    fun `response til statens pensjonskasse for statens pensjonskasse når de utelater minimimSykdomsgrad i requesten`() = setupSpapi {
+    fun `response til avtalefestet pensjon når de utelater minimimSykdomsgrad i requesten`() = setupSpapi {
         @Language("JSON")
         val forventetResponse = """
         {
@@ -62,7 +60,7 @@ internal class AvtalefestetPensjonTest : KonsumentTest() {
     }
 
     @Test
-    fun `response til fellesordningen for afp når de inkluderer minimumSykdomsgrad i requesten`() = setupSpapi {
+    fun `response til avtalefestet pensjon når de inkluderer minimumSykdomsgrad i requesten`() = setupSpapi {
         @Language("JSON")
         val forventetResponse = """
         {
@@ -104,6 +102,43 @@ internal class AvtalefestetPensjonTest : KonsumentTest() {
     }
 
     @Test
+    fun `response til avtalefestet pensjon når de inkluderer saksId i requesten`() = setupSpapi {
+        @Language("JSON")
+        val forventetResponse = """
+        {
+          "saksId": "Jeg_er_en_Saks-id",
+          "utbetaltePerioder": [
+            {
+              "fraOgMedDato": "2018-01-01",
+              "tilOgMedDato": "2018-01-31",
+              "tags": [
+                "UsikkerSykdomsgrad"
+              ],
+              "sykdomsgrad": 100
+            },
+            {
+              "fraOgMedDato": "2020-01-01",
+              "tilOgMedDato": "2020-01-31",
+              "tags": [],
+              "sykdomsgrad": 79
+            }
+          ]
+        }
+        """
+
+        // V1
+        client.request(riktigToken(), minimumSykdomsgrad = null, saksId = "Jeg_er_en_Saks-id").apply {
+            assertEquals(OK, status)
+            assertResponse(forventetResponse)
+        }
+        // V2
+        client.request(riktigToken(), minimumSykdomsgrad = null, path = "/avtalefestet-pensjon/v2", saksId = "Jeg_er_en_Saks-id").apply {
+            assertEquals(OK, status)
+            assertResponse(forventetResponse)
+        }
+    }
+
+    @Test
     fun `manglende input gir 400`() =  setupSpapi {
         assertEquals(BadRequest, client.request(riktigToken(), tomKey = "tomOgMedDato").status)
     }
@@ -113,6 +148,15 @@ internal class AvtalefestetPensjonTest : KonsumentTest() {
         assertEquals(BadRequest, client.request(riktigToken(), tomValue = "kittycat").status)
     }
 
+    @Test
+    fun `manglende saksId på v2 gir 400`() = setupSpapi {
+        assertEquals(BadRequest, client.request(riktigToken(), minimumSykdomsgrad = null, path = "/avtalefestet-pensjon/v2").status)
+    }
+
+    @Test
+    fun `v3 finnes ikke (enda)`() = setupSpapi {
+        assertEquals(NotFound, client.request(riktigToken(), minimumSykdomsgrad = null, path = "/avtalefestet-pensjon/v3").status)
+    }
 
     override val scope = "nav:sykepenger:avtalefestetpensjon.read"
     override val organisasjonsnummer = (Konsument.AlleKonsumenter - FellesordningenForAfp).random().organisasjonsnummer
@@ -129,7 +173,7 @@ internal class AvtalefestetPensjonTest : KonsumentTest() {
         }
     }
 
-    private suspend fun HttpClient.request(accessToken: String? = null, minimumSykdomsgrad: Int? = 80, tomKey: String = "tilOgMedDato", tomValue: String = "2018-01-31") = post("/avtalefestet-pensjon") {
+    private suspend fun HttpClient.request(accessToken: String? = null, minimumSykdomsgrad: Int? = 80, tomKey: String = "tilOgMedDato", tomValue: String = "2018-01-31", path: String = "/avtalefestet-pensjon", saksId: String? = null) = post(path) {
         accessToken?.let { header(Authorization, "Bearer $it") }
         @Language("JSON")
         val request = """
@@ -139,6 +183,7 @@ internal class AvtalefestetPensjonTest : KonsumentTest() {
           "fraOgMedDato": "2018-01-01",
           "$tomKey": "$tomValue"
           ${if (minimumSykdomsgrad != null) ",\"minimumSykdomsgrad\": $minimumSykdomsgrad" else ""}
+          ${if (saksId != null) ",\"saksId\": \"$saksId\"" else ""}
         }
         """
         setBody(request)

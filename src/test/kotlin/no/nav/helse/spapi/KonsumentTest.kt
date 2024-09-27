@@ -1,9 +1,6 @@
 package no.nav.helse.spapi
 
-import io.ktor.client.*
-import io.ktor.client.request.*
 import io.ktor.client.statement.*
-import io.ktor.http.*
 import io.ktor.server.testing.*
 import no.nav.helse.spapi.utbetalteperioder.UtbetaltePerioder
 import org.junit.jupiter.api.AfterAll

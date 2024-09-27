@@ -8,6 +8,7 @@ import io.ktor.http.*
 import io.ktor.http.ContentType.Application.Json
 import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.http.HttpStatusCode.Companion.InternalServerError
+import io.ktor.http.HttpStatusCode.Companion.NotFound
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.engine.*
@@ -35,6 +36,8 @@ import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.seconds
 
 private val sikkerlogg = LoggerFactory.getLogger("tjenestekall")
+private fun ApplicationCall.loggHåndtertFeil(melding: String?) = sikkerlogg.warn("Feil i request til ${request.httpMethod.value} - ${request.path()}: $melding")
+
 internal fun Map<String, String>.hent(key: String) = get(key) ?: throw IllegalStateException("Mangler config for $key")
 internal val Map<String, String>.miljø get() = if (get("NAIS_CLUSTER_NAME")?.lowercase()?.contains("prod") == true) "prod" else "dev"
 internal fun HttpRequestBuilder.callId(headernavn: String) = header(headernavn, "${UUID.fromString(MDC.get("callId"))}")
@@ -79,8 +82,12 @@ internal fun Application.spapi(
     }
     install(StatusPages) {
         exception<UgyldigInputException> { call, cause ->
-            sikkerlogg.warn("Feil i request til ${call.request.httpMethod.value} - ${call.request.path()}: ${cause.message}")
+            call.loggHåndtertFeil(cause.message)
             call.respondError(BadRequest, cause.message)
+        }
+        exception<FinnesIkke> { call, cause ->
+            call.loggHåndtertFeil(cause.message)
+            call.respondError(NotFound, cause.message)
         }
         exception<Throwable> { call, cause ->
             sikkerlogg.error("Feil ved håndtering av ${call.request.httpMethod.value} - ${call.request.path()}", cause)

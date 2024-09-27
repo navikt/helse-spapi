@@ -1,20 +1,23 @@
 package no.nav.helse.spapi
 
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.ObjectNode
 import no.nav.helse.spapi.personidentifikator.Personidentifikator
 import no.nav.helse.spapi.utbetalteperioder.UtbetaltPeriode
 import java.lang.IllegalArgumentException
 import java.time.LocalDate
 
-internal interface KonsumentRequest {
+internal sealed interface KonsumentRequest {
     val fom: LocalDate
     val tom: LocalDate
     val personidentifikator: Personidentifikator
     fun filtrer(utbetaltePerioder: List<UtbetaltPeriode>): List<UtbetaltPeriode>
     fun json(utbetaltPeriode: UtbetaltPeriode): String
+    fun berik(response: ObjectNode) : ObjectNode = response
 }
 
 internal class UgyldigInputException(melding: String, cause: Throwable? = null): IllegalArgumentException(melding, cause)
+internal class FinnesIkke(melding: String): IllegalArgumentException(melding)
 
 private fun JsonNode.hent(path: String) = path(path).takeUnless { it.isMissingNode || it.isNull }
 private fun <T> JsonNode.required(path: String, transformer: (jsonNode: JsonNode) -> T): T {
@@ -39,3 +42,5 @@ internal val JsonNode.periode get(): Pair<LocalDate, LocalDate> {
 internal val JsonNode.optionalMinimumSykdomsgrad get() = optional("minimumSykdomsgrad") {
     it.asInt().also { minimumSykdomsgrad -> check(minimumSykdomsgrad in 1..100) { "Må være mellom 1 og 100" } }
 }
+internal val JsonNode.optionalSaksId get() = optional("saksId") { SaksId(it.asText()) }
+internal val JsonNode.requiredSaksId get() = required("saksId") { SaksId(it.asText()) }

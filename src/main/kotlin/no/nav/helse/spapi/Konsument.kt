@@ -1,12 +1,13 @@
 package no.nav.helse.spapi
 
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.ObjectNode
 import no.nav.helse.spapi.personidentifikator.Personidentifikator
 import no.nav.helse.spapi.utbetalteperioder.UtbetaltPeriode
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 
-internal abstract class Konsument(
+internal sealed class Konsument(
     internal val navn: String,
     internal val organisasjonsnummer: Organisasjonsnummer,
     internal val behandlingsnummer: String ,
@@ -30,6 +31,29 @@ internal abstract class Konsument(
     }
 }
 
+internal sealed class AfpRequest(
+    override val fom: LocalDate,
+    override val tom: LocalDate,
+    override val personidentifikator: Personidentifikator,
+    private val organisasjonsnummer: Organisasjonsnummer,
+    private val minimumSykdomsgrad: Int?
+): KonsumentRequest {
+
+    override fun filtrer(utbetaltePerioder: List<UtbetaltPeriode>) = utbetaltePerioder
+        .filter { it.organisasjonsnummer == organisasjonsnummer }
+        .filter { it.grad >= (minimumSykdomsgrad ?: 0) }
+
+    @Language("JSON")
+    override fun json(utbetaltPeriode: UtbetaltPeriode) = """
+        {
+          "fraOgMedDato": "${utbetaltPeriode.fom}",
+          "tilOgMedDato": "${utbetaltPeriode.tom}",
+          "tags": ${utbetaltPeriode.tags.map { "\"$it\"" }}
+          ${if (minimumSykdomsgrad == null) ",\"sykdomsgrad\": ${utbetaltPeriode.grad}" else ""}
+        }
+    """
+}
+
 internal object FellesordningenForAfp: Konsument(
     navn = "Fellesordningen for AFP",
     organisasjonsnummer = Organisasjonsnummer("987414502"),
@@ -38,35 +62,13 @@ internal object FellesordningenForAfp: Konsument(
 ) {
     override suspend fun request(requestBody: JsonNode, versjon: Int) = FellesordningenForAfpRequest(requestBody) // Fellesrdningen for AFP har ikke fler versjoner :)
 
-    internal class FellesordningenForAfpRequest private constructor(
-        override val fom: LocalDate,
-        override val tom: LocalDate,
-        override val personidentifikator: Personidentifikator,
-        private val organisasjonsnummer: Organisasjonsnummer,
-        private val minimumSykdomsgrad: Int?
-    ): KonsumentRequest {
-        internal constructor(requestBody: JsonNode): this(
-            fom = requestBody.periode.first,
-            tom = requestBody.periode.second,
-            personidentifikator = requestBody.personidentifikator,
-            organisasjonsnummer = requestBody.organisasjonsnummer,
-            minimumSykdomsgrad = requestBody.optionalMinimumSykdomsgrad
-        )
-
-        override fun filtrer(utbetaltePerioder: List<UtbetaltPeriode>) = utbetaltePerioder
-            .filter { it.organisasjonsnummer == organisasjonsnummer }
-            .filter { it.grad >= (minimumSykdomsgrad ?: 0) }
-
-        @Language("JSON")
-        override fun json(utbetaltPeriode: UtbetaltPeriode) = """
-            {
-              "fraOgMedDato": "${utbetaltPeriode.fom}",
-              "tilOgMedDato": "${utbetaltPeriode.tom}",
-              "tags": ${utbetaltPeriode.tags.map { "\"$it\"" }}
-              ${if (minimumSykdomsgrad == null) ",\"sykdomsgrad\": ${utbetaltPeriode.grad}" else ""}
-            }
-        """
-    }
+    internal class FellesordningenForAfpRequest(requestBody: JsonNode): AfpRequest(
+        fom = requestBody.periode.first,
+        tom = requestBody.periode.second,
+        personidentifikator = requestBody.personidentifikator,
+        organisasjonsnummer = requestBody.organisasjonsnummer,
+        minimumSykdomsgrad = requestBody.optionalMinimumSykdomsgrad
+    )
 }
 
 internal abstract class AvtalefestetPensjon(navn: String, organisasjonsnummer: Organisasjonsnummer): Konsument(
@@ -76,39 +78,25 @@ internal abstract class AvtalefestetPensjon(navn: String, organisasjonsnummer: O
     behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b")
 ) {
     override suspend fun request(requestBody: JsonNode, versjon: Int): KonsumentRequest {
-        // TODO 1: Legge til en optional saksId i V1Request
-        // TODO 2: Lage en V2Request med required saksId
-        return AvtalefestetPensjonV1Request(requestBody)
+        val saksId = when (versjon) {
+            1 -> requestBody.optionalSaksId
+            2 -> requestBody.requiredSaksId
+            else -> throw FinnesIkke("Versjon $versjon finnes ikke for avtalefestet pensjon.")
+        }
+        return AvtalefestetPensjonRequest(requestBody, saksId)
     }
 
-    internal class AvtalefestetPensjonV1Request private constructor(
-        override val fom: LocalDate,
-        override val tom: LocalDate,
-        override val personidentifikator: Personidentifikator,
-        private val organisasjonsnummer: Organisasjonsnummer,
-        private val minimumSykdomsgrad: Int?
-    ): KonsumentRequest {
-        internal constructor(requestBody: JsonNode): this(
-            fom = requestBody.periode.first,
-            tom = requestBody.periode.second,
-            personidentifikator = requestBody.personidentifikator,
-            organisasjonsnummer = requestBody.organisasjonsnummer,
-            minimumSykdomsgrad = requestBody.optionalMinimumSykdomsgrad
-        )
-
-        override fun filtrer(utbetaltePerioder: List<UtbetaltPeriode>) = utbetaltePerioder
-            .filter { it.organisasjonsnummer == organisasjonsnummer }
-            .filter { it.grad >= (minimumSykdomsgrad ?: 0) }
-
-        @Language("JSON")
-        override fun json(utbetaltPeriode: UtbetaltPeriode) = """
-            {
-              "fraOgMedDato": "${utbetaltPeriode.fom}",
-              "tilOgMedDato": "${utbetaltPeriode.tom}",
-              "tags": ${utbetaltPeriode.tags.map { "\"$it\"" }}
-              ${if (minimumSykdomsgrad == null) ",\"sykdomsgrad\": ${utbetaltPeriode.grad}" else ""}
-            }
-        """
+    internal class AvtalefestetPensjonRequest(requestBody: JsonNode, private val saksId: SaksId?): AfpRequest(
+        fom = requestBody.periode.first,
+        tom = requestBody.periode.second,
+        personidentifikator = requestBody.personidentifikator,
+        organisasjonsnummer = requestBody.organisasjonsnummer,
+        minimumSykdomsgrad = requestBody.optionalMinimumSykdomsgrad
+    ) {
+        override fun berik(response: ObjectNode): ObjectNode {
+            saksId?.let { id -> response.put("saksId", "$id") }
+            return response
+        }
     }
 }
 
