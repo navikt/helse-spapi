@@ -14,21 +14,9 @@ internal sealed class Konsument(
     internal val behandlingsgrunnlag: Behandlingsgrunnlag
 ) {
     override fun toString() = navn
-    abstract suspend fun request(requestBody: JsonNode, versjon: Int): KonsumentRequest
 
-    internal companion object {
-        internal val AlleKonsumenter = setOf(
-            FellesordningenForAfp,
-            KommunalLandspensjonskasse,
-            StatensPensjonskasse,
-            StorebrandPensjonstjenester,
-            StorebrandLivsforsikring,
-            OsloPensjonsforsikring,
-            GablerPensjonstjenester,
-            Aksio,
-            Nav
-        )
-    }
+    // Per nå er det ingen konsumenter som har forskjellige versjoner, men det er nok bare et spørsmål om tid
+    abstract suspend fun request(requestBody: JsonNode, versjon: Int): KonsumentRequest
 }
 
 internal sealed class AfpRequest(
@@ -60,7 +48,7 @@ internal object FellesordningenForAfp: Konsument(
     behandlingsnummer = "B709",
     behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b")
 ) {
-    override suspend fun request(requestBody: JsonNode, versjon: Int) = FellesordningenForAfpRequest(requestBody) // Fellesrdningen for AFP har ikke fler versjoner :)
+    override suspend fun request(requestBody: JsonNode, versjon: Int) = FellesordningenForAfpRequest(requestBody)
 
     internal class FellesordningenForAfpRequest(requestBody: JsonNode): AfpRequest(
         fom = requestBody.periode.first,
@@ -77,14 +65,9 @@ internal abstract class AvtalefestetPensjon(navn: String, organisasjonsnummer: O
     behandlingsnummer = "B709",
     behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b")
 ) {
-    override suspend fun request(requestBody: JsonNode, versjon: Int): KonsumentRequest {
-        val saksId = when (versjon) {
-            1 -> requestBody.optionalSaksId
-            2 -> requestBody.requiredSaksId
-            else -> throw FinnesIkke("Versjon $versjon finnes ikke for avtalefestet pensjon.")
-        }
-        return AvtalefestetPensjonRequest(requestBody, saksId)
-    }
+    override suspend fun request(requestBody: JsonNode, versjon: Int) = AvtalefestetPensjonRequest(requestBody, saksId(requestBody))
+
+    abstract fun saksId(requestBody: JsonNode): SaksId?
 
     internal class AvtalefestetPensjonRequest(requestBody: JsonNode, private val saksId: SaksId?): AfpRequest(
         fom = requestBody.periode.first,
@@ -100,13 +83,16 @@ internal abstract class AvtalefestetPensjon(navn: String, organisasjonsnummer: O
     }
 }
 
-internal object OsloPensjonsforsikring: AvtalefestetPensjon(navn = "Oslo pensjonsforsikring", organisasjonsnummer = Organisasjonsnummer("982759412"))
-internal object StatensPensjonskasse: AvtalefestetPensjon(navn = "Statens pensjonskasse", organisasjonsnummer = Organisasjonsnummer("982583462"))
-internal object StorebrandLivsforsikring: AvtalefestetPensjon(navn = "Storebrand livsforsikring", organisasjonsnummer = Organisasjonsnummer("958995369"))
-internal object KommunalLandspensjonskasse: AvtalefestetPensjon(navn = "Kommunal landspensjonskasse", organisasjonsnummer = Organisasjonsnummer("938708606"))
-internal object StorebrandPensjonstjenester: AvtalefestetPensjon(navn = "Storebrand pensjonstjenester", organisasjonsnummer = Organisasjonsnummer("931936492"))
-internal object GablerPensjonstjenester: AvtalefestetPensjon(navn = "Gabler pensjonstjenester", organisasjonsnummer = Organisasjonsnummer("916833520"))
-internal object Aksio: AvtalefestetPensjon(navn = "Aksio", organisasjonsnummer = Organisasjonsnummer("927613298"))
+internal object OsloPensjonsforsikring: AvtalefestetPensjon(navn = "Oslo pensjonsforsikring", organisasjonsnummer = Organisasjonsnummer("982759412")) { override fun saksId(requestBody: JsonNode) = requestBody.requiredSaksId }
+internal object StatensPensjonskasse: AvtalefestetPensjon(navn = "Statens pensjonskasse", organisasjonsnummer = Organisasjonsnummer("982583462")) { override fun saksId(requestBody: JsonNode) = requestBody.optionalSaksId }
+internal object StorebrandLivsforsikring: AvtalefestetPensjon(navn = "Storebrand livsforsikring", organisasjonsnummer = Organisasjonsnummer("958995369")) { override fun saksId(requestBody: JsonNode) = requestBody.requiredSaksId }
+internal object KommunalLandspensjonskasse: AvtalefestetPensjon(navn = "Kommunal landspensjonskasse", organisasjonsnummer = Organisasjonsnummer("938708606")) { override fun saksId(requestBody: JsonNode) = requestBody.optionalSaksId }
+internal object StorebrandPensjonstjenester: AvtalefestetPensjon(navn = "Storebrand pensjonstjenester", organisasjonsnummer = Organisasjonsnummer("931936492")) { override fun saksId(requestBody: JsonNode) = requestBody.optionalSaksId }
+internal object GablerPensjonstjenester: AvtalefestetPensjon(navn = "Gabler pensjonstjenester", organisasjonsnummer = Organisasjonsnummer("916833520")) { override fun saksId(requestBody: JsonNode) = requestBody.requiredSaksId }
+internal object Aksio: AvtalefestetPensjon(navn = "Aksio", organisasjonsnummer = Organisasjonsnummer("927613298")) { override fun saksId(requestBody: JsonNode) = requestBody.requiredSaksId }
 
 //  Litt tøysete konsument som bare har tilgang i DEV for å teste selv
-internal object Nav: AvtalefestetPensjon(navn = "NAV", organisasjonsnummer = Organisasjonsnummer("889640782"))
+internal object Nav: AvtalefestetPensjon(navn = "NAV", organisasjonsnummer = Organisasjonsnummer("889640782")) { override fun saksId(requestBody: JsonNode) = requestBody.requiredSaksId }
+
+// Hvilke konsumenter som registreres når appen starter styres fra dev-nais.json & prod-nais.json i resouces.
+internal val AlleKonsumenter = setOf(FellesordningenForAfp, KommunalLandspensjonskasse, StatensPensjonskasse, StorebrandPensjonstjenester, StorebrandLivsforsikring, OsloPensjonsforsikring, GablerPensjonstjenester, Aksio, Nav)

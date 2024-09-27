@@ -9,7 +9,6 @@ import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import no.nav.helse.spapi.Konsument.Companion.AlleKonsumenter
 import no.nav.helse.spapi.personidentifikator.Personidentifikatorer
 import no.nav.helse.spapi.utbetalteperioder.UtbetaltPeriode
 import no.nav.helse.spapi.utbetalteperioder.UtbetaltePerioder

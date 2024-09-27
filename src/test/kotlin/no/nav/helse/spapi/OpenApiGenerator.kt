@@ -28,6 +28,8 @@ class OpenApiGenerator {
                 "id" to api.id,
                 "scope" to api.scope,
                 "navn" to api.navn,
+                "versjon" to if (api.id == "avtalefestet-pensjon") "V2" else "V1",
+                "saksIdInfo" to ((api.id == "avtalefestet-pensjon")),
                 "organisasjonsnummer" to api.konsumenter.joinToString { it.organisasjonsnummer.toString() }
             )
         }

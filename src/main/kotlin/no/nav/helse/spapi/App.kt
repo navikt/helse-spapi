@@ -85,10 +85,6 @@ internal fun Application.spapi(
             call.loggHåndtertFeil(cause.message)
             call.respondError(BadRequest, cause.message)
         }
-        exception<FinnesIkke> { call, cause ->
-            call.loggHåndtertFeil(cause.message)
-            call.respondError(NotFound, cause.message)
-        }
         exception<Throwable> { call, cause ->
             sikkerlogg.error("Feil ved håndtering av ${call.request.httpMethod.value} - ${call.request.path()}", cause)
             call.respondError(InternalServerError)

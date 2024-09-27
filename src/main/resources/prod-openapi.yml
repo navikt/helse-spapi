@@ -42,6 +42,7 @@ paths:
           
           Om den tilsluttede virksomheten har endret organisasjonsnummer innenfor tidsintervallet det etterspørres informasjon må det sendes en request per organisasjonsnummer.
           
+          
           Scope: `nav:sykepenger:fellesordningenforafp.read`
         security:
           - maskinporten: []
@@ -116,6 +117,40 @@ components:
           maximum: 100
           description: Anbefalt, men valgfri. Minimum sykdomsgrad som er aktuelt å utlevere informasjon om for å vurdere vilkårene for AFP for den aktuelle underenheten
           example: 80
+    RequestV2:
+      type: object
+      required: ["personidentifikator", "organisasjonsnummer", "fraOgMedDato", "tilOgMedDato"]
+      properties:
+        personidentifikator:
+          type: string
+          pattern: '^\d{11}$'
+          description: Personidentifikator for personen
+          example: 11111111111
+        organisasjonsnummer:
+          type: string
+          pattern: '^\d{9}$'
+          description: Organisasjonsnummer til underenheten som er tilsluttet ordningen
+          example: 999999999
+        fraOgMedDato:
+          type: string
+          format: date
+          description: Fra og med dato
+          example: 2021-01-01
+        tilOgMedDato:
+          type: string
+          format: date
+          description: Til og med dato
+          example: 2021-01-31
+        minimumSykdomsgrad:
+          type: integer
+          minimum: 1
+          maximum: 100
+          description: Anbefalt, men valgfri. Minimum sykdomsgrad som er aktuelt å utlevere informasjon om for å vurdere vilkårene for AFP for den aktuelle underenheten
+          example: 80
+        saksId:
+          type: string
+          description: SaksId'en til konsumenten som den gjør oppslag for
+          example: "086BE575-25E1-4425-8970-A16A9D7953E9"
     UtbetaltPeriodeV1:
       type: object
       required: ["fraOgMedDato", "tilOgMedDato", "tags"]
@@ -145,7 +180,21 @@ components:
               - UsikkerSykdomsgrad
     ResponseV1:
       type: object
+      required: [ "utbetaltePerioder" ]
       properties:
+        utbetaltePerioder:
+          type: array
+          description: Perioder med utbetaling
+          items:
+            $ref: '#/components/schemas/UtbetaltPeriodeV1'
+    ResponseV2:
+      type: object
+      required: [ "utbetaltePerioder" ]
+      properties:
+        saksId:
+          type: string
+          description: SaksId'en som ble sendt inn i requesten (Kommer kun i responsen om den var sendt med i requesten)
+          example: "086BE575-25E1-4425-8970-A16A9D7953E9"
         utbetaltePerioder:
           type: array
           description: Perioder med utbetaling

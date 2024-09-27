@@ -2,10 +2,10 @@ package no.nav.helse.spapi
 
 import io.ktor.client.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.HttpHeaders.Authorization
 import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.http.HttpStatusCode.Companion.Forbidden
-import io.ktor.http.HttpStatusCode.Companion.NotFound
 import io.ktor.http.HttpStatusCode.Companion.OK
 import io.ktor.http.HttpStatusCode.Companion.Unauthorized
 import no.nav.helse.spapi.personidentifikator.Personidentifikator
@@ -13,21 +13,24 @@ import no.nav.helse.spapi.utbetalteperioder.UtbetaltPeriode
 import no.nav.helse.spapi.utbetalteperioder.UtbetaltePerioder
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
 internal class AvtalefestetPensjonTest : KonsumentTest() {
 
     @Test
-    fun `tilgang for statens pensjonskasse`() = setupSpapi {
-        assertEquals(Unauthorized, client.request().status)
-        assertEquals(Forbidden, client.request(feilScope()).status)
-        assertEquals(Forbidden, client.request(valgfrittScope("nav:sykepenger:fellesordningenforafp.read")).status)
-        assertEquals(Forbidden, client.request(valgfrittScope("nav:sykepenger:storebrandpensjonstjenester.read")).status)
-        assertEquals(Forbidden, client.request(feilIssuer()).status)
-        assertEquals(Forbidden, client.request(feilIssuerHeader()).status)
-        assertEquals(Forbidden, client.request(feilAudience()).status)
-        assertEquals(OK, client.request(riktigToken()).status)
+    fun `tilgang for avtalefestet pensjon`() = setupSpapi {
+        konsumentMedOptionalSaksId {
+            assertEquals(Unauthorized, client.request().status)
+            assertEquals(Forbidden, client.request(feilScope()).status)
+            assertEquals(Forbidden, client.request(valgfrittScope("nav:sykepenger:fellesordningenforafp.read")).status)
+            assertEquals(Forbidden, client.request(valgfrittScope("nav:sykepenger:storebrandpensjonstjenester.read")).status)
+            assertEquals(Forbidden, client.request(feilIssuer()).status)
+            assertEquals(Forbidden, client.request(feilIssuerHeader()).status)
+            assertEquals(Forbidden, client.request(feilAudience()).status)
+            assertEquals(OK, client.request(riktigToken()).status)
+        }
     }
 
     @Test
@@ -53,9 +56,11 @@ internal class AvtalefestetPensjonTest : KonsumentTest() {
           ]
         }
         """
-        client.request(riktigToken(), minimumSykdomsgrad = null).apply {
-            assertEquals(OK, status)
-            assertResponse(forventetResponse)
+        konsumentMedOptionalSaksId {
+            client.request(riktigToken(), minimumSykdomsgrad = null).apply {
+                assertEquals(OK, status)
+                assertResponse(forventetResponse)
+            }
         }
     }
 
@@ -73,9 +78,12 @@ internal class AvtalefestetPensjonTest : KonsumentTest() {
           ]
         }
         """
-        client.request(riktigToken(), minimumSykdomsgrad = 80).apply {
-            assertEquals(OK, status)
-            assertResponse(forventetResponse)
+
+        konsumentMedOptionalSaksId {
+            client.request(riktigToken(), minimumSykdomsgrad = 80).apply {
+                assertEquals(OK, status)
+                assertResponse(forventetResponse)
+            }
         }
 
         @Language("JSON")
@@ -95,9 +103,11 @@ internal class AvtalefestetPensjonTest : KonsumentTest() {
           ]
         }
         """
-        client.request(accessToken = riktigToken(), minimumSykdomsgrad = 79).apply {
-            assertEquals(OK, status)
-            assertResponse(forventetResponse2)
+        konsumentMedOptionalSaksId {
+            client.request(accessToken = riktigToken(), minimumSykdomsgrad = 79).apply {
+                assertEquals(OK, status)
+                assertResponse(forventetResponse2)
+            }
         }
     }
 
@@ -126,40 +136,62 @@ internal class AvtalefestetPensjonTest : KonsumentTest() {
         }
         """
 
-        // V1
-        client.request(riktigToken(), minimumSykdomsgrad = null, saksId = "Jeg_er_en_Saks-id").apply {
-            assertEquals(OK, status)
-            assertResponse(forventetResponse)
+        konsumentMedOptionalSaksId {
+            client.request(riktigToken(), minimumSykdomsgrad = null, saksId = "Jeg_er_en_Saks-id").apply {
+                assertEquals(OK, status)
+                assertResponse(forventetResponse)
+            }
         }
-        // V2
-        client.request(riktigToken(), minimumSykdomsgrad = null, path = "/avtalefestet-pensjon/v2", saksId = "Jeg_er_en_Saks-id").apply {
-            assertEquals(OK, status)
-            assertResponse(forventetResponse)
+
+        konsumentMedRequiredSaksId {
+            client.request(riktigToken(), minimumSykdomsgrad = null, saksId = "Jeg_er_en_Saks-id").apply {
+                assertEquals(OK, status)
+                assertResponse(forventetResponse)
+            }
         }
     }
 
     @Test
-    fun `manglende input gir 400`() =  setupSpapi {
-        assertEquals(BadRequest, client.request(riktigToken(), tomKey = "tomOgMedDato").status)
+    fun `manglende input gir 400`() = setupSpapi {
+        konsumentMedOptionalSaksId { assertEquals(BadRequest, client.request(riktigToken(), tomKey = "tomOgMedDato").status) }
+        konsumentMedRequiredSaksId { assertEquals(BadRequest, client.request(riktigToken(), tomKey = "tomOgMedDato").status) }
     }
 
     @Test
-    fun `ugyldig input gir 400`() =  setupSpapi {
-        assertEquals(BadRequest, client.request(riktigToken(), tomValue = "kittycat").status)
+    fun `ugyldig input gir 400`() = setupSpapi {
+        konsumentMedOptionalSaksId { assertEquals(BadRequest, client.request(riktigToken(), tomValue = "kittycat").status) }
+        konsumentMedRequiredSaksId { assertEquals(BadRequest, client.request(riktigToken(), tomValue = "kittycat").status) }
     }
 
     @Test
-    fun `manglende saksId på v2 gir 400`() = setupSpapi {
-        assertEquals(BadRequest, client.request(riktigToken(), minimumSykdomsgrad = null, path = "/avtalefestet-pensjon/v2").status)
-    }
-
-    @Test
-    fun `v3 finnes ikke (enda)`() = setupSpapi {
-        assertEquals(NotFound, client.request(riktigToken(), minimumSykdomsgrad = null, path = "/avtalefestet-pensjon/v3").status)
+    fun `manglende saksId for de som må sende det gir 400`() = setupSpapi {
+        konsumentMedRequiredSaksId { client.request(riktigToken(), saksId = null).let {
+            assertEquals(BadRequest, it.status)
+            assertTrue(it.bodyAsText().contains("Mangler feltet 'saksId' i request body."))
+        }}
+        // Mens for de med optional går det greit
+        konsumentMedOptionalSaksId { assertEquals(OK, client.request(riktigToken(), saksId = null).status) }
     }
 
     override val scope = "nav:sykepenger:avtalefestetpensjon.read"
-    override val organisasjonsnummer = (Konsument.AlleKonsumenter - FellesordningenForAfp).random().organisasjonsnummer
+
+    private val optionalSaksid = setOf(StatensPensjonskasse, KommunalLandspensjonskasse, StorebrandPensjonstjenester)
+    private val requiredSaksId = AlleKonsumenter - optionalSaksid - FellesordningenForAfp
+
+    private var aktivtOrganisasjonsnummer: Organisasjonsnummer? = null
+    override val organisasjonsnummer get() = checkNotNull(aktivtOrganisasjonsnummer)
+
+    private inline fun konsumentMedOptionalSaksId(block: () -> Unit) {
+        aktivtOrganisasjonsnummer = optionalSaksid.random().organisasjonsnummer
+        block()
+        aktivtOrganisasjonsnummer = null
+    }
+
+    private inline fun konsumentMedRequiredSaksId(block: () -> Unit) {
+        aktivtOrganisasjonsnummer = requiredSaksId.random().organisasjonsnummer
+        block()
+        aktivtOrganisasjonsnummer = null
+    }
 
     override fun utbetaltePerioder() = object : UtbetaltePerioder {
         override suspend fun hent(personidentifikatorer: Set<Personidentifikator>, fom: LocalDate, tom: LocalDate) = listOf(
@@ -173,7 +205,7 @@ internal class AvtalefestetPensjonTest : KonsumentTest() {
         }
     }
 
-    private suspend fun HttpClient.request(accessToken: String? = null, minimumSykdomsgrad: Int? = 80, tomKey: String = "tilOgMedDato", tomValue: String = "2018-01-31", path: String = "/avtalefestet-pensjon", saksId: String? = null) = post(path) {
+    private suspend fun HttpClient.request(accessToken: String? = null, minimumSykdomsgrad: Int? = 80, tomKey: String = "tilOgMedDato", tomValue: String = "2018-01-31", saksId: String? = null) = post("/avtalefestet-pensjon",) {
         accessToken?.let { header(Authorization, "Bearer $it") }
         @Language("JSON")
         val request = """

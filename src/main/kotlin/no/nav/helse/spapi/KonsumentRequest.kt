@@ -17,7 +17,6 @@ internal sealed interface KonsumentRequest {
 }
 
 internal class UgyldigInputException(melding: String, cause: Throwable? = null): IllegalArgumentException(melding, cause)
-internal class FinnesIkke(melding: String): IllegalArgumentException(melding)
 
 private fun JsonNode.hent(path: String) = path(path).takeUnless { it.isMissingNode || it.isNull }
 private fun <T> JsonNode.required(path: String, transformer: (jsonNode: JsonNode) -> T): T {
