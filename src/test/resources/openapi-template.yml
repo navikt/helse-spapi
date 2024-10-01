@@ -49,7 +49,7 @@ paths:
           Om den tilsluttede virksomheten har endret organisasjonsnummer innenfor tidsintervallet det etterspørres informasjon må det sendes en request per organisasjonsnummer.
           
           {{# each saksIdInfo as |linje| }}
-          {{linje}}
+          {{{linje}}}
           {{/each}}
           
           Scope: `{{api.scope}}`
