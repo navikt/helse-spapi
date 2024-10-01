@@ -47,19 +47,10 @@ paths:
           Utbetalte sykepengeperioder er eksklusiv arbeidsgiverperioden.
           
           Om den tilsluttede virksomheten har endret organisasjonsnummer innenfor tidsintervallet det etterspørres informasjon må det sendes en request per organisasjonsnummer.
-          {{#if saksIdInfo}}
           
-          Feltet `saksId` _må_ settes, med unntak for visse konsumenter; 
-          
-          ✅ Statens pensjonskasse (982583462) - Vil bli påkrevd 1.Januar 2025.
-          
-          ✅ Kommunal landspensjonskasse (938708606) - Har integrert uten `saksId`, avventer bekreftelse på at de legger det ved.
-          
-          ✅ Storebrand pensjonstjenester (931936492) - Har integrert uten `saksId`, avventer bekreftelse på at de legger det ved.
-          
-          ❌ Øvrig konsumenter vil få en HTTP 400 om `saksId` mangler
-        
-          {{/if}}
+          {{# each saksIdInfo as |linje| }}
+          {{linje}}
+          {{/each}}
           
           Scope: `{{api.scope}}`
         security:
