@@ -64,16 +64,13 @@ repositories {
     maven("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
 }
 
+kotlin {
+    jvmToolchain {
+        languageVersion.set(JavaLanguageVersion.of("21"))
+    }
+}
 
 tasks {
-    compileKotlin {
-        kotlinOptions.jvmTarget = "21"
-    }
-
-    compileTestKotlin {
-        kotlinOptions.jvmTarget = "21"
-    }
-
     withType<Test> {
         useJUnitPlatform()
         testLogging {
