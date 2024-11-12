@@ -6,7 +6,7 @@ val ktorVersion = "2.3.12"
 val logbackClassicVersion = "1.4.14"
 val logbackEncoderVersion = "7.4"
 val jacksonVersion = "2.16.1"
-val junitJupiterVersion = "5.10.2"
+val junitJupiterVersion = "5.11.3"
 val wiremockVersion = "3.3.1"
 val kafkaVersion = "3.6.1"
 val jsonAssertVersion = "1.5.1"
@@ -40,9 +40,8 @@ dependencies {
 
     testImplementation("io.ktor:ktor-server-tests:$ktorVersion")
     testImplementation("org.wiremock:wiremock:$wiremockVersion")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter:$junitJupiterVersion")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.skyscreamer:jsonassert:$jsonAssertVersion")
     testImplementation("com.github.jknack:handlebars:$handlebarsVersion")
 }
