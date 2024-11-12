@@ -89,10 +89,11 @@ internal object StorebrandLivsforsikring: AvtalefestetPensjon(navn = "Storebrand
 internal object KommunalLandspensjonskasse: AvtalefestetPensjon(navn = "Kommunal landspensjonskasse", organisasjonsnummer = Organisasjonsnummer("938708606")) { override fun saksId(requestBody: JsonNode) = requestBody.optionalSaksId }
 internal object StorebrandPensjonstjenester: AvtalefestetPensjon(navn = "Storebrand pensjonstjenester", organisasjonsnummer = Organisasjonsnummer("931936492")) { override fun saksId(requestBody: JsonNode) = requestBody.optionalSaksId }
 internal object GablerPensjonstjenester: AvtalefestetPensjon(navn = "Gabler pensjonstjenester", organisasjonsnummer = Organisasjonsnummer("916833520")) { override fun saksId(requestBody: JsonNode) = requestBody.requiredSaksId }
-internal object Aksio: AvtalefestetPensjon(navn = "Aksio", organisasjonsnummer = Organisasjonsnummer("927613298")) { override fun saksId(requestBody: JsonNode) = requestBody.requiredSaksId }
+internal object ArendalKommunalePensjonskasse: AvtalefestetPensjon(navn = "Arendal kommunale pensjonskasse", organisasjonsnummer = Organisasjonsnummer("940380014")) { override fun saksId(requestBody: JsonNode) = requestBody.requiredSaksId }
+internal object DrammenKommunalePensjonskasse: AvtalefestetPensjon(navn = "Drammen kommunale pensjonskasse", organisasjonsnummer = Organisasjonsnummer("980650383")) { override fun saksId(requestBody: JsonNode) = requestBody.requiredSaksId }
 
 //  Litt tøysete konsument som bare har tilgang i DEV for å teste selv
 internal object Nav: AvtalefestetPensjon(navn = "NAV", organisasjonsnummer = Organisasjonsnummer("889640782")) { override fun saksId(requestBody: JsonNode) = requestBody.requiredSaksId }
 
 // Hvilke konsumenter som registreres når appen starter styres fra dev-nais.json & prod-nais.json i resouces.
-internal val AlleKonsumenter = setOf(FellesordningenForAfp, KommunalLandspensjonskasse, StatensPensjonskasse, StorebrandPensjonstjenester, StorebrandLivsforsikring, OsloPensjonsforsikring, GablerPensjonstjenester, Aksio, Nav)
+internal val AlleKonsumenter = setOf(FellesordningenForAfp, KommunalLandspensjonskasse, StatensPensjonskasse, StorebrandPensjonstjenester, StorebrandLivsforsikring, OsloPensjonsforsikring, GablerPensjonstjenester, ArendalKommunalePensjonskasse, DrammenKommunalePensjonskasse, Nav)

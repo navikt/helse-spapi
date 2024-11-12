@@ -27,7 +27,8 @@
         { "navn": "Storebrand livsforsikring", "organisasjonsnummer": "958995369" },
         { "navn": "Storebrand pensjonstjenester", "organisasjonsnummer": "931936492"},
         { "navn": "Gabler pensjonstjenester",  "organisasjonsnummer": "916833520"},
-        { "navn": "Aksio", "organisasjonsnummer": "927613298" },
+        { "navn": "Arendal kommunale pensjonskasse", "organisasjonsnummer": "940380014" },
+        { "navn": "Drammen kommunale pensjonskasse", "organisasjonsnummer": "980650383" },
         { "navn": "NAV", "organisasjonsnummer": "889640782" }
       ]
     }
