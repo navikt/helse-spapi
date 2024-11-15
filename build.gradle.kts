@@ -3,6 +3,7 @@ plugins {
 }
 
 val ktorVersion = "2.3.12"
+val tbdLibsVersion = "2024.11.15-09.09-08ca346b"
 val logbackClassicVersion = "1.5.12"
 val logbackEncoderVersion = "8.0"
 val jacksonVersion = "2.18.1"
@@ -36,7 +37,7 @@ dependencies {
 
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     implementation("org.apache.kafka:kafka-clients:$kafkaVersion")
-    implementation("com.github.navikt.tbd-libs:azure-token-client-default:2024.01.19-13.10-ef3c0f8d")
+    implementation("com.github.navikt.tbd-libs:azure-token-client-default:$tbdLibsVersion")
 
     testImplementation("io.ktor:ktor-server-tests:$ktorVersion")
     testImplementation("org.wiremock:wiremock:$wiremockVersion")
