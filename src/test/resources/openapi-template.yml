@@ -52,7 +52,12 @@ paths:
           {{{linje}}}
           {{/each}}
           
-          Scope: `{{api.scope}}`
+          
+          Scope: (én av):
+          {{# each scopes as |scope| }}
+          `{{scope}}`
+          {{/each}}
+
         security:
           - maskinporten: []
         parameters:

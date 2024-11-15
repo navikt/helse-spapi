@@ -16,7 +16,10 @@ import org.slf4j.LoggerFactory
 import java.util.*
 
 internal class Api(internal val id: String, scope: String, internal val navn: String, internal val konsumenter: Set<Konsument>) {
-    internal val scope = "nav:sykepenger:$scope"
+    internal val scopes = setOfNotNull(
+        "nav:sykepenger:$scope",
+        "nav:sykepenger/delegert.$scope".takeIf { konsumenter.any { it.integrator != null } }
+    )
 
     init {
         check(konsumenter.isNotEmpty()) { "Må sette minst en konsument!" }
@@ -26,7 +29,9 @@ internal class Api(internal val id: String, scope: String, internal val navn: St
         authenticationConfig.jwt(id) {
             verifier(maskinportenJwkProvider, maskinportenIssuer) {
                 withAudience(audience)
-                withClaim("scope", scope)
+                withClaim("scope") { scopeClaim, _ ->
+                    scopes.contains(scopeClaim.asString())
+                }
             }
             validate { credentials -> JWTPrincipal(credentials.payload) }
             challenge { _, _ -> call.respondChallenge() }
@@ -94,7 +99,16 @@ internal class Api(internal val id: String, scope: String, internal val navn: St
         }
         private fun ApplicationCall.konsument(konsumenter: Set<Konsument>): Konsument {
             val organisasjonsnummer = principal<JWTPrincipal>()?.payload?.getClaim("consumer")?.asMap()?.get("ID")?.toString()?.substringAfter(":") ?: error("Klarte ikke utlede konsuement fra token")
-            return konsumenter.singleOrNull { it.organisasjonsnummer.toString() == organisasjonsnummer } ?: error("Konsument med orgnr $organisasjonsnummer er ikke registrert.")
+            val konsument = konsumenter.singleOrNull { it.organisasjonsnummer.toString() == organisasjonsnummer } ?: error("Konsument med orgnr $organisasjonsnummer er ikke registrert.")
+            if (konsument.integrator == null) return konsument
+            val integrator = integrator()
+            check(integrator == konsument.integrator) { "$integrator er ikke satt som integrator for $konsument" }
+            return konsument
+        }
+
+        private fun ApplicationCall.integrator(): Organisasjonsnummer {
+            val organisasjonsnummer = principal<JWTPrincipal>()?.payload?.getClaim("supplier")?.asMap()?.get("ID")?.toString()?.substringAfter(":") ?: error("Klarte ikke utlede integrator fra token")
+            return Organisasjonsnummer(organisasjonsnummer)
         }
 
         private val String.innholdFraResource get() = object {}.javaClass.getResource(this)?.readText() ?: error("Fant ikke resource <$this>")

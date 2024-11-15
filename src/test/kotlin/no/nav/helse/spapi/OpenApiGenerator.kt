@@ -26,7 +26,7 @@ class OpenApiGenerator {
         val apis = config.apis.map { api ->
             mapOf(
                 "id" to api.id,
-                "scope" to api.scope,
+                "scopes" to api.scopes,
                 "navn" to api.navn,
                 "versjon" to if (api.id == "avtalefestet-pensjon") "V2" else "V1",
                 "saksIdInfo" to saksIdInfo(api.konsumenter),

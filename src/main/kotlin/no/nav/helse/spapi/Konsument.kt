@@ -11,7 +11,8 @@ internal sealed class Konsument(
     internal val navn: String,
     internal val organisasjonsnummer: Organisasjonsnummer,
     internal val behandlingsnummer: String ,
-    internal val behandlingsgrunnlag: Behandlingsgrunnlag
+    internal val behandlingsgrunnlag: Behandlingsgrunnlag,
+    internal val integrator: Organisasjonsnummer? = null
 ) {
     override fun toString() = navn
 
@@ -59,11 +60,12 @@ internal object FellesordningenForAfp: Konsument(
     )
 }
 
-internal abstract class AvtalefestetPensjon(navn: String, organisasjonsnummer: Organisasjonsnummer): Konsument(
+internal abstract class AvtalefestetPensjon(navn: String, organisasjonsnummer: Organisasjonsnummer, integrator: Organisasjonsnummer? = null): Konsument(
     navn = navn,
     organisasjonsnummer = organisasjonsnummer,
     behandlingsnummer = "B709",
-    behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b")
+    behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b"),
+    integrator = integrator
 ) {
     override suspend fun request(requestBody: JsonNode, versjon: Int) = AvtalefestetPensjonRequest(requestBody, saksId(requestBody))
 
@@ -89,8 +91,11 @@ internal object StorebrandLivsforsikring: AvtalefestetPensjon(navn = "Storebrand
 internal object KommunalLandspensjonskasse: AvtalefestetPensjon(navn = "Kommunal landspensjonskasse", organisasjonsnummer = Organisasjonsnummer("938708606")) { override fun saksId(requestBody: JsonNode) = requestBody.optionalSaksId }
 internal object StorebrandPensjonstjenester: AvtalefestetPensjon(navn = "Storebrand pensjonstjenester", organisasjonsnummer = Organisasjonsnummer("931936492")) { override fun saksId(requestBody: JsonNode) = requestBody.optionalSaksId }
 internal object GablerPensjonstjenester: AvtalefestetPensjon(navn = "Gabler pensjonstjenester", organisasjonsnummer = Organisasjonsnummer("916833520")) { override fun saksId(requestBody: JsonNode) = requestBody.requiredSaksId }
-internal object ArendalKommunalePensjonskasse: AvtalefestetPensjon(navn = "Arendal kommunale pensjonskasse", organisasjonsnummer = Organisasjonsnummer("940380014")) { override fun saksId(requestBody: JsonNode) = requestBody.requiredSaksId }
-internal object DrammenKommunalePensjonskasse: AvtalefestetPensjon(navn = "Drammen kommunale pensjonskasse", organisasjonsnummer = Organisasjonsnummer("980650383")) { override fun saksId(requestBody: JsonNode) = requestBody.requiredSaksId }
+
+
+private val Aksio = Organisasjonsnummer("927613298")
+internal object ArendalKommunalePensjonskasse: AvtalefestetPensjon(navn = "Arendal kommunale pensjonskasse", organisasjonsnummer = Organisasjonsnummer("940380014"), integrator = Aksio) { override fun saksId(requestBody: JsonNode) = requestBody.requiredSaksId }
+internal object DrammenKommunalePensjonskasse: AvtalefestetPensjon(navn = "Drammen kommunale pensjonskasse", organisasjonsnummer = Organisasjonsnummer("980650383"), integrator = Aksio) { override fun saksId(requestBody: JsonNode) = requestBody.requiredSaksId }
 
 //  Litt tøysete konsument som bare har tilgang i DEV for å teste selv
 internal object Nav: AvtalefestetPensjon(navn = "NAV", organisasjonsnummer = Organisasjonsnummer("889640782")) { override fun saksId(requestBody: JsonNode) = requestBody.requiredSaksId }

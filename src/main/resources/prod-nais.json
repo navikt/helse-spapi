@@ -13,7 +13,8 @@
       "scope": "fellesordningenforafp.read",
       "consumers": [
         { "navn": "Fellesordningen for AFP", "organisasjonsnummer": "987414502" }
-      ]
+      ],
+      "enableIntegratorer": false
     },
     {
       "id": "avtalefestet-pensjon",
@@ -21,7 +22,8 @@
       "scope": "avtalefestetpensjon.read",
       "consumers": [
         { "navn": "Statens pensjonskasse", "organisasjonsnummer": "982583462" }
-      ]
+      ],
+      "enableIntegratorer": false
     }
   ]
 }

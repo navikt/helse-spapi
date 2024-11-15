@@ -42,7 +42,19 @@ spec:
             {{# each api.consumers as |consumer| }}
             - name: "{{consumer.navn}}"
               orgno: "{{consumer.organisasjonsnummer}}"
-            {{/each~}}
+            {{/each}}
+        {{# if api.enableIntegratorer }}
+        - name: "delegert.{{api.scope}}"
+          enabled: true
+          product: "sykepenger"
+          separator: "/"
+          delegationSource: altinn
+          consumers:
+            {{# each api.integratorer as |integrator|}}
+            - name: "{{integrator.navn}}"
+              orgno: "{{integrator.organisasjonsnummer}}"
+            {{/each}}
+        {{/if}}
         {{/each}}
   azure:
     application:

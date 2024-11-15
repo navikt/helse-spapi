@@ -49,7 +49,12 @@ paths:
           
           
           
-          Scope: `nav:sykepenger:fellesordningenforafp.read`
+          
+          Scope: (én av):
+          
+          `nav:sykepenger:fellesordningenforafp.read`
+          
+
         security:
           - maskinporten: []
         parameters:
@@ -115,7 +120,14 @@ paths:
           ❌ Øvrig konsumenter vil få en HTTP 400 om `saksId` mangler
           
           
-          Scope: `nav:sykepenger:avtalefestetpensjon.read`
+          
+          Scope: (én av):
+          
+          `nav:sykepenger:avtalefestetpensjon.read`
+          
+          `nav:sykepenger/delegert.avtalefestetpensjon.read`
+          
+
         security:
           - maskinporten: []
         parameters:
