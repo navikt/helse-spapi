@@ -1,6 +1,9 @@
 package no.nav.helse.spapi
 
 import com.auth0.jwk.JwkProviderBuilder
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.github.navikt.tbd_libs.naisful.NaisEndpoints
+import com.github.navikt.tbd_libs.naisful.naisApp
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
@@ -8,19 +11,19 @@ import io.ktor.http.*
 import io.ktor.http.ContentType.Application.Json
 import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.http.HttpStatusCode.Companion.InternalServerError
-import io.ktor.http.HttpStatusCode.Companion.NotFound
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.engine.*
 import io.ktor.server.plugins.*
 import io.ktor.server.plugins.callid.*
-import io.ktor.server.plugins.callloging.*
 import io.ktor.server.plugins.ratelimit.*
-import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.plugins.swagger.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.micrometer.core.instrument.Clock
+import io.micrometer.prometheusmetrics.PrometheusConfig
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import io.prometheus.metrics.model.registry.PrometheusRegistry
 import no.nav.helse.spapi.Api.Companion.apis
 import no.nav.helse.spapi.personidentifikator.Pdl
 import no.nav.helse.spapi.personidentifikator.Personidentifikatorer
@@ -29,7 +32,6 @@ import no.nav.helse.spapi.utbetalteperioder.UtbetaltePerioder
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
-import org.slf4j.event.Level
 import java.net.URI
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -50,8 +52,10 @@ private suspend fun ApplicationCall.respondError(status: HttpStatusCode, melding
 }
 
 fun main() {
-    embeddedServer(ConfiguredCIO, port = 8080, module = Application::spapi).start(wait = true)
+    spapiApp().start(wait = true)
 }
+
+val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT, PrometheusRegistry.defaultRegistry, Clock.SYSTEM)
 
 internal fun Application.spapi(
     config: Map<String, String> = System.getenv(),
@@ -68,29 +72,7 @@ internal fun Application.spapi(
         }
     }
 
-    install(CallId) {
-        header("x-callId")
-        verify { it.erUUID }
-        generate { UUID.randomUUID().toString() }
-    }
-    install(CallLogging) {
-        logger = sikkerlogg
-        level = Level.INFO
-        disableDefaultColors()
-        callIdMdc("callId")
-        filter { call -> !call.request.path().contains("internal") }
-    }
-    install(StatusPages) {
-        exception<UgyldigInputException> { call, cause ->
-            call.loggHåndtertFeil(cause.message)
-            call.respondError(BadRequest, cause.message)
-        }
-        exception<Throwable> { call, cause ->
-            sikkerlogg.error("Feil ved håndtering av ${call.request.httpMethod.value} - ${call.request.path()}", cause)
-            call.respondError(InternalServerError)
-        }
-    }
-    environment.monitor.subscribe(ApplicationStopped) {
+    monitor.subscribe(ApplicationStopped) {
         client.close()
     }
     val apier = config.apis
@@ -113,5 +95,44 @@ internal fun Application.spapi(
         get("/internal/isready") { call.respondText("READY") }
         apier.forEach { it.registerApi(this, utbetaltePerioder, personidentifikatorer, sporings) }
     }
+}
+
+internal fun spapiApp(
+    config: Map<String, String> = System.getenv(),
+    sporings: Sporingslogg = Kafka(config),
+    client: HttpClient = HttpClient(CIO),
+    accessToken: AccessToken = Azure(),
+    utbetaltePerioder: UtbetaltePerioder = Spøkelse(config, client, accessToken),
+    personidentifikatorer: Personidentifikatorer = Pdl(config, client, accessToken)
+) = naisApp(
+    meterRegistry = meterRegistry,
+    objectMapper = jacksonObjectMapper(),
+    applicationLogger = sikkerlogg,
+    callLogger = sikkerlogg,
+    callIdHeaderName = "x-callId",
+    naisEndpoints = NaisEndpoints(
+        isaliveEndpoint = "/internal/isalive",
+        isreadyEndpoint = "/internal/isready",
+        metricsEndpoint = "/internal/metrics",
+        preStopEndpoint = "/internal/stop"
+    ),
+    cioConfiguration = {
+        val customParallelism = 16
+        connectionGroupSize = customParallelism / 2 + 1
+        workerGroupSize  = customParallelism / 2 + 1
+        callGroupSize = customParallelism
+    },
+    statusPagesConfig = {
+        exception<UgyldigInputException> { call, cause ->
+            call.loggHåndtertFeil(cause.message)
+            call.respondError(BadRequest, cause.message)
+        }
+        exception<Throwable> { call, cause ->
+            sikkerlogg.error("Feil ved håndtering av ${call.request.httpMethod.value} - ${call.request.path()}", cause)
+            call.respondError(InternalServerError)
+        }
+    }
+) {
+    spapi(config, sporings, client, accessToken, utbetaltePerioder, personidentifikatorer)
 }
 

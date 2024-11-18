@@ -18,7 +18,7 @@ import java.time.LocalDate
 internal class FellesordningenForAfpTest : KonsumentTest() {
 
     @Test
-    fun `tilgang for fellesordningen for afp`() = setupSpapi {
+    fun `tilgang for fellesordningen for afp`() = fellsordningenForAfp {
         assertEquals(Unauthorized, client.request().status)
         assertEquals(Forbidden, client.request(feilScope()).status)
         assertEquals(Forbidden, client.request(feilIssuer()).status)
@@ -28,7 +28,7 @@ internal class FellesordningenForAfpTest : KonsumentTest() {
     }
 
     @Test
-    fun `response til fellesordningen for afp når de utelater minimimSykdomsgrad i requesten`() = setupSpapi {
+    fun `response til fellesordningen for afp når de utelater minimimSykdomsgrad i requesten`() = fellsordningenForAfp {
         @Language("JSON")
         val forventetResponse = """
         {
@@ -55,7 +55,7 @@ internal class FellesordningenForAfpTest : KonsumentTest() {
     }
 
     @Test
-    fun `response til fellesordningen for afp når de inkluderer minimumSykdomsgrad i requesten`() = setupSpapi {
+    fun `response til fellesordningen for afp når de inkluderer minimumSykdomsgrad i requesten`() = fellsordningenForAfp {
         @Language("JSON")
         val forventetResponse = """
         {
@@ -75,19 +75,22 @@ internal class FellesordningenForAfpTest : KonsumentTest() {
     }
 
     @Test
-    fun `manglende input gir 400`() =  setupSpapi {
+    fun `manglende input gir 400`() = fellsordningenForAfp {
         assertEquals(BadRequest, client.request(riktigToken(), tomKey = "tomOgMedDato").status)
     }
 
     @Test
-    fun `ugyldig input gir 400`() =  setupSpapi {
+    fun `ugyldig input gir 400`() = fellsordningenForAfp {
         assertEquals(BadRequest, client.request(riktigToken(), tomValue = "kittycat").status)
     }
 
-    override val scope = "nav:sykepenger:fellesordningenforafp.read"
-    override val organisasjonsnummer = Organisasjonsnummer("987414502")
+    private fun fellsordningenForAfp(block: suspend SpapiTestContext.() -> Unit) = setupSpapi(
+        scope = "nav:sykepenger:fellesordningenforafp.read",
+        organisasjonsnummer = Organisasjonsnummer("987414502"),
+        utbetaltePerioder = utbetaltePerioder
+    ) { block() }
 
-    override fun utbetaltePerioder() = object : UtbetaltePerioder {
+    private val utbetaltePerioder = object : UtbetaltePerioder {
         override suspend fun hent(personidentifikatorer: Set<Personidentifikator>, fom: LocalDate, tom: LocalDate) = listOf(
             UtbetaltPeriode(LocalDate.parse("2018-01-01"), LocalDate.parse("2018-01-31"), Organisasjonsnummer("999999999"), 100, setOf("UsikkerSykdomsgrad")),
             UtbetaltPeriode(LocalDate.parse("2019-01-01"), LocalDate.parse("2019-01-31"), Organisasjonsnummer("999999998"), 80, setOf()),
