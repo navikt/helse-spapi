@@ -26,9 +26,16 @@ fun main() {
             })
             routing {
                 get("/token") {
-                    // http://localhost:8080/token?scope=nav:sykepenger:fellesordningenforafp.read -> Gir token med tilgang for Fellesordningen for AFP
+                    // http://localhost:8080/token?scope=nav:sykepenger:fellesordningenforafp.read&konsument=987414502 -> Gir token med tilgang for Fellesordningen for AFP
+                    // http://localhost:8080/token?scope=nav:sykepenger/delegert.avtalefestetpensjon.read&konsument=980650383&integrator=927613298 -> Gir token med tilgang for Fellesordningen for AFP
                     val claims = call.request.queryParameters.toMap().mapValues { (_, value) -> value.first() }
-                    call.respondText(maskinporten.accessToken(claims))
+                    val konsument = claims["konsument"]?.let { Organisasjonsnummer(it) }
+                    val integrator = claims["integrator"]?.let { Organisasjonsnummer(it) }
+                    call.respondText(maskinporten.accessToken(
+                        konsument = konsument,
+                        integrator = integrator,
+                        claims = claims.filterKeys { it !in setOf("konsument", "integrator") }
+                    ))
                 }
             }
         }

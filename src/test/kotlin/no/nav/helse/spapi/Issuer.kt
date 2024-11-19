@@ -49,7 +49,11 @@ internal class Issuer(
 
     private fun MutableMap<String, String>.hentOgFjern(key: String) = get(key)?.also { remove(key) }
 
-    internal fun accessToken(claims: Map<String, String> = emptyMap(), organisasjonsnummer: Organisasjonsnummer? = null): String {
+    internal fun accessToken(
+        claims: Map<String, String> = emptyMap(),
+        konsument: Organisasjonsnummer? = null,
+        integrator: Organisasjonsnummer? = null
+    ): String {
         val benyttetClaims = claims.toMutableMap()
         val issuer = benyttetClaims.hentOgFjern("iss") ?: this.navn
         val audience = benyttetClaims.hentOgFjern("aud") ?: this.audience
@@ -58,9 +62,11 @@ internal class Issuer(
             .withAudience(audience)
             .withKeyId("key-1234")
             .also { claims.forEach { (key, value) -> it.withClaim(key, value) } }
-            .also { organisasjonsnummer?.let { orgnr -> it.withClaim("consumer", mapOf("ID" to "0192:$orgnr"))} }
+            .also { konsument?.let { orgnr -> it.withClaim("consumer", mapOf("ID" to "0192:$orgnr")) } }
+            .also { integrator?.let { orgnr -> it.withClaim("supplier", mapOf("ID" to "0192:$orgnr")) } }
             .sign(algorithm)
     }
+
     internal fun jwksUri() = "${wireMockServer.baseUrl()}/jwks"
     internal fun navn() = navn
     internal fun audience() = audience
@@ -69,5 +75,6 @@ internal class Issuer(
         wireMockServer.stubFor(WireMock.get(WireMock.urlPathEqualTo("/jwks")).willReturn(WireMock.okJson(jwks())))
         return this
     }
+
     internal fun stop() = wireMockServer.stop()
 }
