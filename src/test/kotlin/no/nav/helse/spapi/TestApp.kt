@@ -27,15 +27,12 @@ fun main() {
             routing {
                 get("/token") {
                     // http://localhost:8080/token?scope=nav:sykepenger:fellesordningenforafp.read&konsument=987414502 -> Gir token med tilgang for Fellesordningen for AFP
-                    // http://localhost:8080/token?scope=nav:sykepenger/delegert.avtalefestetpensjon.read&konsument=980650383&integrator=927613298 -> Gir token med tilgang for Fellesordningen for AFP
-                    val claims = call.request.queryParameters.toMap().mapValues { (_, value) -> value.first() }
-                    val konsument = claims["konsument"]?.let { Organisasjonsnummer(it) }
-                    val integrator = claims["integrator"]?.let { Organisasjonsnummer(it) }
-                    call.respondText(maskinporten.accessToken(
-                        konsument = konsument,
-                        integrator = integrator,
-                        claims = claims.filterKeys { it !in setOf("konsument", "integrator") }
-                    ))
+                    // http://localhost:8080/token?scope=nav:sykepenger/delegert.avtalefestetpensjon.read&konsument=980650383&integrator=927613298 -> Gir token med tilgang for Drammen med Aksio som integrator
+                    val queryParameters = call.request.queryParameters.toMap().mapValues { (_, value) -> value.first() }
+                    val konsument = queryParameters["konsument"]?.let { Organisasjonsnummer(it) }
+                    val integrator = queryParameters["integrator"]?.let { Organisasjonsnummer(it) }
+                    val claims = queryParameters.filterKeys { it !in setOf("konsument", "integrator") }
+                    call.respondText(maskinporten.accessToken(konsument = konsument, integrator = integrator, claims = claims))
                 }
             }
         }
