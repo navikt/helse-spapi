@@ -35,7 +35,8 @@
       "enableIntegratorer": true,
       "integratorer": [
         { "navn": "Aksio", "organisasjonsnummer": "927613298" },
-        { "navn": "NAV", "organisasjonsnummer": "889640782" }
+        { "navn": "Arendal kommunale pensjonskasse", "organisasjonsnummer": "940380014" },
+        { "navn": "Drammen kommunale pensjonskasse", "organisasjonsnummer": "980650383" }
       ]
     }
   ]
