@@ -1,7 +1,7 @@
 package no.nav.helse.spapi
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.github.navikt.tbd_libs.naisful.naisApp
+import com.github.navikt.tbd_libs.naisful.plainApp
 import io.ktor.server.application.Application
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
@@ -17,7 +17,7 @@ import java.time.LocalDate
 fun main() {
     val maskinporten = Issuer(navn = "maskinporten", audience = "https://spapi").start()
     Runtime.getRuntime().addShutdownHook(Thread{ maskinporten.stop() })
-    naisApp(
+    plainApp(
         applicationLogger = LoggerFactory.getLogger("local-spapi"),
         port = 8080,
         applicationModule = {

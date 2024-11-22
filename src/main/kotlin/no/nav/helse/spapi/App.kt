@@ -3,7 +3,7 @@ package no.nav.helse.spapi
 import com.auth0.jwk.JwkProviderBuilder
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.navikt.tbd_libs.naisful.NaisEndpoints
-import com.github.navikt.tbd_libs.naisful.naisApp
+import com.github.navikt.tbd_libs.naisful.plainApp
 import com.github.navikt.tbd_libs.naisful.standardApiModule
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
@@ -61,7 +61,7 @@ fun main() {
     spapiApp().start(wait = true)
 }
 
-internal fun spapiApp() = naisApp(
+internal fun spapiApp() = plainApp(
     applicationLogger = sikkerlogg,
     cioConfiguration = {
         val customParallelism = 16
