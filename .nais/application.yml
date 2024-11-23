@@ -16,6 +16,7 @@ spec:
   readiness:
     path: /internal/isready
     initialDelay: 10
+    periodSeconds: 1
   resources:
     limits:
       cpu: 2000m
