@@ -2,6 +2,7 @@ package no.nav.helse.spapi
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.github.navikt.tbd_libs.naisful.plainApp
+import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.server.application.Application
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
@@ -54,7 +55,10 @@ internal fun Application.testSpapi(maskinporten: Issuer, utbetaltePerioder: Utbe
         },
         utbetaltePerioder = utbetaltePerioder,
         personidentifikatorer = object : Personidentifikatorer {
-            override suspend fun hentAlle(personidentifikator: Personidentifikator, konsument: Konsument) = setOf(personidentifikator)
+            override suspend fun hentAlle(personidentifikator: Personidentifikator, konsument: Konsument): Set<Personidentifikator> {
+                HttpRequestBuilder().callId("jeg-blir-bare-kalt-for-å-sjekke-at-riktig-mdc-key-blir-brukt")
+                return setOf(personidentifikator)
+            }
         }
     )
 }

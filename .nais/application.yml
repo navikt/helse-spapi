@@ -17,6 +17,9 @@ spec:
     path: /internal/isready
     initialDelay: 10
     periodSeconds: 1
+  preStopHook:
+    http:
+      path: /internal/stop
   resources:
     limits:
       cpu: 2000m
@@ -29,7 +32,7 @@ spec:
     max: 4
     cpuThresholdPercentage: 400
   prometheus:
-    enabled: false
+    enabled: true
     path: /internal/metrics
   maskinporten:
     enabled: true

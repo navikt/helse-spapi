@@ -32,6 +32,7 @@ import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.prometheus.metrics.model.registry.PrometheusRegistry
 import no.nav.helse.spapi.Api.Companion.apis
+import no.nav.helse.spapi.Api.Companion.konsumentOrNull
 import no.nav.helse.spapi.personidentifikator.Pdl
 import no.nav.helse.spapi.personidentifikator.Personidentifikatorer
 import no.nav.helse.spapi.utbetalteperioder.Spøkelse
@@ -99,7 +100,9 @@ internal fun Application.spapi(
                 sikkerlogg.error("Feil ved håndtering av ${call.request.httpMethod.value} - ${call.request.path()}", cause)
                 call.respondError(InternalServerError)
             }
-        }
+        },
+        timersConfig = { call,_ -> this.tag("konsument", call.konsumentOrNull()?.navn ?: "n/a") },
+        mdcEntries = mapOf("konsument" to { call: ApplicationCall -> call.konsumentOrNull()?.navn ?: "n/a" })
     )
     install(RateLimit) {
         global {

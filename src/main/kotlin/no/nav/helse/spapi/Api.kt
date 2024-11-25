@@ -97,9 +97,16 @@ internal class Api(internal val id: String, scope: String, internal val navn: St
                 respond(HttpStatusCode.Unauthorized, "Bearer token må settes i Authorization header for å hente data fra Spaπ!")
             }
         }
+
+        private fun ApplicationCall.konsumentOrganisasjonsnummer() =
+            principal<JWTPrincipal>()?.payload?.getClaim("consumer")?.asMap()?.get("ID")?.toString()?.substringAfter(":")?.let { Organisasjonsnummer(it)}
+        internal fun ApplicationCall.konsumentOrNull() = try {
+            konsumentOrganisasjonsnummer()?.let { organisasjonsnummer -> AlleKonsumenter.single { it.organisasjonsnummer == organisasjonsnummer } }
+        } catch (_: Throwable) { null }
+
         private fun ApplicationCall.konsument(konsumenter: Set<Konsument>): Konsument {
-            val organisasjonsnummer = principal<JWTPrincipal>()?.payload?.getClaim("consumer")?.asMap()?.get("ID")?.toString()?.substringAfter(":") ?: error("Klarte ikke utlede konsuement fra token")
-            val konsument = konsumenter.singleOrNull { it.organisasjonsnummer.toString() == organisasjonsnummer } ?: error("Konsument med orgnr $organisasjonsnummer er ikke registrert.")
+            val organisasjonsnummer = konsumentOrganisasjonsnummer() ?: error("Klarte ikke utlede konsuement fra token")
+            val konsument = konsumenter.singleOrNull { it.organisasjonsnummer == organisasjonsnummer } ?: error("Konsument med orgnr $organisasjonsnummer er ikke registrert.")
             if (konsument.integrator == null) return konsument
             val integrator = integrator()
             check(integrator == konsument.integrator) { "$integrator er ikke satt som integrator for $konsument" }
