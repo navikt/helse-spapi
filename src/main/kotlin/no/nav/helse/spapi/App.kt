@@ -21,6 +21,8 @@ import io.ktor.server.auth.authentication
 import io.ktor.server.plugins.callid.callId
 import io.ktor.server.plugins.origin
 import io.ktor.server.plugins.ratelimit.RateLimit
+import io.ktor.server.plugins.ratelimit.RateLimitName
+import io.ktor.server.plugins.ratelimit.rateLimit
 import io.ktor.server.plugins.swagger.swaggerUI
 import io.ktor.server.request.httpMethod
 import io.ktor.server.request.path
@@ -105,9 +107,9 @@ internal fun Application.spapi(
         mdcEntries = mapOf("konsument" to { call: ApplicationCall -> call.konsumentOrNull()?.navn ?: "n/a" })
     )
     install(RateLimit) {
-        global {
-            rateLimiter(limit = 50, refillPeriod = 60.seconds)
-            requestKey {  call -> call.request.origin.remoteAddress }
+        register(RateLimitName("api")) {
+            rateLimiter(limit = 1200, refillPeriod = 60.seconds)
+            requestKey { call -> call.request.origin.remoteAddress }
         }
     }
     monitor.subscribe(ApplicationStopped) {
@@ -131,6 +133,8 @@ internal fun Application.spapi(
         // Endepunkt under /internal eksponeres ikke
         get("/internal/isalive") { call.respondText("ISALIVE") }
         get("/internal/isready") { call.respondText("READY") }
-        apier.forEach { it.registerApi(this, utbetaltePerioder, personidentifikatorer, sporings) }
+        rateLimit(RateLimitName("api")) {
+            apier.forEach { it.registerApi(this@routing, utbetaltePerioder, personidentifikatorer, sporings) }
+        }
     }
 }
