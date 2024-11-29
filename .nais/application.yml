@@ -48,7 +48,7 @@ spec:
               orgno: "{{consumer.organisasjonsnummer}}"
             {{/each}}
         {{# if api.enableIntegratorer }}
-        - name: "delegert.{{api.scope}}"
+        - name: "delegert{{api.scope}}"
           enabled: true
           product: "sykepenger"
           separator: "/"

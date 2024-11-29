@@ -125,7 +125,7 @@ paths:
           
           `nav:sykepenger:avtalefestetpensjon.read`
           
-          `nav:sykepenger/delegert.avtalefestetpensjon.read`
+          `nav:sykepenger/delegertavtalefestetpensjon.read`
           
 
         security:

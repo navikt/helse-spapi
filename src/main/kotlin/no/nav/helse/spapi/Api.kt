@@ -18,7 +18,7 @@ import java.util.*
 internal class Api(internal val id: String, scope: String, internal val navn: String, internal val konsumenter: Set<Konsument>) {
     internal val scopes = setOfNotNull(
         "nav:sykepenger:$scope",
-        "nav:sykepenger/delegert.$scope".takeIf { konsumenter.any { it.integrator != null } }
+        "nav:sykepenger/delegert$scope".takeIf { konsumenter.any { it.integrator != null } }
     )
 
     init {
