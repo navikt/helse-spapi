@@ -48,7 +48,6 @@ class OpenApiGenerator {
     private fun saksIdInfo(konsumenter: Set<Konsument>) = listOfNotNull(
         "Feltet `saksId` _må_ settes, med unntak for visse konsumenter;",
         "✅ Statens pensjonskasse (982583462) - Vil bli påkrevd 1.Januar 2025.".takeIf { konsumenter.inneholder("982583462") },
-        "✅ Storebrand pensjonstjenester (931936492) - Har integrert uten `saksId`, avventer bekreftelse på at de legger det ved.".takeIf { konsumenter.inneholder("931936492") },
         "✅ Kommunal landspensjonskasse (938708606) - Har integrert uten `saksId`, avventer bekreftelse på at de legger det ved.".takeIf { konsumenter.inneholder("938708606") },
         "❌ Øvrig konsumenter vil få en HTTP 400 om `saksId` mangler"
     ).takeUnless { it.size == 2 } ?: emptyList()

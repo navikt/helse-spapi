@@ -113,8 +113,6 @@ paths:
           
           ✅ Statens pensjonskasse (982583462) - Vil bli påkrevd 1.Januar 2025.
           
-          ✅ Storebrand pensjonstjenester (931936492) - Har integrert uten `saksId`, avventer bekreftelse på at de legger det ved.
-          
           ✅ Kommunal landspensjonskasse (938708606) - Har integrert uten `saksId`, avventer bekreftelse på at de legger det ved.
           
           ❌ Øvrig konsumenter vil få en HTTP 400 om `saksId` mangler
