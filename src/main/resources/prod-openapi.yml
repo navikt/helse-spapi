@@ -109,7 +109,7 @@ paths:
           
           Feltet `saksId` _må_ settes, med unntak for visse konsumenter;
           
-          ✅ Statens pensjonskasse (982583462) - Vil bli påkrevd 1.Januar 2025.
+          ✅ Statens pensjonskasse (982583462) - Vil bli påkrevd 1.Februar 2025.
           
           ❌ Øvrig konsumenter vil få en HTTP 400 om `saksId` mangler
           

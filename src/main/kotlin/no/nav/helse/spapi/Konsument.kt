@@ -6,6 +6,7 @@ import no.nav.helse.spapi.personidentifikator.Personidentifikator
 import no.nav.helse.spapi.utbetalteperioder.UtbetaltPeriode
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
+import java.time.ZoneId
 
 internal sealed class Konsument(
     internal val navn: String,
@@ -85,8 +86,15 @@ internal abstract class AvtalefestetPensjon(navn: String, organisasjonsnummer: O
     }
 }
 
+internal object StatensPensjonskasse: AvtalefestetPensjon(navn = "Statens pensjonskasse", organisasjonsnummer = Organisasjonsnummer("982583462")) {
+    private val KrevSaksIdFraOgMed = LocalDate.parse("2025-02-01")
+    private fun nå() = LocalDate.now(ZoneId.of("Europe/Oslo"))
+    override fun saksId(requestBody: JsonNode): SaksId? {
+        return if (nå() >= KrevSaksIdFraOgMed) requestBody.requiredSaksId
+        else requestBody.optionalSaksId
+    }
+}
 internal object OsloPensjonsforsikring: AvtalefestetPensjon(navn = "Oslo pensjonsforsikring", organisasjonsnummer = Organisasjonsnummer("982759412")) { override fun saksId(requestBody: JsonNode) = requestBody.requiredSaksId }
-internal object StatensPensjonskasse: AvtalefestetPensjon(navn = "Statens pensjonskasse", organisasjonsnummer = Organisasjonsnummer("982583462")) { override fun saksId(requestBody: JsonNode) = requestBody.optionalSaksId }
 internal object StorebrandLivsforsikring: AvtalefestetPensjon(navn = "Storebrand livsforsikring", organisasjonsnummer = Organisasjonsnummer("958995369")) { override fun saksId(requestBody: JsonNode) = requestBody.requiredSaksId }
 internal object KommunalLandspensjonskasse: AvtalefestetPensjon(navn = "Kommunal landspensjonskasse", organisasjonsnummer = Organisasjonsnummer("938708606")) { override fun saksId(requestBody: JsonNode) = requestBody.optionalSaksId }
 // Disse to er også integratorer (systemleverandører) slik som Aksio, men bruker ikke delegert tokens i maskinporten

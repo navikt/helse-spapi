@@ -111,7 +111,7 @@ paths:
           
           Feltet `saksId` _må_ settes, med unntak for visse konsumenter;
           
-          ✅ Statens pensjonskasse (982583462) - Vil bli påkrevd 1.Januar 2025.
+          ✅ Statens pensjonskasse (982583462) - Vil bli påkrevd 1.Februar 2025.
           
           ✅ Kommunal landspensjonskasse (938708606) - Har integrert uten `saksId`, avventer bekreftelse på at de legger det ved.
           
