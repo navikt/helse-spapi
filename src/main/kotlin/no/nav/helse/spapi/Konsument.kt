@@ -96,7 +96,13 @@ internal object StatensPensjonskasse: AvtalefestetPensjon(navn = "Statens pensjo
 }
 internal object OsloPensjonsforsikring: AvtalefestetPensjon(navn = "Oslo pensjonsforsikring", organisasjonsnummer = Organisasjonsnummer("982759412")) { override fun saksId(requestBody: JsonNode) = requestBody.requiredSaksId }
 internal object StorebrandLivsforsikring: AvtalefestetPensjon(navn = "Storebrand livsforsikring", organisasjonsnummer = Organisasjonsnummer("958995369")) { override fun saksId(requestBody: JsonNode) = requestBody.requiredSaksId }
-internal object KommunalLandspensjonskasse: AvtalefestetPensjon(navn = "Kommunal landspensjonskasse", organisasjonsnummer = Organisasjonsnummer("938708606")) { override fun saksId(requestBody: JsonNode) = requestBody.optionalSaksId }
+internal object KommunalLandspensjonskasse: AvtalefestetPensjon(navn = "Kommunal landspensjonskasse", organisasjonsnummer = Organisasjonsnummer("938708606")) {
+    private val prod = System.getenv().miljø == "prod"
+    override fun saksId(requestBody: JsonNode): SaksId? {
+        return if (prod) requestBody.requiredSaksId
+        else requestBody.optionalSaksId
+    }
+}
 // Disse to er også integratorer (systemleverandører) slik som Aksio, men bruker ikke delegert tokens i maskinporten
 // Så de fremstår som pensjonskasser for oss på tross av at de ikke er det
 internal object StorebrandPensjonstjenester: AvtalefestetPensjon(navn = "Storebrand pensjonstjenester", organisasjonsnummer = Organisasjonsnummer("931936492")) { override fun saksId(requestBody: JsonNode) = requestBody.requiredSaksId }
