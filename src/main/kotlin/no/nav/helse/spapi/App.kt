@@ -53,7 +53,7 @@ private fun ApplicationCall.loggHåndtertFeil(melding: String?) = sikkerlogg.war
 internal fun Map<String, String>.hent(key: String) = get(key) ?: throw IllegalStateException("Mangler config for $key")
 internal val Map<String, String>.miljø get() = if (get("NAIS_CLUSTER_NAME")?.lowercase()?.contains("prod") == true) "prod" else "dev"
 internal fun HttpRequestBuilder.callId(headernavn: String) = header(headernavn, "${UUID.fromString(MDC.get("x-callId"))}")
-private suspend fun ApplicationCall.respondError(status: HttpStatusCode, melding: String? = null) {
+internal suspend fun ApplicationCall.respondError(status: HttpStatusCode, melding: String? = null) {
     val feilmelding = melding ?: "Uventet feil. Ta kontakt med NAV om feilen vedvarer."
     @Language("JSON")
     val errorResponse = """{"feilmelding": "$feilmelding", "feilreferanse": "$callId"}"""
