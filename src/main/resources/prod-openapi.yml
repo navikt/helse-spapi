@@ -29,7 +29,7 @@ tags:
     description: orgnr. 987414502
 
   - name: Avtalefestet pensjon
-    description: orgnr. 982583462
+    description: orgnr. 982583462, 938708606, 982759412, 958995369, 931936492, 916833520, 940380014, 980650383
 
 paths:
   
@@ -87,6 +87,8 @@ paths:
             description: Feil scope/audience i token
           '429':
             description: For mange forespørsler på kort tid, prøv igjen om noen minutter
+          '451':
+            description: Tjenesten er ikke tilgjengelig for konsumenten enda
           '500':
             description: Feil på tjeneste, meld fra og send med feilreferanse
             content:
@@ -118,6 +120,8 @@ paths:
           Scope: (én av):
           
           `nav:sykepenger:avtalefestetpensjon.read`
+          
+          `nav:sykepenger/delegertavtalefestetpensjon.read`
           
 
         security:
@@ -154,6 +158,8 @@ paths:
             description: Feil scope/audience i token
           '429':
             description: For mange forespørsler på kort tid, prøv igjen om noen minutter
+          '451':
+            description: Tjenesten er ikke tilgjengelig for konsumenten enda
           '500':
             description: Feil på tjeneste, meld fra og send med feilreferanse
             content:

@@ -89,6 +89,8 @@ paths:
             description: Feil scope/audience i token
           '429':
             description: For mange forespørsler på kort tid, prøv igjen om noen minutter
+          '451':
+            description: Tjenesten er ikke tilgjengelig for konsumenten enda
           '500':
             description: Feil på tjeneste, meld fra og send med feilreferanse
             content:
@@ -160,6 +162,8 @@ paths:
             description: Feil scope/audience i token
           '429':
             description: For mange forespørsler på kort tid, prøv igjen om noen minutter
+          '451':
+            description: Tjenesten er ikke tilgjengelig for konsumenten enda
           '500':
             description: Feil på tjeneste, meld fra og send med feilreferanse
             content:
