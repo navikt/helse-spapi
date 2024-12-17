@@ -37,6 +37,7 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.skyscreamer:jsonassert:$jsonAssertVersion")
     testImplementation("com.github.jknack:handlebars:$handlebarsVersion")
+    testImplementation("com.github.navikt.tbd-libs:naisful-test-app:$tbdLibsVersion")
 }
 
 repositories {
