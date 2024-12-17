@@ -140,8 +140,13 @@ internal class Api(internal val id: String, scope: String, internal val navn: St
         internal val Map<String, String>.apis get() = naisFil.path("apis").map { api ->
             val konsumenter = api.path("consumers").map { it.path("organisasjonsnummer").asText() }.map { organisasjonsnummer ->
                 AlleKonsumenter.singleOrNull { it.organisasjonsnummer.toString() == organisasjonsnummer } ?: error("Konsument med $organisasjonsnummer er ikke definert")
-            }.toSet()
-            Api(id = api.path("id").asText(), scope = api.path("scope").asText(), navn = api.path("navn").asText(), konsumenter = konsumenter)
+            }
+
+            val viaIntegratorer = api.path("integratorer").map { it.path("organisasjonsnummer").asText() }.mapNotNull { organisasjonsnummer ->
+                AlleKonsumenter.singleOrNull { it.organisasjonsnummer.toString() == organisasjonsnummer }
+            }
+
+            Api(id = api.path("id").asText(), scope = api.path("scope").asText(), navn = api.path("navn").asText(), konsumenter = (konsumenter + viaIntegratorer).toSet())
         }
     }
 }

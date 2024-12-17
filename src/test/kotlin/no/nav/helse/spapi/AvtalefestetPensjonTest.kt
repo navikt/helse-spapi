@@ -175,7 +175,7 @@ internal class AvtalefestetPensjonTest : KonsumentTest() {
 
     override val scope = "nav:sykepenger:avtalefestetpensjon.read"
 
-    private val optionalSaksid = setOf(StatensPensjonskasse, KommunalLandspensjonskasse, StorebrandPensjonstjenester)
+    private val optionalSaksid = setOf(StatensPensjonskasse, KommunalLandspensjonskasse)
     private val requiredSaksId = AlleKonsumenter - optionalSaksid - FellesordningenForAfp - ArendalKommunalePensjonskasse - DrammenKommunalePensjonskasse
 
     private var aktivtOrganisasjonsnummer: Organisasjonsnummer? = null
