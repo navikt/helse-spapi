@@ -48,7 +48,7 @@ internal object FellesordningenForAfp: Konsument(
     navn = "Fellesordningen for AFP",
     organisasjonsnummer = Organisasjonsnummer("987414502"),
     behandlingsnummer = "B709",
-    behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b")
+    behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, jf. §29 andre ledd, første punktum. GDPR Art. 9(2)b")
 ) {
     override suspend fun request(requestBody: JsonNode, versjon: Int) = FellesordningenForAfpRequest(requestBody)
 
@@ -61,11 +61,16 @@ internal object FellesordningenForAfp: Konsument(
     )
 }
 
-internal abstract class AvtalefestetPensjon(navn: String, organisasjonsnummer: Organisasjonsnummer, integrator: Organisasjonsnummer? = null): Konsument(
+internal abstract class AvtalefestetPensjon(
+    navn: String,
+    organisasjonsnummer: Organisasjonsnummer,
+    integrator: Organisasjonsnummer? = null,
+    behandlingsgrunnlag: Behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. Forsikringsvirksomhetsloven § 4-17 første ledd. GDPR Art. 9(2)b"),
+) : Konsument(
     navn = navn,
     organisasjonsnummer = organisasjonsnummer,
     behandlingsnummer = "B709",
-    behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. AFP-tilskottsloven §17 første ledd, §29 andre ledd, første punktum. GDPR Art. 9(2)b"),
+    behandlingsgrunnlag = behandlingsgrunnlag,
     integrator = integrator
 ) {
     override suspend fun request(requestBody: JsonNode, versjon: Int) = AvtalefestetPensjonRequest(requestBody, saksId(requestBody))
@@ -86,7 +91,12 @@ internal abstract class AvtalefestetPensjon(navn: String, organisasjonsnummer: O
     }
 }
 
-internal object StatensPensjonskasse: AvtalefestetPensjon(navn = "Statens pensjonskasse", organisasjonsnummer = Organisasjonsnummer("982583462")) {
+internal object StatensPensjonskasse :
+    AvtalefestetPensjon(
+        navn = "Statens pensjonskasse",
+        organisasjonsnummer = Organisasjonsnummer("982583462"),
+        behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. Lov om AFP for medlemmer av Statens pensjonskasse §13 andre ledd. GDPR Art. 9(2)b")
+    ) {
     private val KrevSaksIdFraOgMed = LocalDate.parse("2025-02-01")
     private fun nå() = LocalDate.now(ZoneId.of("Europe/Oslo"))
     override fun saksId(requestBody: JsonNode): SaksId? {
