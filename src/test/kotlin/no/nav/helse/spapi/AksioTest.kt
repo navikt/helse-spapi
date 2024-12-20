@@ -65,6 +65,7 @@ internal class AksioTest : SpapiTest() {
     fun `Aksio integrerer på vegne av Drammen kommune uten saksId`() = aksioTest(Drammen) {
         request(saksId = null) {
             assertStatus(BadRequest)
+            assertFeilmelding("Mangler feltet 'saksId' i request body.")
         }
     }
 

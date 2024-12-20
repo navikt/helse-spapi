@@ -43,9 +43,6 @@ internal class UgyldigInputTest: SpapiTest() {
         }
     }
 
-    private val objectMapper = jacksonObjectMapper()
-    private suspend fun HttpResponse.assertFeilmelding(forventet: String) = assertEquals(forventet, objectMapper.readTree(bodyAsText()).path("feilmelding").asText())
-
     private fun fellesordningenForAfpTest(
         block: suspend SpapiTestContext.() -> Unit
     ) = spapiTest(

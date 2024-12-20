@@ -1,13 +1,14 @@
 package no.nav.helse.spapi
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.http.HttpHeaders.Authorization
 import org.intellij.lang.annotations.Language
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.skyscreamer.jsonassert.JSONAssert
-import kotlin.test.assertEquals
 
 internal data class SpapiTestContext(
     val maskinporten: Issuer,
@@ -53,6 +54,11 @@ internal data class SpapiTestContext(
     })
 
     suspend fun HttpResponse.assertResponse(forventet: String) = JSONAssert.assertEquals(forventet, bodyAsText(), true)
+    suspend fun HttpResponse.assertFeilmelding(forventet: String) = assertEquals(forventet, objectMapper.readTree(bodyAsText()).path("feilmelding").asText())
     fun HttpResponse.assertStatus(forventet: HttpStatusCode) = assertEquals(forventet, status)
+
+    private companion object {
+        private val objectMapper = jacksonObjectMapper()
+    }
 }
 

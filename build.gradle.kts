@@ -8,7 +8,7 @@ val tbdLibsVersion = "2024.11.25-10.59-6f263a10"
 val logbackClassicVersion = "1.5.12"
 val logbackEncoderVersion = "8.0"
 val junitJupiterVersion = "5.11.3"
-val wiremockVersion = "3.9.2"
+val wiremockVersion = "3.10.0"
 val kafkaVersion = "3.9.0"
 val jsonAssertVersion = "1.5.3"
 val handlebarsVersion = "4.4.0"
@@ -29,9 +29,6 @@ dependencies {
 
     implementation("org.apache.kafka:kafka-clients:$kafkaVersion")
 
-    testImplementation("io.ktor:ktor-server-test-host:$ktorVersion") {
-        exclude(group = "org.junit.jupiter", module = "junit-jupiter")
-    }
     testImplementation("org.wiremock:wiremock:$wiremockVersion")
     testImplementation("org.junit.jupiter:junit-jupiter:$junitJupiterVersion")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
