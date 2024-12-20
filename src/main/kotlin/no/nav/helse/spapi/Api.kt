@@ -1,6 +1,8 @@
 package no.nav.helse.spapi
 
 import com.auth0.jwk.JwkProvider
+import com.auth0.jwt.interfaces.Claim
+import com.auth0.jwt.interfaces.DecodedJWT
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -18,21 +20,23 @@ import java.time.ZoneId
 import java.util.*
 
 internal class Api(internal val id: String, scope: String, internal val navn: String, internal val konsumenter: Set<Konsument>) {
-    internal val scopes = setOfNotNull(
-        "nav:sykepenger:$scope",
-        "nav:sykepenger/delegert$scope".takeIf { konsumenter.any { it.integrator != null } }
-    )
+    private val vanligScope = "nav:sykepenger:$scope"
+    private val delegertScope = "nav:sykepenger/delegert$scope".takeIf { konsumenter.any { it.integrator != null } }
+
+    internal val scopes = setOfNotNull(vanligScope, delegertScope)
 
     init {
         check(konsumenter.isNotEmpty()) { "Må sette minst en konsument!" }
     }
+
     internal fun registerAuthentication(authenticationConfig: AuthenticationConfig, maskinportenJwkProvider: JwkProvider, maskinportenIssuer: String, audience: String) {
         sikkerlogg.info("Registrerer Authentication på id $id for ${konsumenter.joinToString()}")
         authenticationConfig.jwt(id) {
             verifier(maskinportenJwkProvider, maskinportenIssuer) {
                 withAudience(audience)
-                withClaim("scope") { scopeClaim, _ ->
-                    scopes.contains(scopeClaim.asString())
+                withClaim("scope") { scopeClaim, jwt ->
+                    if (jwt.harIntegrator()) scopeClaim.asString() == delegertScope
+                    else scopeClaim.asString() == vanligScope
                 }
             }
             validate { credentials -> JWTPrincipal(credentials.payload) }
@@ -129,10 +133,11 @@ internal class Api(internal val id: String, scope: String, internal val navn: St
             return konsument
         }
 
-        private fun ApplicationCall.integrator(): Organisasjonsnummer {
-            val organisasjonsnummer = principal<JWTPrincipal>()?.payload?.getClaim("supplier")?.asMap()?.get("ID")?.toString()?.substringAfter(":") ?: error("Klarte ikke utlede integrator fra token")
-            return Organisasjonsnummer(organisasjonsnummer)
-        }
+
+        private const val IntegratorClaim = "supplier"
+        private fun DecodedJWT.harIntegrator() = getClaim(IntegratorClaim).integratorOrganisasjonsnummer() != null
+        private fun Claim.integratorOrganisasjonsnummer() = asMap()?.get("ID")?.toString()?.substringAfter(":")?.let { orgnr -> Organisasjonsnummer(orgnr) }
+        private fun ApplicationCall.integrator() = principal<JWTPrincipal>()?.payload?.getClaim(IntegratorClaim)?.integratorOrganisasjonsnummer() ?: error("Klarte ikke utlede integrator fra token")
 
         private val String.innholdFraResource get() = object {}.javaClass.getResource(this)?.readText() ?: error("Fant ikke resource <$this>")
         private val Map<String, String>.naisFil get() = objectMapper.readTree("/$miljø-nais.json".innholdFraResource)

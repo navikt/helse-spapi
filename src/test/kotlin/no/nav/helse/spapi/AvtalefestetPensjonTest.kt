@@ -1,6 +1,7 @@
 package no.nav.helse.spapi
 
 import io.ktor.http.HttpStatusCode.Companion.BadRequest
+import io.ktor.http.HttpStatusCode.Companion.Forbidden
 import io.ktor.http.HttpStatusCode.Companion.OK
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Test
@@ -98,16 +99,24 @@ internal class AvtalefestetPensjonTest : SpapiTest() {
         }
     }
 
+    @Test
+    fun `kan ikke integrere med det delegerte scopet`() = avtalefestetPensjonTest(scope = "nav:sykepenger/delegertavtalefestetpensjon.read") {
+        request {
+            assertStatus(Forbidden)
+        }
+    }
+
     // DrammenKommunalePensjonskasse & ArendalKommunalePensjonskasse testets i AksioTest
     private val konsumenter = AlleKonsumenter.filterIsInstance<AvtalefestetPensjon>()
         .filterNot { it is Nav || it is DrammenKommunalePensjonskasse || it is ArendalKommunalePensjonskasse }
 
     private fun avtalefestetPensjonTest(
         enTilFeldigKonsumentAv: List<Konsument> = konsumenter,
+        scope: String = "nav:sykepenger:avtalefestetpensjon.read",
         block: suspend SpapiTestContext.() -> Unit
     ) = spapiTest(
         organisasjonsnummer = enTilFeldigKonsumentAv.shuffled().first().organisasjonsnummer,
-        scope = "nav:sykepenger:avtalefestetpensjon.read",
+        scope = scope,
         endepunkt = "/avtalefestet-pensjon"
     ) { block() }
 }

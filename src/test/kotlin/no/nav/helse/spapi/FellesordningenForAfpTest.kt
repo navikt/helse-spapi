@@ -1,5 +1,6 @@
 package no.nav.helse.spapi
 
+import io.ktor.http.HttpStatusCode.Companion.Forbidden
 import io.ktor.http.HttpStatusCode.Companion.OK
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Test
@@ -50,6 +51,14 @@ internal class FellesordningenForAfpTest : SpapiTest() {
         request(minimumSykdomsgrad = 80) {
             assertStatus(OK)
             assertResponse(forventetResponse)
+        }
+    }
+
+
+    @Test
+    fun `fellesordningen integrerer helt selv`() = fellesordningenForAfpTest {
+        request(accessToken = maskinporten.accessToken(claims = mapOf("scope" to "nav:sykepenger/delegertfellesordningenforafp.read"), integrator = Organisasjonsnummer("927613298"))) {
+            assertStatus(Forbidden)
         }
     }
 

@@ -43,12 +43,19 @@ internal class AksioTest : SpapiTest() {
     @Test
     fun `Arendal kommune forsøker å integrere selv`() = aksioTest(Arendal, integrator = null) {
         request {
-            assertStatus(InternalServerError)
+            assertStatus(Forbidden)
         }
     }
 
     @Test
     fun `Aksio integrerer på vegne av Drammen kommune med feil scope`() = aksioTest(Drammen, scope = "åpenbart-feil-scope") {
+        request {
+            assertStatus(Forbidden)
+        }
+    }
+
+    @Test
+    fun `Aksio integrerer på vegne av Drammen kommune med den ikke-delegerte utgaven av scopet`() = aksioTest(Drammen, scope = "nav:sykepenger:avtalefestetpensjon.read") {
         request {
             assertStatus(Forbidden)
         }
