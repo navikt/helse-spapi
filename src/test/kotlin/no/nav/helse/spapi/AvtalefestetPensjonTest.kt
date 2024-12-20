@@ -5,9 +5,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.HttpHeaders.Authorization
 import io.ktor.http.HttpStatusCode.Companion.BadRequest
-import io.ktor.http.HttpStatusCode.Companion.Forbidden
 import io.ktor.http.HttpStatusCode.Companion.OK
-import io.ktor.http.HttpStatusCode.Companion.Unauthorized
 import no.nav.helse.spapi.personidentifikator.Personidentifikator
 import no.nav.helse.spapi.utbetalteperioder.UtbetaltPeriode
 import no.nav.helse.spapi.utbetalteperioder.UtbetaltePerioder
@@ -18,20 +16,6 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
 internal class AvtalefestetPensjonTest : KonsumentTest() {
-
-    @Test
-    fun `tilgang for avtalefestet pensjon`() = setupSpapi {
-        konsumentMedOptionalSaksId {
-            assertEquals(Unauthorized, client.request().status)
-            assertEquals(Forbidden, client.request(feilScope()).status)
-            assertEquals(Forbidden, client.request(valgfrittScope("nav:sykepenger:fellesordningenforafp.read")).status)
-            assertEquals(Forbidden, client.request(valgfrittScope("nav:sykepenger:storebrandpensjonstjenester.read")).status)
-            assertEquals(Forbidden, client.request(feilIssuer()).status)
-            assertEquals(Forbidden, client.request(feilIssuerHeader()).status)
-            assertEquals(Forbidden, client.request(feilAudience()).status)
-            assertEquals(OK, client.request(riktigToken()).status)
-        }
-    }
 
     @Test
     fun `response til avtalefestet pensjon når de utelater minimimSykdomsgrad i requesten`() = setupSpapi {
@@ -149,18 +133,6 @@ internal class AvtalefestetPensjonTest : KonsumentTest() {
                 assertResponse(forventetResponse)
             }
         }
-    }
-
-    @Test
-    fun `manglende input gir 400`() = setupSpapi {
-        konsumentMedOptionalSaksId { assertEquals(BadRequest, client.request(riktigToken(), tomKey = "tomOgMedDato").status) }
-        konsumentMedRequiredSaksId { assertEquals(BadRequest, client.request(riktigToken(), tomKey = "tomOgMedDato").status) }
-    }
-
-    @Test
-    fun `ugyldig input gir 400`() = setupSpapi {
-        konsumentMedOptionalSaksId { assertEquals(BadRequest, client.request(riktigToken(), tomValue = "kittycat").status) }
-        konsumentMedRequiredSaksId { assertEquals(BadRequest, client.request(riktigToken(), tomValue = "kittycat").status) }
     }
 
     @Test

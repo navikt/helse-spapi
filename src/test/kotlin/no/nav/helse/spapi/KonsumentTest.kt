@@ -33,15 +33,8 @@ internal abstract class KonsumentTest{
     }
 
     private val maskinporten = Issuer(navn = "maskinporten", audience = "https://spapi")
-    private val feilIssuer = Issuer(navn = "ikke-maskinporten", audience = "https://spapi")
 
     protected fun riktigToken() = maskinporten.accessToken(mapOf("scope" to scope), organisasjonsnummer)
-    protected fun feilOrganisasjonsnummer(organisasjonsnummer: Organisasjonsnummer) = maskinporten.accessToken(mapOf("scope" to scope), organisasjonsnummer)
-    protected fun feilScope() = maskinporten.accessToken(mapOf("scope" to "$scope-med-feil"), organisasjonsnummer)
-    protected fun valgfrittScope(valgfrittScope: String) = maskinporten.accessToken(mapOf("scope" to valgfrittScope), organisasjonsnummer)
-    protected fun feilIssuerHeader() = maskinporten.accessToken(mapOf("scope" to scope, "iss" to "feil-issuer"), organisasjonsnummer)
-    protected fun feilIssuer() = feilIssuer.accessToken(mapOf("scope" to scope), organisasjonsnummer)
-    protected fun feilAudience() = maskinporten.accessToken(mapOf("scope" to scope, "aud" to "feil-audience"), organisasjonsnummer)
 
     protected suspend fun HttpResponse.assertResponse(forventet: String) = JSONAssert.assertEquals(forventet, bodyAsText(), true)
 }

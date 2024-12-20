@@ -15,7 +15,6 @@ import java.time.LocalDate
 internal abstract class SpapiTest{
 
     private val maskinporten = Issuer(navn = "maskinporten", audience = "https://spapi")
-    private val feilIssuer = Issuer(navn = "ikke-maskinporten", audience = "https://spapi")
 
     @BeforeAll
     fun start(){
@@ -53,7 +52,6 @@ internal abstract class SpapiTest{
             block(
                 SpapiTestContext(
                     maskinporten = maskinporten,
-                    feilIssuer = feilIssuer,
                     client = client,
                     konsument = organisasjonsnummer,
                     scope = scope,

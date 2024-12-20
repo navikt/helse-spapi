@@ -10,13 +10,12 @@ import org.skyscreamer.jsonassert.JSONAssert
 import kotlin.test.assertEquals
 
 internal data class SpapiTestContext(
-    private val maskinporten: Issuer,
-    private val feilIssuer: Issuer,
+    val maskinporten: Issuer,
     private val client: HttpClient,
     private val konsument: Organisasjonsnummer,
     private val endepunkt: String,
     private val scope: String,
-    private val integrator: Organisasjonsnummer?
+    private val integrator: Organisasjonsnummer? = null
 ) {
     private fun riktigToken() = maskinporten.accessToken(mapOf("scope" to scope), konsument, integrator)
 
@@ -41,11 +40,11 @@ internal data class SpapiTestContext(
               ${if (saksId != null) ",\"saksId\": \"$saksId\"" else ""}
             }
         """
-        request(accessToken, body, assertions)
+        requestRaw(accessToken, body, assertions)
     }
 
-    suspend fun request(
-        accessToken: String?,
+    suspend fun requestRaw(
+        accessToken: String? = riktigToken(),
         body: String,
         assertions: suspend HttpResponse.() -> Unit
     ) = assertions(client.post(endepunkt) {

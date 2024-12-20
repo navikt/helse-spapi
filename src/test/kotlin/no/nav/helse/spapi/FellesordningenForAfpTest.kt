@@ -18,16 +18,6 @@ import java.time.LocalDate
 internal class FellesordningenForAfpTest : KonsumentTest() {
 
     @Test
-    fun `tilgang for fellesordningen for afp`() = setupSpapi {
-        assertEquals(Unauthorized, client.request().status)
-        assertEquals(Forbidden, client.request(feilScope()).status)
-        assertEquals(Forbidden, client.request(feilIssuer()).status)
-        assertEquals(Forbidden, client.request(feilIssuerHeader()).status)
-        assertEquals(Forbidden, client.request(feilAudience()).status)
-        assertEquals(OK, client.request(riktigToken()).status)
-    }
-
-    @Test
     fun `response til fellesordningen for afp når de utelater minimimSykdomsgrad i requesten`() = setupSpapi {
         @Language("JSON")
         val forventetResponse = """
@@ -72,16 +62,6 @@ internal class FellesordningenForAfpTest : KonsumentTest() {
             assertEquals(OK, status)
             assertResponse(forventetResponse)
         }
-    }
-
-    @Test
-    fun `manglende input gir 400`() =  setupSpapi {
-        assertEquals(BadRequest, client.request(riktigToken(), tomKey = "tomOgMedDato").status)
-    }
-
-    @Test
-    fun `ugyldig input gir 400`() =  setupSpapi {
-        assertEquals(BadRequest, client.request(riktigToken(), tomValue = "kittycat").status)
     }
 
     override val scope = "nav:sykepenger:fellesordningenforafp.read"
