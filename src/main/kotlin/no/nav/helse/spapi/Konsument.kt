@@ -91,12 +91,11 @@ internal abstract class AvtalefestetPensjon(
     }
 }
 
-internal object StatensPensjonskasse :
-    AvtalefestetPensjon(
-        navn = "Statens pensjonskasse",
-        organisasjonsnummer = Organisasjonsnummer("982583462"),
-        behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. Lov om AFP for medlemmer av Statens pensjonskasse §13 andre ledd. GDPR Art. 9(2)b")
-    ) {
+internal object StatensPensjonskasse : AvtalefestetPensjon(
+    navn = "Statens pensjonskasse",
+    organisasjonsnummer = Organisasjonsnummer("982583462"),
+    behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. Lov om AFP for medlemmer av Statens pensjonskasse §13 andre ledd. GDPR Art. 9(2)b")
+) {
     private val KrevSaksIdFraOgMed = LocalDate.parse("2025-02-01")
     private fun nå() = LocalDate.now(ZoneId.of("Europe/Oslo"))
     override fun saksId(requestBody: JsonNode): SaksId? {

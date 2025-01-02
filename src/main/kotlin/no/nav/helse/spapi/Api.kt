@@ -15,8 +15,6 @@ import no.nav.helse.spapi.personidentifikator.Personidentifikatorer
 import no.nav.helse.spapi.utbetalteperioder.UtbetaltPeriode
 import no.nav.helse.spapi.utbetalteperioder.UtbetaltePerioder
 import org.slf4j.LoggerFactory
-import java.time.Year
-import java.time.ZoneId
 import java.util.*
 
 internal class Api(internal val id: String, scope: String, internal val navn: String, internal val konsumenter: Set<Konsument>) {
@@ -44,15 +42,6 @@ internal class Api(internal val id: String, scope: String, internal val navn: St
         }
     }
 
-    private fun Konsument.åpnet(): Boolean {
-        if (System.getenv().miljø == "dev") return true
-        return when (this) {
-            is FellesordningenForAfp,
-            is StatensPensjonskasse -> true
-            else -> Year.now(ZoneId.of("Europe/Oslo")).value >= 2025
-        }
-    }
-
     internal fun registerApi(routing: Routing, utbetaltePerioder: UtbetaltePerioder, personidentifikatorer: Personidentifikatorer, sporings: Sporingslogg) {
         sikkerlogg.info("Registrerer API på endepunkt /$id for ${konsumenter.joinToString()}")
         routing.authenticate(id) {
@@ -63,11 +52,6 @@ internal class Api(internal val id: String, scope: String, internal val navn: St
                 sikkerlogg.info("Mottok request på versjon $versjon fra ${konsument}:\n\t$requestBody")
 
                 val request = konsument.request(requestBody, versjon)
-
-                if (!konsument.åpnet()) return@post call.respondError(
-                    status = HttpStatusCode(451, "Unavailable For Legal Reasons"),
-                    melding = "Tjenesten åpner ikke for $konsument før 2025"
-                )
 
                 val perioder = utbetaltePerioder.hent(
                     personidentifikatorer = personidentifikatorer.hentAlle(request.personidentifikator, konsument),
