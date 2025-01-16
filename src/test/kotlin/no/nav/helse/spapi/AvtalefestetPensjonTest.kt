@@ -85,7 +85,7 @@ internal class AvtalefestetPensjonTest : SpapiTest() {
     }
 
     @Test
-    fun `manglende saksId i request`() = avtalefestetPensjonTest(enTilFeldigKonsumentAv = konsumenter - StatensPensjonskasse) {
+    fun `manglende saksId i request`() = avtalefestetPensjonTest(enTilFeldigKonsumentAv = konsumenter - StatensPensjonskasse - KommunalLandspensjonskasse) { // TODO: Disse to har unntak fra saksId enn så lenge
         request(saksId = null) {
             assertStatus(BadRequest)
             assertFeilmelding("Mangler feltet 'saksId' i request body.")
