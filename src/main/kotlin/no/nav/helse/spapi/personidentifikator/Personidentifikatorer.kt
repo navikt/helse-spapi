@@ -35,14 +35,11 @@ internal class Pdl(config: Map<String, String>, private val httpClient: HttpClie
             "Mottok HTTP ${response.status} fra PDL:\n\t${response.bodyAsText()}"
         }
 
-
         val json = objectMapper.readTree(response.readBytes())
 
         sikkerlogg.info("Response fra PDL:\n\t$json")
 
-        return json.personidentifikatorer.also {
-            check(it.contains(personidentifikator)) { "Responsen fra PDL inneholder _ikke_ personidentifikatoren vi spurte på.." }
-        }
+        return json.personidentifikatorer + personidentifikator
     }
 
     internal companion object {
