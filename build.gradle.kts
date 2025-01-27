@@ -3,7 +3,7 @@ plugins {
 }
 
 val ktorVersion = "3.0.3"
-val tbdLibsVersion = "2025.01.16-08.15-d17f6062"
+val tbdLibsVersion = "2025.01.27-12.50-76316f3b"
 
 val logbackClassicVersion = "1.5.16"
 val logbackEncoderVersion = "8.0"
