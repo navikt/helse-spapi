@@ -45,9 +45,6 @@ paths:
           
           Om den tilsluttede virksomheten har endret organisasjonsnummer innenfor tidsintervallet det etterspørres informasjon må det sendes en request per organisasjonsnummer.
           
-          
-          
-          
           Scope: (én av):
           
           `nav:sykepenger:fellesordningenforafp.read`
@@ -105,15 +102,6 @@ paths:
           Utbetalte sykepengeperioder er eksklusiv arbeidsgiverperioden.
           
           Om den tilsluttede virksomheten har endret organisasjonsnummer innenfor tidsintervallet det etterspørres informasjon må det sendes en request per organisasjonsnummer.
-          
-          
-          Feltet `saksId` _må_ settes, med unntak for visse konsumenter;
-          
-          ✅ Statens pensjonskasse (982583462) - Vil bli påkrevd 1.Februar 2025.
-          
-          ❌ Øvrig konsumenter vil få en HTTP 400 om `saksId` mangler
-          
-          
           
           Scope: (én av):
           
@@ -197,7 +185,7 @@ components:
           example: 80
     RequestV2:
       type: object
-      required: ["personidentifikator", "organisasjonsnummer", "fraOgMedDato", "tilOgMedDato"]
+      required: ["personidentifikator", "organisasjonsnummer", "fraOgMedDato", "tilOgMedDato", "saksId"]
       properties:
         personidentifikator:
           type: string

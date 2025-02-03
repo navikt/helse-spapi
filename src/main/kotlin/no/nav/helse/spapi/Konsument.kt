@@ -6,7 +6,6 @@ import no.nav.helse.spapi.personidentifikator.Personidentifikator
 import no.nav.helse.spapi.utbetalteperioder.UtbetaltPeriode
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
-import java.time.ZoneId
 
 internal sealed class Konsument(
     internal val navn: String,
@@ -73,11 +72,9 @@ internal sealed class AvtalefestetPensjon(
     behandlingsgrunnlag = behandlingsgrunnlag,
     integrator = integrator
 ) {
-    override suspend fun request(requestBody: JsonNode, versjon: Int) = AvtalefestetPensjonRequest(requestBody, saksId(requestBody))
+    override suspend fun request(requestBody: JsonNode, versjon: Int) = AvtalefestetPensjonRequest(requestBody, requestBody.requiredSaksId)
 
-    open fun saksId(requestBody: JsonNode): SaksId? = requestBody.requiredSaksId
-
-    internal class AvtalefestetPensjonRequest(requestBody: JsonNode, private val saksId: SaksId?): AfpRequest(
+    internal class AvtalefestetPensjonRequest(requestBody: JsonNode, private val saksId: SaksId): AfpRequest(
         fom = requestBody.periode.first,
         tom = requestBody.periode.second,
         personidentifikator = requestBody.personidentifikator,
@@ -85,7 +82,7 @@ internal sealed class AvtalefestetPensjon(
         minimumSykdomsgrad = requestBody.optionalMinimumSykdomsgrad
     ) {
         override fun berik(response: ObjectNode): ObjectNode {
-            saksId?.let { id -> response.put("saksId", "$id") }
+            response.put("saksId", "$saksId")
             return response
         }
     }
@@ -95,14 +92,7 @@ internal object StatensPensjonskasse : AvtalefestetPensjon(
     navn = "Statens pensjonskasse",
     organisasjonsnummer = Organisasjonsnummer("982583462"),
     behandlingsgrunnlag = Behandlingsgrunnlag("GDPR Art. 6(1)e. Lov om AFP for medlemmer av Statens pensjonskasse §13 andre ledd. GDPR Art. 9(2)b")
-) {
-    private val KrevSaksIdFraOgMed = LocalDate.parse("2025-02-01")
-    private fun nå() = LocalDate.now(ZoneId.of("Europe/Oslo"))
-    override fun saksId(requestBody: JsonNode): SaksId? {
-        return if (nå() >= KrevSaksIdFraOgMed) requestBody.requiredSaksId
-        else requestBody.optionalSaksId
-    }
-}
+)
 internal object OsloPensjonsforsikring: AvtalefestetPensjon(navn = "Oslo pensjonsforsikring", organisasjonsnummer = Organisasjonsnummer("982759412"))
 internal object StorebrandLivsforsikring: AvtalefestetPensjon(navn = "Storebrand livsforsikring", organisasjonsnummer = Organisasjonsnummer("958995369"))
 internal object KommunalLandspensjonskasse: AvtalefestetPensjon(navn = "Kommunal landspensjonskasse", organisasjonsnummer = Organisasjonsnummer("938708606"))

@@ -85,17 +85,10 @@ internal class AvtalefestetPensjonTest : SpapiTest() {
     }
 
     @Test
-    fun `manglende saksId i request`() = avtalefestetPensjonTest(enTilFeldigKonsumentAv = konsumenter - StatensPensjonskasse) { // TODO: SPK Har unntak til 1.feb
+    fun `manglende saksId i request`() = avtalefestetPensjonTest(enTilFeldigKonsumentAv = konsumenter) {
         request(saksId = null) {
             assertStatus(BadRequest)
             assertFeilmelding("Mangler feltet 'saksId' i request body.")
-        }
-    }
-
-    @Test
-    fun `manglende saksId i request fra statens pensjonskasse går greit frem til 1 februar 2025`() = avtalefestetPensjonTest(enTilFeldigKonsumentAv = listOf(StatensPensjonskasse)) {
-        request(saksId = null) {
-            assertStatus(OK)
         }
     }
 

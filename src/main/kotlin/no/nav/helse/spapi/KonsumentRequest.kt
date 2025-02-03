@@ -41,5 +41,4 @@ internal val JsonNode.periode get(): Pair<LocalDate, LocalDate> {
 internal val JsonNode.optionalMinimumSykdomsgrad get() = optional("minimumSykdomsgrad") {
     it.asInt().also { minimumSykdomsgrad -> check(minimumSykdomsgrad in 1..100) { "Må være mellom 1 og 100" } }
 }
-internal val JsonNode.optionalSaksId get() = optional("saksId") { SaksId(it.asText()) }
 internal val JsonNode.requiredSaksId get() = required("saksId") { SaksId(it.asText()) }

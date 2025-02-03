@@ -48,11 +48,6 @@ paths:
           
           Om den tilsluttede virksomheten har endret organisasjonsnummer innenfor tidsintervallet det etterspørres informasjon må det sendes en request per organisasjonsnummer.
           
-          {{# each saksIdInfo as |linje| }}
-          {{{linje}}}
-          {{/each}}
-          
-          
           Scope: (én av):
           {{# each scopes as |scope| }}
           `{{scope}}`
@@ -133,7 +128,7 @@ components:
           example: 80
     RequestV2:
       type: object
-      required: ["personidentifikator", "organisasjonsnummer", "fraOgMedDato", "tilOgMedDato"]
+      required: ["personidentifikator", "organisasjonsnummer", "fraOgMedDato", "tilOgMedDato", "saksId"]
       properties:
         personidentifikator:
           type: string
