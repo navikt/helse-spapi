@@ -129,7 +129,9 @@ internal fun Application.spapi(
 
     routing {
         get("/velkommen") { call.respondText("Velkommen til Spaπ! 👽") }
-        swaggerUI(path = "swagger", swaggerFile = "${config.miljø}-openapi.yml")
+        swaggerUI(path = "swagger", swaggerFile = "${config.miljø}-openapi.yml") {
+            deepLinking = true
+        }
         // Endepunkt under /internal eksponeres ikke
         get("/internal/isalive") { call.respondText("ISALIVE") }
         get("/internal/isready") { call.respondText("READY") }
