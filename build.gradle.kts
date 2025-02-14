@@ -1,14 +1,14 @@
 plugins {
-    kotlin("jvm") version "2.1.0"
+    kotlin("jvm") version "2.1.10"
 }
 
-val ktorVersion = "3.0.3"
-val tbdLibsVersion = "2025.01.27-12.50-76316f3b"
+val ktorVersion = "3.1.0"
+val tbdLibsVersion = "2025.02.14-08.59-4f6db7fb"
 
 val logbackClassicVersion = "1.5.16"
 val logbackEncoderVersion = "8.0"
 val junitJupiterVersion = "5.11.4"
-val wiremockVersion = "3.10.0"
+val wiremockVersion = "3.12.0"
 val kafkaVersion = "3.9.0"
 val jsonAssertVersion = "1.5.3"
 val handlebarsVersion = "4.4.0"

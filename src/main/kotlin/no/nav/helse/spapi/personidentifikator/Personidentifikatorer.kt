@@ -35,7 +35,7 @@ internal class Pdl(config: Map<String, String>, private val httpClient: HttpClie
             "Mottok HTTP ${response.status} fra PDL:\n\t${response.bodyAsText()}"
         }
 
-        val json = objectMapper.readTree(response.readBytes())
+        val json = objectMapper.readTree(response.readRawBytes())
 
         sikkerlogg.info("Response fra PDL:\n\t$json")
 
