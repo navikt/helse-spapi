@@ -2,6 +2,7 @@ package no.nav.helse.spapi
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.github.navikt.tbd_libs.naisful.plainApp
+import com.github.navikt.tbd_libs.signed_jwt_issuer_test.Issuer
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.server.application.Application
 import io.ktor.server.response.respondText
@@ -33,7 +34,7 @@ fun main() {
                     val konsument = queryParameters["konsument"]?.let { Organisasjonsnummer(it) }
                     val integrator = queryParameters["integrator"]?.let { Organisasjonsnummer(it) }
                     val claims = queryParameters.filterKeys { it !in setOf("konsument", "integrator") }
-                    call.respondText(maskinporten.accessToken(konsument = konsument, integrator = integrator, claims = claims))
+                    call.respondText(maskinporten.maskinportenAccessToken(konsument = konsument, integrator = integrator, claims = claims))
                 }
             }
         }
@@ -43,9 +44,9 @@ fun main() {
 internal fun Application.testSpapi(maskinporten: Issuer, utbetaltePerioder: UtbetaltePerioder) {
     spapi(
         config = mapOf(
-            "MASKINPORTEN_JWKS_URI" to maskinporten.jwksUri(),
-            "MASKINPORTEN_ISSUER" to maskinporten.navn(),
-            "AUDIENCE" to maskinporten.audience()
+            "MASKINPORTEN_JWKS_URI" to "${maskinporten.jwksUri()}",
+            "MASKINPORTEN_ISSUER" to maskinporten.navn,
+            "AUDIENCE" to maskinporten.audience
         ),
         sporings = object : Sporingslogg() {
             override fun send(logginnslag: JsonNode) {}

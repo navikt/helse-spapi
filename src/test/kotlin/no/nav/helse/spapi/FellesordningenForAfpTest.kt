@@ -57,7 +57,7 @@ internal class FellesordningenForAfpTest : SpapiTest() {
 
     @Test
     fun `fellesordningen integrerer helt selv`() = fellesordningenForAfpTest {
-        request(accessToken = maskinporten.accessToken(claims = mapOf("scope" to "nav:sykepenger/delegertfellesordningenforafp.read"), integrator = Organisasjonsnummer("927613298"))) {
+        request(accessToken = maskinporten.maskinportenAccessToken(claims = mapOf("scope" to "nav:sykepenger/delegertfellesordningenforafp.read"), integrator = Organisasjonsnummer("927613298"))) {
             assertStatus(Forbidden)
         }
     }

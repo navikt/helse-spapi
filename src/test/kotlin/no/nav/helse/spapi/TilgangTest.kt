@@ -1,5 +1,6 @@
 package no.nav.helse.spapi
 
+import com.github.navikt.tbd_libs.signed_jwt_issuer_test.Issuer
 import io.ktor.http.HttpStatusCode.Companion.Forbidden
 import io.ktor.http.HttpStatusCode.Companion.InternalServerError
 import io.ktor.http.HttpStatusCode.Companion.Unauthorized
@@ -36,10 +37,10 @@ internal class TilgangTest: SpapiTest() {
     private val riktigKonsument = Organisasjonsnummer("987414502")
     private val riktigScope = "nav:sykepenger:fellesordningenforafp.read"
 
-    private fun SpapiTestContext.accessTokenFeilKonsument() = maskinporten.accessToken(konsument = Organisasjonsnummer("982583462") , claims = mapOf("scope" to riktigScope))
-    private fun SpapiTestContext.accessTokenFeilScope() = maskinporten.accessToken(konsument = riktigKonsument, claims = mapOf("scope" to "feil-scope"))
-    private fun SpapiTestContext.accessTokenFeilAudience() = maskinporten.accessToken(konsument = riktigKonsument, claims = mapOf("scope" to riktigScope, "aud" to "feil-audience"))
-    private fun accessTokenFeilIssuer() = feilIssuer.accessToken(konsument = riktigKonsument, claims = mapOf("scope" to riktigScope))
+    private fun SpapiTestContext.accessTokenFeilKonsument() = maskinporten.maskinportenAccessToken(konsument = Organisasjonsnummer("982583462") , claims = mapOf("scope" to riktigScope))
+    private fun SpapiTestContext.accessTokenFeilScope() = maskinporten.maskinportenAccessToken(konsument = riktigKonsument, claims = mapOf("scope" to "feil-scope"))
+    private fun SpapiTestContext.accessTokenFeilAudience() = maskinporten.maskinportenAccessToken(konsument = riktigKonsument, claims = mapOf("scope" to riktigScope, "aud" to "feil-audience"))
+    private fun accessTokenFeilIssuer() = feilIssuer.maskinportenAccessToken(konsument = riktigKonsument, claims = mapOf("scope" to riktigScope))
 
     private fun fellesordningenForAfpTest(
         organisasjonsnummer: Organisasjonsnummer = riktigKonsument,

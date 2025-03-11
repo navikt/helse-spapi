@@ -1,6 +1,7 @@
 package no.nav.helse.spapi
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.github.navikt.tbd_libs.signed_jwt_issuer_test.Issuer
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -18,7 +19,7 @@ internal data class SpapiTestContext(
     private val scope: String,
     private val integrator: Organisasjonsnummer? = null
 ) {
-    private fun riktigToken() = maskinporten.accessToken(mapOf("scope" to scope), konsument, integrator)
+    private fun riktigToken() = maskinporten.maskinportenAccessToken(mapOf("scope" to scope), konsument, integrator)
 
     suspend fun request(
         personidentifikator: String = "11111111111",

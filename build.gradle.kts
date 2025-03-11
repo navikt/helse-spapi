@@ -3,12 +3,11 @@ plugins {
 }
 
 val ktorVersion = "3.1.0"
-val tbdLibsVersion = "2025.02.14-08.59-4f6db7fb"
+val tbdLibsVersion = "2025.03.10-19.50-d556269c"
 
-val logbackClassicVersion = "1.5.16"
+val logbackClassicVersion = "1.5.17"
 val logbackEncoderVersion = "8.0"
-val junitJupiterVersion = "5.11.4"
-val wiremockVersion = "3.12.0"
+val junitJupiterVersion = "5.12.0"
 val kafkaVersion = "3.9.0"
 val jsonAssertVersion = "1.5.3"
 val handlebarsVersion = "4.4.0"
@@ -29,12 +28,12 @@ dependencies {
 
     implementation("org.apache.kafka:kafka-clients:$kafkaVersion")
 
-    testImplementation("org.wiremock:wiremock:$wiremockVersion")
     testImplementation("org.junit.jupiter:junit-jupiter:$junitJupiterVersion")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.skyscreamer:jsonassert:$jsonAssertVersion")
     testImplementation("com.github.jknack:handlebars:$handlebarsVersion")
     testImplementation("com.github.navikt.tbd-libs:naisful-test-app:$tbdLibsVersion")
+    testImplementation("com.github.navikt.tbd-libs:signed-jwt-issuer-test:$tbdLibsVersion")
 }
 
 repositories {

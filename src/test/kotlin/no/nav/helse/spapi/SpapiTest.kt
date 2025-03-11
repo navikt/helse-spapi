@@ -1,6 +1,7 @@
 package no.nav.helse.spapi
 
 import com.github.navikt.tbd_libs.naisful.test.plainTestApp
+import com.github.navikt.tbd_libs.signed_jwt_issuer_test.Issuer
 import no.nav.helse.spapi.personidentifikator.Personidentifikator
 import no.nav.helse.spapi.utbetalteperioder.UtbetaltPeriode
 import no.nav.helse.spapi.utbetalteperioder.UtbetaltePerioder
@@ -22,7 +23,9 @@ internal abstract class SpapiTest{
     }
 
     @AfterAll
-    fun stop() = maskinporten.stop()
+    fun stop() {
+        maskinporten.stop()
+    }
 
     private val defaultUtbetaltePerioder = object : UtbetaltePerioder {
         override suspend fun hent(personidentifikatorer: Set<Personidentifikator>, fom: LocalDate, tom: LocalDate) = listOf(
