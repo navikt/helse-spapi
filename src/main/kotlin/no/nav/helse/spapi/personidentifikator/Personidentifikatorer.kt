@@ -2,6 +2,7 @@ package no.nav.helse.spapi.personidentifikator
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.github.navikt.tbd_libs.retry.retry
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -22,17 +23,21 @@ internal class Pdl(config: Map<String, String>, private val httpClient: HttpClie
     private val scope = config.hent("PDL_SCOPE")
 
     override suspend fun hentAlle(personidentifikator: Personidentifikator, konsument: Konsument): Set<Personidentifikator> {
-        val response = httpClient.post(url) {
-            header(HttpHeaders.Authorization, "Bearer ${accessToken.get(scope)}")
-            header(HttpHeaders.ContentType, ContentType.Application.Json)
-            header(HttpHeaders.Accept, ContentType.Application.Json)
-            callId("Nav-Call-Id")
-            header("behandlingsnummer", konsument.behandlingsnummer)
-            setBody(body(personidentifikator))
-        }
+        val accessToken = accessToken.get(scope)
 
-        check(response.status == HttpStatusCode.OK) {
-            "Mottok HTTP ${response.status} fra PDL:\n\t${response.bodyAsText()}"
+        val response = retry {
+            httpClient.post(url) {
+                header(HttpHeaders.Authorization, "Bearer $accessToken")
+                header(HttpHeaders.ContentType, ContentType.Application.Json)
+                header(HttpHeaders.Accept, ContentType.Application.Json)
+                callId("Nav-Call-Id")
+                header("behandlingsnummer", konsument.behandlingsnummer)
+                setBody(body(personidentifikator))
+            }.also { httpResponse ->
+                check(httpResponse.status == HttpStatusCode.OK) {
+                    "Mottok HTTP ${httpResponse.status} fra PDL:\n\t${httpResponse.bodyAsText()}"
+                }
+            }
         }
 
         val json = objectMapper.readTree(response.readRawBytes())

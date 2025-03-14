@@ -25,8 +25,8 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-server-swagger:$ktorVersion")
     implementation("io.ktor:ktor-server-rate-limit:$ktorVersion")
-
     implementation("org.apache.kafka:kafka-clients:$kafkaVersion")
+    implementation("com.github.navikt.tbd-libs:retry:$tbdLibsVersion")
 
     testImplementation("org.junit.jupiter:junit-jupiter:$junitJupiterVersion")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
