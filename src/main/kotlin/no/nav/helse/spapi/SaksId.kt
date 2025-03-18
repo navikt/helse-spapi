@@ -6,6 +6,6 @@ internal data class SaksId(private val id: String) {
     override fun toString() = id
 
     private companion object {
-        val regex = """[a-zæøåA-ZÆØÅ0-9-_:.]{1,200}""".toRegex()
+        val regex = """[a-zæøåA-ZÆØÅ0-9-_:. ]{1,200}""".toRegex()
     }
 }
