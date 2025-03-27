@@ -2,12 +2,12 @@ plugins {
     kotlin("jvm") version "2.1.20"
 }
 
-val ktorVersion = "3.1.0"
-val tbdLibsVersion = "2025.03.10-19.50-d556269c"
+val ktorVersion = "3.1.2"
+val tbdLibsVersion = "2025.03.27-18.30-c228796d"
 
 val logbackClassicVersion = "1.5.17"
 val logbackEncoderVersion = "8.0"
-val junitJupiterVersion = "5.12.0"
+val junitJupiterVersion = "5.12.1"
 val kafkaVersion = "3.9.0"
 val jsonAssertVersion = "1.5.3"
 val handlebarsVersion = "4.4.0"
