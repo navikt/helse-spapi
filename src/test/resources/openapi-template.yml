@@ -4,9 +4,7 @@ info:
   description: |-
     Spaπ tilbyr Sykepengeinformasjon til eksterne konsumenter som har hjemmel til å hente det. 
     Konsumenter må logge seg inn med token fra Maskinporten med rett `audience` & `scope`.
-    
-    Alle oppslag spores, slik at personene det gjøres oppslag på vil kunne se at konsumenten har hentet sykepengeinformasjon om dem.
-    
+        
     Linker til autentisering
     - [Maskinporten](https://docs.digdir.no/docs/Maskinporten/)
     - [Audience restricted tokens](https://docs.digdir.no/docs/Maskinporten/maskinporten_func_audience_restricted_tokens)
