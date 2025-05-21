@@ -85,3 +85,7 @@ spec:
       value: {{pdlHost}}
     - name: PDL_SCOPE
       value: {{pdlScope}}
+  observability:
+    logging:
+      destinations:
+        - id: elastic
