@@ -67,6 +67,8 @@ spec:
   accessPolicy:
     outbound:
       rules:
+        - application: logging
+          namespace: nais-system
         - application: spokelse
       external:
         - host: {{pdlHost}}
