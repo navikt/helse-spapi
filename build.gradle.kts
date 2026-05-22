@@ -8,7 +8,7 @@ val tbdLibsVersion = "2026.01.22-09.16-1d3f6039"
 val logbackClassicVersion = "1.5.25"
 val logbackEncoderVersion = "8.0"
 val junitJupiterVersion = "5.12.1"
-val kafkaVersion = "4.1.0"
+val kafkaVersion = "4.2.0"
 val jsonAssertVersion = "1.5.3"
 val handlebarsVersion = "4.4.0"
 
