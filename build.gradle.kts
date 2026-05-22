@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "2.3.0"
+    kotlin("jvm") version "2.3.21"
 }
 
 val ktorVersion = "3.2.3"
