@@ -18,8 +18,9 @@ dependencies {
     implementation(libs.kafka.clients)
     implementation(libs.tbd.libs.retry)
 
+    testImplementation(kotlin("test"))
+    testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)
-    testRuntimeOnly(libs.junit.platform.launcher)
     testImplementation(libs.jsonassert)
     testImplementation(libs.handlebars)
     testImplementation(libs.tbd.libs.naisful.test.app)

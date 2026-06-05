@@ -24,8 +24,8 @@ ktor-server-rate-limit = { group = "io.ktor", name = "ktor-server-rate-limit", v
 kafka-clients = "org.apache.kafka:kafka-clients:4.3.1"
 
 # Test
-junit-jupiter = "org.junit.jupiter:junit-jupiter:5.12.1"
-junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher" }
+junit-bom = "org.junit:junit-bom:6.1.0"
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
 jsonassert = "org.skyscreamer:jsonassert:1.5.3"
 handlebars = "com.github.jknack:handlebars:4.5.3"
 
