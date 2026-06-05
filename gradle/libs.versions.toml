@@ -1,0 +1,33 @@
+[versions]
+ktor = "3.2.3"
+tbdLibs = "2026.01.22-09.16-1d3f6039"
+
+[libraries]
+# TBD-libs
+tbd-libs-naisful-app = { group = "com.github.navikt.tbd-libs", name = "naisful-app", version.ref = "tbdLibs" }
+tbd-libs-azure-token-client-default = { group = "com.github.navikt.tbd-libs", name = "azure-token-client-default", version.ref = "tbdLibs" }
+tbd-libs-retry = { group = "com.github.navikt.tbd-libs", name = "retry", version.ref = "tbdLibs" }
+tbd-libs-naisful-test-app = { group = "com.github.navikt.tbd-libs", name = "naisful-test-app", version.ref = "tbdLibs" }
+tbd-libs-signed-jwt-issuer-test = { group = "com.github.navikt.tbd-libs", name = "signed-jwt-issuer-test", version.ref = "tbdLibs" }
+
+# Logback
+logback-classic = "ch.qos.logback:logback-classic:1.5.38"
+logstash-logback-encoder = "net.logstash.logback:logstash-logback-encoder:9.0"
+
+# Ktor
+ktor-server-auth-jwt = { group = "io.ktor", name = "ktor-server-auth-jwt", version.ref = "ktor" }
+ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio", version.ref = "ktor" }
+ktor-server-swagger = { group = "io.ktor", name = "ktor-server-swagger", version.ref = "ktor" }
+ktor-server-rate-limit = { group = "io.ktor", name = "ktor-server-rate-limit", version.ref = "ktor" }
+
+# Kafka
+kafka-clients = "org.apache.kafka:kafka-clients:4.3.1"
+
+# Test
+junit-jupiter = "org.junit.jupiter:junit-jupiter:5.12.1"
+junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher" }
+jsonassert = "org.skyscreamer:jsonassert:1.5.3"
+handlebars = "com.github.jknack:handlebars:4.5.3"
+
+[plugins]
+kotlin-jvm = "org.jetbrains.kotlin.jvm:2.4.0"

@@ -1,39 +1,29 @@
 plugins {
-    kotlin("jvm") version "2.4.0"
+    alias(libs.plugins.kotlin.jvm)
 }
-
-val ktorVersion = "3.2.3"
-val tbdLibsVersion = "2026.01.22-09.16-1d3f6039"
-
-val logbackClassicVersion = "1.5.38"
-val logbackEncoderVersion = "9.0"
-val junitJupiterVersion = "5.12.1"
-val kafkaVersion = "4.3.1"
-val jsonAssertVersion = "1.5.3"
-val handlebarsVersion = "4.5.3"
 
 val mainClass = "no.nav.helse.spapi.AppKt"
 
 dependencies {
-    implementation("com.github.navikt.tbd-libs:naisful-app:$tbdLibsVersion")
-    implementation("com.github.navikt.tbd-libs:azure-token-client-default:$tbdLibsVersion")
+    implementation(libs.tbd.libs.naisful.app)
+    implementation(libs.tbd.libs.azure.token.client.default)
 
-    implementation("ch.qos.logback:logback-classic:$logbackClassicVersion")
-    implementation("net.logstash.logback:logstash-logback-encoder:$logbackEncoderVersion")
+    implementation(libs.logback.classic)
+    implementation(libs.logstash.logback.encoder)
 
-    implementation("io.ktor:ktor-server-auth-jwt:$ktorVersion")
-    implementation("io.ktor:ktor-client-cio:$ktorVersion")
-    implementation("io.ktor:ktor-server-swagger:$ktorVersion")
-    implementation("io.ktor:ktor-server-rate-limit:$ktorVersion")
-    implementation("org.apache.kafka:kafka-clients:$kafkaVersion")
-    implementation("com.github.navikt.tbd-libs:retry:$tbdLibsVersion")
+    implementation(libs.ktor.server.auth.jwt)
+    implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.server.swagger)
+    implementation(libs.ktor.server.rate.limit)
+    implementation(libs.kafka.clients)
+    implementation(libs.tbd.libs.retry)
 
-    testImplementation("org.junit.jupiter:junit-jupiter:$junitJupiterVersion")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation("org.skyscreamer:jsonassert:$jsonAssertVersion")
-    testImplementation("com.github.jknack:handlebars:$handlebarsVersion")
-    testImplementation("com.github.navikt.tbd-libs:naisful-test-app:$tbdLibsVersion")
-    testImplementation("com.github.navikt.tbd-libs:signed-jwt-issuer-test:$tbdLibsVersion")
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly(libs.junit.platform.launcher)
+    testImplementation(libs.jsonassert)
+    testImplementation(libs.handlebars)
+    testImplementation(libs.tbd.libs.naisful.test.app)
+    testImplementation(libs.tbd.libs.signed.jwt.issuer.test)
 }
 
 kotlin {
