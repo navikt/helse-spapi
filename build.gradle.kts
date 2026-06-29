@@ -5,7 +5,7 @@ plugins {
 val ktorVersion = "3.2.3"
 val tbdLibsVersion = "2026.01.22-09.16-1d3f6039"
 
-val logbackClassicVersion = "1.5.33"
+val logbackClassicVersion = "1.5.34"
 val logbackEncoderVersion = "9.0"
 val junitJupiterVersion = "5.12.1"
 val kafkaVersion = "4.3.0"
