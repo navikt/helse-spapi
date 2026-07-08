@@ -10,7 +10,7 @@ val logbackEncoderVersion = "9.0"
 val junitJupiterVersion = "5.12.1"
 val kafkaVersion = "4.3.1"
 val jsonAssertVersion = "1.5.3"
-val handlebarsVersion = "4.5.2"
+val handlebarsVersion = "4.5.3"
 
 val mainClass = "no.nav.helse.spapi.AppKt"
 
