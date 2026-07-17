@@ -5,18 +5,17 @@ plugins {
 val mainClass = "no.nav.helse.spapi.AppKt"
 
 dependencies {
-    implementation(libs.tbd.libs.naisful.app)
     implementation(libs.tbd.libs.azure.token.client.default)
-
-    implementation(libs.logback.classic)
-    implementation(libs.logstash.logback.encoder)
-
-    implementation(libs.ktor.server.auth.jwt)
-    implementation(libs.ktor.client.cio)
-    implementation(libs.ktor.server.swagger)
-    implementation(libs.ktor.server.rate.limit)
-    implementation(libs.kafka.clients)
+    implementation(libs.tbd.libs.naisful.app)
     implementation(libs.tbd.libs.retry)
+
+    implementation(libs.bundles.logback)
+
+    implementation(platform(libs.ktor.bom))
+    implementation(libs.bundles.ktor.client)
+    implementation(libs.bundles.ktor.server)
+
+    implementation(libs.kafka.clients)
 
     testImplementation(kotlin("test"))
     testImplementation(platform(libs.junit.bom))

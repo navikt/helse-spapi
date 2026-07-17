@@ -3,31 +3,44 @@ ktor = "3.2.3"
 tbdLibs = "2026.01.22-09.16-1d3f6039"
 
 [libraries]
-# TBD-libs
-tbd-libs-naisful-app = { group = "com.github.navikt.tbd-libs", name = "naisful-app", version.ref = "tbdLibs" }
-tbd-libs-azure-token-client-default = { group = "com.github.navikt.tbd-libs", name = "azure-token-client-default", version.ref = "tbdLibs" }
-tbd-libs-retry = { group = "com.github.navikt.tbd-libs", name = "retry", version.ref = "tbdLibs" }
-tbd-libs-naisful-test-app = { group = "com.github.navikt.tbd-libs", name = "naisful-test-app", version.ref = "tbdLibs" }
-tbd-libs-signed-jwt-issuer-test = { group = "com.github.navikt.tbd-libs", name = "signed-jwt-issuer-test", version.ref = "tbdLibs" }
+handlebars = "com.github.jknack:handlebars:4.5.3"
+jsonassert = "org.skyscreamer:jsonassert:1.5.3"
 
-# Logback
-logback-classic = "ch.qos.logback:logback-classic:1.5.38"
-logstash-logback-encoder = "net.logstash.logback:logstash-logback-encoder:9.0"
-
-# Ktor
-ktor-server-auth-jwt = { group = "io.ktor", name = "ktor-server-auth-jwt", version.ref = "ktor" }
-ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio", version.ref = "ktor" }
-ktor-server-swagger = { group = "io.ktor", name = "ktor-server-swagger", version.ref = "ktor" }
-ktor-server-rate-limit = { group = "io.ktor", name = "ktor-server-rate-limit", version.ref = "ktor" }
-
-# Kafka
-kafka-clients = "org.apache.kafka:kafka-clients:4.3.1"
-
-# Test
 junit-bom = "org.junit:junit-bom:6.1.0"
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
-jsonassert = "org.skyscreamer:jsonassert:1.5.3"
-handlebars = "com.github.jknack:handlebars:4.5.3"
+
+kafka-clients = "org.apache.kafka:kafka-clients:4.3.1"
+
+ktor-bom = { module = "io.ktor:ktor-bom", version.ref = "ktor" }
+ktor-client-cio = { module = "io.ktor:ktor-client-cio" }
+ktor-server-auth-jwt = { module = "io.ktor:ktor-server-auth-jwt" }
+ktor-server-rate-limit = { module = "io.ktor:ktor-server-rate-limit" }
+ktor-server-swagger = { module = "io.ktor:ktor-server-swagger" }
+
+logback-classic = "ch.qos.logback:logback-classic:1.5.38"
+logstash-logback-encoder = "net.logstash.logback:logstash-logback-encoder:9.0"
+slf4j-api = "org.slf4j:slf4j-api:2.0.18"
+
+tbd-libs-azure-token-client-default = { module = "com.github.navikt.tbd-libs:azure-token-client-default", version.ref = "tbdLibs" }
+tbd-libs-naisful-app = { module = "com.github.navikt.tbd-libs:naisful-app", version.ref = "tbdLibs" }
+tbd-libs-naisful-test-app = { module = "com.github.navikt.tbd-libs:naisful-test-app", version.ref = "tbdLibs" }
+tbd-libs-retry = { module = "com.github.navikt.tbd-libs:retry", version.ref = "tbdLibs" }
+tbd-libs-signed-jwt-issuer-test = { module = "com.github.navikt.tbd-libs:signed-jwt-issuer-test", version.ref = "tbdLibs" }
+
+[bundles]
+ktor-client = [
+    "ktor-client-cio"
+]
+ktor-server = [
+    "ktor-server-auth-jwt",
+    "ktor-server-rate-limit",
+    "ktor-server-swagger"
+]
+logback = [
+    "logback-classic",
+    "logstash-logback-encoder",
+    "slf4j-api"
+]
 
 [plugins]
 kotlin-jvm = "org.jetbrains.kotlin.jvm:2.4.0"
