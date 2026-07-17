@@ -1,12 +1,12 @@
 [versions]
-ktor = "3.2.3"
-tbdLibs = "2026.01.22-09.16-1d3f6039"
+ktor = "3.5.1"
+tbdLibs = "20260702.1010"
 
 [libraries]
 handlebars = "com.github.jknack:handlebars:4.5.3"
 jsonassert = "org.skyscreamer:jsonassert:1.5.3"
 
-junit-bom = "org.junit:junit-bom:6.1.0"
+junit-bom = "org.junit:junit-bom:6.1.1"
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
 
 kafka-clients = "org.apache.kafka:kafka-clients:4.3.1"
