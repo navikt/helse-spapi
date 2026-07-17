@@ -16,6 +16,8 @@ dependencies {
     implementation(libs.bundles.ktor.server)
 
     implementation(libs.kafka.clients)
+    implementation(platform(libs.jackson2.bom))
+    implementation(platform(libs.jackson3.bom))
 
     testImplementation(kotlin("test"))
     testImplementation(platform(libs.junit.bom))
