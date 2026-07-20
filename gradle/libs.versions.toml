@@ -9,7 +9,7 @@ jsonassert = "org.skyscreamer:jsonassert:1.5.3"
 jackson2-bom = "com.fasterxml.jackson:jackson-bom:2.22.1"
 jackson3-bom = "tools.jackson:jackson-bom:3.2.1"
 
-junit-bom = "org.junit:junit-bom:6.1.1"
+junit-bom = "org.junit:junit-bom:6.1.2"
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
 
 kafka-clients = "org.apache.kafka:kafka-clients:4.3.1"
