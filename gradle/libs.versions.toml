@@ -46,4 +46,4 @@ logback = [
 ]
 
 [plugins]
-kotlin-jvm = "org.jetbrains.kotlin.jvm:2.4.0"
+kotlin-jvm = "org.jetbrains.kotlin.jvm:2.4.10"
