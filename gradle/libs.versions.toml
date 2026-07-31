@@ -20,7 +20,7 @@ ktor-server-auth-jwt = { module = "io.ktor:ktor-server-auth-jwt" }
 ktor-server-rate-limit = { module = "io.ktor:ktor-server-rate-limit" }
 ktor-server-swagger = { module = "io.ktor:ktor-server-swagger" }
 
-logback-classic = "ch.qos.logback:logback-classic:1.5.38"
+logback-classic = "ch.qos.logback:logback-classic:1.6.0"
 logstash-logback-encoder = "net.logstash.logback:logstash-logback-encoder:9.0"
 slf4j-api = "org.slf4j:slf4j-api:2.0.18"
 
