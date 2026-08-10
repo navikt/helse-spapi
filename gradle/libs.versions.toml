@@ -3,7 +3,7 @@ ktor = "3.5.2"
 tbdLibs = "20260702.1010"
 
 [libraries]
-handlebars = "com.github.jknack:handlebars:4.5.3"
+handlebars = "com.github.jknack:handlebars:4.5.4"
 jsonassert = "org.skyscreamer:jsonassert:1.5.3"
 
 jackson2-bom = "com.fasterxml.jackson:jackson-bom:2.22.1"
