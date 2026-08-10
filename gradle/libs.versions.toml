@@ -1,5 +1,5 @@
 [versions]
-ktor = "3.5.1"
+ktor = "3.5.2"
 tbdLibs = "20260702.1010"
 
 [libraries]
