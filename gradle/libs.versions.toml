@@ -1,6 +1,6 @@
 [versions]
 ktor = "3.5.2"
-tbdLibs = "20260702.1010"
+tbdLibs = "20260811.1310"
 
 [libraries]
 handlebars = "com.github.jknack:handlebars:4.5.4"
