@@ -22,7 +22,7 @@ ktor-server-swagger = { module = "io.ktor:ktor-server-swagger" }
 
 logback-classic = "ch.qos.logback:logback-classic:1.6.3"
 logstash-logback-encoder = "net.logstash.logback:logstash-logback-encoder:9.0"
-slf4j-api = "org.slf4j:slf4j-api:2.0.18"
+slf4j-api = "org.slf4j:slf4j-api:2.0.19"
 
 tbd-libs-azure-token-client-default = { module = "com.github.navikt.tbd-libs:azure-token-client-default", version.ref = "tbdLibs" }
 tbd-libs-naisful-app = { module = "com.github.navikt.tbd-libs:naisful-app", version.ref = "tbdLibs" }
