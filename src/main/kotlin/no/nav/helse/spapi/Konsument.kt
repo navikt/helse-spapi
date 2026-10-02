@@ -110,4 +110,5 @@ internal object DrammenKommunalePensjonskasse: AvtalefestetPensjon(navn = "Dramm
 internal object Nav: AvtalefestetPensjon(navn = "NAV", organisasjonsnummer = Organisasjonsnummer("889640782"))
 
 // Hvilke konsumenter som registreres når appen starter styres fra dev-nais.json & prod-nais.json i resouces.
+// Maskinporten-scopene i .nais/spapi.<miljø>.yaml må holdes i synk med disse (sjekkes av NaisManifestTest).
 internal val AlleKonsumenter = setOf(FellesordningenForAfp, KommunalLandspensjonskasse, StatensPensjonskasse, StorebrandPensjonstjenester, StorebrandLivsforsikring, OsloPensjonsforsikring, GablerPensjonstjenester, ArendalKommunalePensjonskasse, DrammenKommunalePensjonskasse, Nav)

@@ -1,0 +1,66 @@
+# Hvilke konsumenter som har tilgang styres også av src/main/resources/dev-nais.json, som appen leser ved oppstart.
+# Hold maskinporten-scopene her i synk med den (sjekkes av NaisManifestTest).
+spec:
+  ingresses:
+    - https://spapi.ekstern.dev.nav.no
+  maskinporten:
+    scopes:
+      exposes:
+        - name: "fellesordningenforafp.read"
+          enabled: true
+          product: "sykepenger"
+          consumers:
+            - name: "Fellesordningen for AFP"
+              orgno: "987414502"
+            - name: "NAV"
+              orgno: "889640782"
+        - name: "avtalefestetpensjon.read"
+          enabled: true
+          product: "sykepenger"
+          consumers:
+            - name: "Statens pensjonskasse"
+              orgno: "982583462"
+            - name: "Kommunal landspensjonskasse"
+              orgno: "938708606"
+            - name: "Oslo pensjonsforsikring"
+              orgno: "982759412"
+            - name: "Storebrand livsforsikring"
+              orgno: "958995369"
+            - name: "Storebrand pensjonstjenester"
+              orgno: "931936492"
+            - name: "Gabler pensjonstjenester"
+              orgno: "916833520"
+            - name: "NAV"
+              orgno: "889640782"
+        - name: "delegertavtalefestetpensjon.read"
+          enabled: true
+          product: "sykepenger"
+          separator: "/"
+          delegationSource: altinn
+          consumers:
+            - name: "Aksio"
+              orgno: "927613298"
+            - name: "Arendal kommunale pensjonskasse"
+              orgno: "940380014"
+            - name: "Drammen kommunale pensjonskasse"
+              orgno: "980650383"
+  azure:
+    application:
+      tenant: trygdeetaten.no
+  accessPolicy:
+    outbound:
+      external:
+        - host: pdl-api.dev-fss-pub.nais.io
+  kafka:
+    pool: nav-dev
+  env:
+    - name: AUDIENCE
+      value: https://spapi.ekstern.dev.nav.no
+    - name: SPORINGSLOGG_TOPIC
+      value: pensjonsamhandling.public-sporingslogg-loggmeldingmottatt-q2
+    - name: SPOKELSE_SCOPE
+      value: api://dev-gcp.tbd.spokelse/.default
+    - name: PDL_HOST
+      value: pdl-api.dev-fss-pub.nais.io
+    - name: PDL_SCOPE
+      value: api://dev-fss.pdl.pdl-api/.default

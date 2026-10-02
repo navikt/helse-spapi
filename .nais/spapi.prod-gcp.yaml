@@ -1,0 +1,62 @@
+# Hvilke konsumenter som har tilgang styres også av src/main/resources/prod-nais.json, som appen leser ved oppstart.
+# Hold maskinporten-scopene her i synk med den (sjekkes av NaisManifestTest).
+spec:
+  ingresses:
+    - https://spapi.nav.no
+  maskinporten:
+    scopes:
+      exposes:
+        - name: "fellesordningenforafp.read"
+          enabled: true
+          product: "sykepenger"
+          consumers:
+            - name: "Fellesordningen for AFP"
+              orgno: "987414502"
+        - name: "avtalefestetpensjon.read"
+          enabled: true
+          product: "sykepenger"
+          consumers:
+            - name: "Statens pensjonskasse"
+              orgno: "982583462"
+            - name: "Kommunal landspensjonskasse"
+              orgno: "938708606"
+            - name: "Oslo pensjonsforsikring"
+              orgno: "982759412"
+            - name: "Storebrand livsforsikring"
+              orgno: "958995369"
+            - name: "Storebrand pensjonstjenester"
+              orgno: "931936492"
+            - name: "Gabler pensjonstjenester"
+              orgno: "916833520"
+        - name: "delegertavtalefestetpensjon.read"
+          enabled: true
+          product: "sykepenger"
+          separator: "/"
+          delegationSource: altinn
+          consumers:
+            - name: "Aksio"
+              orgno: "927613298"
+            - name: "Arendal kommunale pensjonskasse"
+              orgno: "940380014"
+            - name: "Drammen kommunale pensjonskasse"
+              orgno: "980650383"
+  azure:
+    application:
+      tenant: nav.no
+  accessPolicy:
+    outbound:
+      external:
+        - host: pdl-api.prod-fss-pub.nais.io
+  kafka:
+    pool: nav-prod
+  env:
+    - name: AUDIENCE
+      value: https://spapi.nav.no
+    - name: SPORINGSLOGG_TOPIC
+      value: pensjonsamhandling.public-sporingslogg-loggmeldingmottatt
+    - name: SPOKELSE_SCOPE
+      value: api://prod-gcp.tbd.spokelse/.default
+    - name: PDL_HOST
+      value: pdl-api.prod-fss-pub.nais.io
+    - name: PDL_SCOPE
+      value: api://prod-fss.pdl.pdl-api/.default
