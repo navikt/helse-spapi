@@ -1,5 +1,5 @@
 [versions]
-tbdLibs = "20260702.1010"
+tbdLibs = "20261002.1227"
 sykepengerGradlePlugins = "20261001.1830"
 
 [libraries]
@@ -15,9 +15,9 @@ ktor-server-auth-jwt = { module = "io.ktor:ktor-server-auth-jwt" }
 ktor-server-rate-limit = { module = "io.ktor:ktor-server-rate-limit" }
 ktor-server-swagger = { module = "io.ktor:ktor-server-swagger" }
 
-logback-classic = "ch.qos.logback:logback-classic:1.6.3"
+logback-classic = "ch.qos.logback:logback-classic:1.6.4"
 logstash-logback-encoder = "net.logstash.logback:logstash-logback-encoder:9.0"
-slf4j-api = "org.slf4j:slf4j-api:2.0.19"
+slf4j-api = "org.slf4j:slf4j-api:2.0.20"
 
 wiremock = "org.wiremock:wiremock-jetty12:3.13.2"
 
