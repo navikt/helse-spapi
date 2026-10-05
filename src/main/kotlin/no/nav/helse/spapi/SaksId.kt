@@ -1,7 +1,11 @@
 package no.nav.helse.spapi
 
-internal data class SaksId(private val id: String) {
-    init { check(id.matches(regex)) { "Ugyldig saksnummer $id" } }
+internal data class SaksId(
+    private val id: String,
+) {
+    init {
+        check(id.matches(regex)) { "Ugyldig saksnummer $id" }
+    }
 
     override fun toString() = id
 

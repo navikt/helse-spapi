@@ -13,12 +13,11 @@ import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import java.time.LocalDate
 
 @TestInstance(PER_CLASS)
-internal abstract class SpapiTest{
-
+internal abstract class SpapiTest {
     private val maskinporten = Issuer(navn = "maskinporten", audience = "https://spapi")
 
     @BeforeAll
-    fun start(){
+    fun start() {
         maskinporten.start()
     }
 
@@ -27,17 +26,22 @@ internal abstract class SpapiTest{
         maskinporten.stop()
     }
 
-    private val defaultUtbetaltePerioder = object : UtbetaltePerioder {
-        override suspend fun hent(personidentifikatorer: Set<Personidentifikator>, fom: LocalDate, tom: LocalDate) = listOf(
-            UtbetaltPeriode(LocalDate.parse("2018-01-01"), LocalDate.parse("2018-01-31"), Organisasjonsnummer("999999999"), 100, setOf("UsikkerSykdomsgrad")),
-            UtbetaltPeriode(LocalDate.parse("2019-01-01"), LocalDate.parse("2019-01-31"), Organisasjonsnummer("999999998"), 80, setOf()),
-            UtbetaltPeriode(LocalDate.parse("2020-01-01"), LocalDate.parse("2020-01-31"), Organisasjonsnummer("999999999"), 79, setOf())
-        ).also {
-            assertEquals(LocalDate.parse("2018-01-01"), fom)
-            assertEquals(LocalDate.parse("2018-01-31"), tom)
-            assertEquals(setOf(Personidentifikator("11111111111")), personidentifikatorer)
+    private val defaultUtbetaltePerioder =
+        object : UtbetaltePerioder {
+            override suspend fun hent(
+                personidentifikatorer: Set<Personidentifikator>,
+                fom: LocalDate,
+                tom: LocalDate,
+            ) = listOf(
+                UtbetaltPeriode(LocalDate.parse("2018-01-01"), LocalDate.parse("2018-01-31"), Organisasjonsnummer("999999999"), 100, setOf("UsikkerSykdomsgrad")),
+                UtbetaltPeriode(LocalDate.parse("2019-01-01"), LocalDate.parse("2019-01-31"), Organisasjonsnummer("999999998"), 80, setOf()),
+                UtbetaltPeriode(LocalDate.parse("2020-01-01"), LocalDate.parse("2020-01-31"), Organisasjonsnummer("999999999"), 79, setOf()),
+            ).also {
+                assertEquals(LocalDate.parse("2018-01-01"), fom)
+                assertEquals(LocalDate.parse("2018-01-31"), tom)
+                assertEquals(setOf(Personidentifikator("11111111111")), personidentifikatorer)
+            }
         }
-    }
 
     protected fun spapiTest(
         organisasjonsnummer: Organisasjonsnummer,
@@ -45,7 +49,7 @@ internal abstract class SpapiTest{
         endepunkt: String,
         utbetaltePerioder: UtbetaltePerioder = defaultUtbetaltePerioder,
         integrator: Organisasjonsnummer? = null,
-        block: suspend SpapiTestContext.() -> Unit
+        block: suspend SpapiTestContext.() -> Unit,
     ) = plainTestApp(
         isreadyEndpoint = "/internal/isready",
         testApplicationModule = {
@@ -59,10 +63,9 @@ internal abstract class SpapiTest{
                     konsument = organisasjonsnummer,
                     scope = scope,
                     endepunkt = endepunkt,
-                    integrator = integrator
-                )
+                    integrator = integrator,
+                ),
             )
-        })
-
-
+        },
+    )
 }

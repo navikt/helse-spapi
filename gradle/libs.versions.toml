@@ -6,7 +6,7 @@ sykepengerGradlePlugins = "20261001.1830"
 handlebars = "com.github.jknack:handlebars:4.5.5"
 jsonassert = "org.skyscreamer:jsonassert:1.5.3"
 
-jackson-dataformat-yaml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml" }
+jackson-dataformat-yaml = { module = "tools.jackson.dataformat:jackson-dataformat-yaml" }
 
 kafka-clients = "org.apache.kafka:kafka-clients:4.3.1"
 
