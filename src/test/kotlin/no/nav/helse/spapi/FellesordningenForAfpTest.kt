@@ -6,11 +6,11 @@ import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Test
 
 internal class FellesordningenForAfpTest : SpapiTest() {
-
     @Test
-    fun `response til fellesordningen for afp når de utelater minimimSykdomsgrad i requesten`() = fellesordningenForAfpTest {
-        @Language("JSON")
-        val forventetResponse = """
+    fun `response til fellesordningen for afp når de utelater minimimSykdomsgrad i requesten`() =
+        fellesordningenForAfpTest {
+            @Language("JSON")
+            val forventetResponse = """
         {
           "utbetaltePerioder": [
             {
@@ -28,16 +28,17 @@ internal class FellesordningenForAfpTest : SpapiTest() {
           ]
         }
         """
-        request {
-            assertStatus(OK)
-            assertResponse(forventetResponse)
+            request {
+                assertStatus(OK)
+                assertResponse(forventetResponse)
+            }
         }
-    }
 
     @Test
-    fun `response til fellesordningen for afp når de inkluderer minimumSykdomsgrad i requesten`() = fellesordningenForAfpTest {
-        @Language("JSON")
-        val forventetResponse = """
+    fun `response til fellesordningen for afp når de inkluderer minimumSykdomsgrad i requesten`() =
+        fellesordningenForAfpTest {
+            @Language("JSON")
+            val forventetResponse = """
         {
           "utbetaltePerioder": [
             {
@@ -48,25 +49,25 @@ internal class FellesordningenForAfpTest : SpapiTest() {
           ]
         }
         """
-        request(minimumSykdomsgrad = 80) {
-            assertStatus(OK)
-            assertResponse(forventetResponse)
+            request(minimumSykdomsgrad = 80) {
+                assertStatus(OK)
+                assertResponse(forventetResponse)
+            }
         }
-    }
-
 
     @Test
-    fun `fellesordningen integrerer helt selv`() = fellesordningenForAfpTest {
-        request(accessToken = maskinporten.maskinportenAccessToken(claims = mapOf("scope" to "nav:sykepenger/delegertfellesordningenforafp.read"), integrator = Organisasjonsnummer("927613298"))) {
-            assertStatus(Forbidden)
+    fun `fellesordningen integrerer helt selv`() =
+        fellesordningenForAfpTest {
+            request(accessToken = maskinporten.maskinportenAccessToken(claims = mapOf("scope" to "nav:sykepenger/delegertfellesordningenforafp.read"), integrator = Organisasjonsnummer("927613298"))) {
+                assertStatus(Forbidden)
+            }
         }
-    }
 
     private fun fellesordningenForAfpTest(
-        block: suspend SpapiTestContext.() -> Unit
+        block: suspend SpapiTestContext.() -> Unit,
     ) = spapiTest(
         organisasjonsnummer = Organisasjonsnummer("987414502"),
         scope = "nav:sykepenger:fellesordningenforafp.read",
-        endepunkt = "/fellesordningen-for-afp"
+        endepunkt = "/fellesordningen-for-afp",
     ) { block() }
 }

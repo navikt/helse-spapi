@@ -7,7 +7,8 @@ interface AccessToken {
     fun get(scope: String): String
 }
 
-class Azure: AccessToken {
+class Azure : AccessToken {
     private val provider = createJwkAzureTokenClientFromEnvironment()
+
     override fun get(scope: String) = provider.bearerToken(scope).getOrThrow().token
 }

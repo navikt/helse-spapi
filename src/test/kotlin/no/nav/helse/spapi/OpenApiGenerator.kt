@@ -11,7 +11,6 @@ import kotlin.io.path.writeBytes
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class OpenApiGenerator {
-
     @Test
     fun `generere openapi for dev`() {
         lagOpenapiFil(emptyMap())
@@ -23,22 +22,26 @@ class OpenApiGenerator {
     }
 
     private fun lagOpenapiFil(config: Map<String, String>) {
-        val apis = config.apis.map { api ->
-            mapOf(
-                "id" to api.id,
-                "scopes" to api.scopes,
-                "navn" to api.navn,
-                "versjon" to if (api.id == "avtalefestet-pensjon") "V2" else "V1",
-                "organisasjonsnummer" to api.konsumenter.joinToString { it.organisasjonsnummer.toString() }
-            )
-        }
+        val apis =
+            config.apis.map { api ->
+                mapOf(
+                    "id" to api.id,
+                    "scopes" to api.scopes,
+                    "navn" to api.navn,
+                    "versjon" to if (api.id == "avtalefestet-pensjon") "V2" else "V1",
+                    "organisasjonsnummer" to api.konsumenter.joinToString { it.organisasjonsnummer.toString() },
+                )
+            }
 
         val path = "src/main/resources/${config.miljø}-openapi.yml".absolutePath
 
-        val yml = Handlebars(ClassPathTemplateLoader("/", ".yml")).compile("openapi-template").apply(mapOf(
-            "apis" to apis,
-            "prod" to (config.miljø == "prod")
-        ))
+        val yml =
+            Handlebars(ClassPathTemplateLoader("/", ".yml")).compile("openapi-template").apply(
+                mapOf(
+                    "apis" to apis,
+                    "prod" to (config.miljø == "prod"),
+                ),
+            )
 
         path.writeBytes(yml.toByteArray())
     }

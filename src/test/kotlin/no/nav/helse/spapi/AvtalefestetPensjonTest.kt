@@ -7,11 +7,11 @@ import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Test
 
 internal class AvtalefestetPensjonTest : SpapiTest() {
-
     @Test
-    fun `sender med minimumSykdomsgrad`() = avtalefestetPensjonTest {
-        @Language("JSON")
-        val forventetResponse = """
+    fun `sender med minimumSykdomsgrad`() =
+        avtalefestetPensjonTest {
+            @Language("JSON")
+            val forventetResponse = """
         {
           "saksId": "minimum_80",
           "utbetaltePerioder": [
@@ -24,13 +24,13 @@ internal class AvtalefestetPensjonTest : SpapiTest() {
         }
         """
 
-        request(minimumSykdomsgrad = 80, saksId = "minimum_80") {
-            assertStatus(OK)
-            assertResponse(forventetResponse)
-        }
+            request(minimumSykdomsgrad = 80, saksId = "minimum_80") {
+                assertStatus(OK)
+                assertResponse(forventetResponse)
+            }
 
-        @Language("JSON")
-        val forventetResponse2 = """
+            @Language("JSON")
+            val forventetResponse2 = """
         {
           "saksId": "minimum_79",
           "utbetaltePerioder": [
@@ -47,16 +47,17 @@ internal class AvtalefestetPensjonTest : SpapiTest() {
           ]
         }
         """
-        request(minimumSykdomsgrad = 79, saksId = "minimum_79") {
-            assertStatus(OK)
-            assertResponse(forventetResponse2)
+            request(minimumSykdomsgrad = 79, saksId = "minimum_79") {
+                assertStatus(OK)
+                assertResponse(forventetResponse2)
+            }
         }
-    }
 
     @Test
-    fun `sender ikke med minimumSykdomsgrad`() = avtalefestetPensjonTest {
-        @Language("JSON")
-        val forventetResponse = """
+    fun `sender ikke med minimumSykdomsgrad`() =
+        avtalefestetPensjonTest {
+            @Language("JSON")
+            val forventetResponse = """
         {
           "saksId": "Jeg_er_en_Saks-id",
           "utbetaltePerioder": [
@@ -78,38 +79,42 @@ internal class AvtalefestetPensjonTest : SpapiTest() {
         }
         """
 
-        request(saksId = "Jeg_er_en_Saks-id") {
-            assertStatus(OK)
-            assertResponse(forventetResponse)
+            request(saksId = "Jeg_er_en_Saks-id") {
+                assertStatus(OK)
+                assertResponse(forventetResponse)
+            }
         }
-    }
 
     @Test
-    fun `manglende saksId i request`() = avtalefestetPensjonTest(enTilFeldigKonsumentAv = konsumenter) {
-        request(saksId = null) {
-            assertStatus(BadRequest)
-            assertFeilmelding("Mangler feltet 'saksId' i request body.")
+    fun `manglende saksId i request`() =
+        avtalefestetPensjonTest(enTilFeldigKonsumentAv = konsumenter) {
+            request(saksId = null) {
+                assertStatus(BadRequest)
+                assertFeilmelding("Mangler feltet 'saksId' i request body.")
+            }
         }
-    }
 
     @Test
-    fun `kan ikke integrere med det delegerte scopet`() = avtalefestetPensjonTest(scope = "nav:sykepenger/delegertavtalefestetpensjon.read") {
-        request {
-            assertStatus(Forbidden)
+    fun `kan ikke integrere med det delegerte scopet`() =
+        avtalefestetPensjonTest(scope = "nav:sykepenger/delegertavtalefestetpensjon.read") {
+            request {
+                assertStatus(Forbidden)
+            }
         }
-    }
 
     // DrammenKommunalePensjonskasse & ArendalKommunalePensjonskasse testets i AksioTest
-    private val konsumenter = AlleKonsumenter.filterIsInstance<AvtalefestetPensjon>()
-        .filterNot { it is Nav || it is DrammenKommunalePensjonskasse || it is ArendalKommunalePensjonskasse }
+    private val konsumenter =
+        AlleKonsumenter
+            .filterIsInstance<AvtalefestetPensjon>()
+            .filterNot { it is Nav || it is DrammenKommunalePensjonskasse || it is ArendalKommunalePensjonskasse }
 
     private fun avtalefestetPensjonTest(
         enTilFeldigKonsumentAv: List<Konsument> = konsumenter,
         scope: String = "nav:sykepenger:avtalefestetpensjon.read",
-        block: suspend SpapiTestContext.() -> Unit
+        block: suspend SpapiTestContext.() -> Unit,
     ) = spapiTest(
         organisasjonsnummer = enTilFeldigKonsumentAv.shuffled().first().organisasjonsnummer,
         scope = scope,
-        endepunkt = "/avtalefestet-pensjon"
+        endepunkt = "/avtalefestet-pensjon",
     ) { block() }
 }

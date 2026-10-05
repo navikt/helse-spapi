@@ -1,7 +1,5 @@
 package no.nav.helse.spapi
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.nav.helse.spapi.personidentifikator.Personidentifikator
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.producer.KafkaProducer
@@ -11,20 +9,27 @@ import org.apache.kafka.common.config.SslConfigs
 import org.apache.kafka.common.security.auth.SecurityProtocol
 import org.apache.kafka.common.serialization.StringSerializer
 import org.slf4j.LoggerFactory
+import tools.jackson.databind.JsonNode
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import java.net.InetAddress
 import java.time.LocalDateTime
 import java.util.*
 
 internal abstract class Sporingslogg {
-    internal fun logg(person: Personidentifikator, konsument: Konsument, leverteData: String) {
-        val logginnslag = objectMapper.createObjectNode().apply {
-            put("person", "$person")
-            put("mottaker", "${konsument.organisasjonsnummer}")
-            put("tema", "SYK")
-            put("behandlingsGrunnlag", "${konsument.behandlingsgrunnlag}")
-            put("uthentingsTidspunkt", "${LocalDateTime.now()}")
-            put("leverteData", Base64.getEncoder().encodeToString(leverteData.encodeToByteArray()))
-        }
+    internal fun logg(
+        person: Personidentifikator,
+        konsument: Konsument,
+        leverteData: String,
+    ) {
+        val logginnslag =
+            objectMapper.createObjectNode().apply {
+                put("person", "$person")
+                put("mottaker", "${konsument.organisasjonsnummer}")
+                put("tema", "SYK")
+                put("behandlingsGrunnlag", "${konsument.behandlingsgrunnlag}")
+                put("uthentingsTidspunkt", "${LocalDateTime.now()}")
+                put("leverteData", Base64.getEncoder().encodeToString(leverteData.encodeToByteArray()))
+            }
         send(logginnslag)
         sikkerlogg.info("Sender data til $konsument for personen $person:\n\tJSON: $leverteData\n\tSporingslogg: $logginnslag")
     }
@@ -37,23 +42,25 @@ internal abstract class Sporingslogg {
     }
 }
 
-internal class Kafka(config: Map<String, String>): Sporingslogg() {
-
-    private val properties = Properties().apply {
-        put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, config.hent("KAFKA_BROKERS"))
-        put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, SecurityProtocol.SSL.name)
-        put(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, "")
-        put(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, "jks")
-        put(SslConfigs.SSL_KEYSTORE_TYPE_CONFIG, "PKCS12")
-        put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, config.hent("KAFKA_TRUSTSTORE_PATH"))
-        put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, config.hent("KAFKA_CREDSTORE_PASSWORD"))
-        put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, config.hent("KAFKA_KEYSTORE_PATH"))
-        put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, config.hent("KAFKA_CREDSTORE_PASSWORD"))
-        put(ProducerConfig.CLIENT_ID_CONFIG, InetAddress.getLocalHost().hostName)
-        put(ProducerConfig.ACKS_CONFIG, "1")
-        put(ProducerConfig.LINGER_MS_CONFIG, "0")
-        put(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, "1")
-    }
+internal class Kafka(
+    config: Map<String, String>,
+) : Sporingslogg() {
+    private val properties =
+        Properties().apply {
+            put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, config.hent("KAFKA_BROKERS"))
+            put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, SecurityProtocol.SSL.name)
+            put(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, "")
+            put(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, "jks")
+            put(SslConfigs.SSL_KEYSTORE_TYPE_CONFIG, "PKCS12")
+            put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, config.hent("KAFKA_TRUSTSTORE_PATH"))
+            put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, config.hent("KAFKA_CREDSTORE_PASSWORD"))
+            put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, config.hent("KAFKA_KEYSTORE_PATH"))
+            put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, config.hent("KAFKA_CREDSTORE_PASSWORD"))
+            put(ProducerConfig.CLIENT_ID_CONFIG, InetAddress.getLocalHost().hostName)
+            put(ProducerConfig.ACKS_CONFIG, "1")
+            put(ProducerConfig.LINGER_MS_CONFIG, "0")
+            put(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, "1")
+        }
 
     private val topic = config.hent("SPORINGSLOGG_TOPIC")
     private val producer = KafkaProducer(properties, StringSerializer(), StringSerializer())

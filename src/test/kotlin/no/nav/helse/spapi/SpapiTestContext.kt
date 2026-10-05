@@ -1,6 +1,5 @@
 package no.nav.helse.spapi
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.navikt.tbd_libs.signed_jwt_issuer_test.Issuer
 import io.ktor.client.*
 import io.ktor.client.request.*
@@ -10,6 +9,7 @@ import io.ktor.http.HttpHeaders.Authorization
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.skyscreamer.jsonassert.JSONAssert
+import tools.jackson.module.kotlin.jacksonObjectMapper
 
 internal data class SpapiTestContext(
     val maskinporten: Issuer,
@@ -17,7 +17,7 @@ internal data class SpapiTestContext(
     private val konsument: Organisasjonsnummer,
     private val endepunkt: String,
     private val scope: String,
-    private val integrator: Organisasjonsnummer? = null
+    private val integrator: Organisasjonsnummer? = null,
 ) {
     private fun riktigToken() = maskinporten.maskinportenAccessToken(mapOf("scope" to scope), konsument, integrator)
 
@@ -29,7 +29,7 @@ internal data class SpapiTestContext(
         fom: String = "2018-01-01",
         tom: String = "2018-01-31",
         saksId: String? = "jeg-er-en-saksId",
-        assertions: suspend HttpResponse.() -> Unit
+        assertions: suspend HttpResponse.() -> Unit,
     ) {
         @Language("JSON")
         val body = """
@@ -48,18 +48,21 @@ internal data class SpapiTestContext(
     suspend fun requestRaw(
         accessToken: String? = riktigToken(),
         body: String,
-        assertions: suspend HttpResponse.() -> Unit
-    ) = assertions(client.post(endepunkt) {
-        accessToken?.let { header(Authorization, "Bearer $it") }
-        setBody(body)
-    })
+        assertions: suspend HttpResponse.() -> Unit,
+    ) = assertions(
+        client.post(endepunkt) {
+            accessToken?.let { header(Authorization, "Bearer $it") }
+            setBody(body)
+        },
+    )
 
     suspend fun HttpResponse.assertResponse(forventet: String) = JSONAssert.assertEquals(forventet, bodyAsText(), true)
-    suspend fun HttpResponse.assertFeilmelding(forventet: String) = assertEquals(forventet, objectMapper.readTree(bodyAsText()).path("feilmelding").asText())
+
+    suspend fun HttpResponse.assertFeilmelding(forventet: String) = assertEquals(forventet, objectMapper.readTree(bodyAsText()).path("feilmelding").asString())
+
     fun HttpResponse.assertStatus(forventet: HttpStatusCode) = assertEquals(forventet, status)
 
     private companion object {
         private val objectMapper = jacksonObjectMapper()
     }
 }
-

@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 internal class EksponerteTagsTest {
-
     @Test
     fun `eksponerer kun UsikkerSykdomsgrad`() {
         assertEquals(emptySet<String>(), listOf("en", "to", "tre").eksponerteTags)
