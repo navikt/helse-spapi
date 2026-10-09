@@ -8,12 +8,11 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 internal class PdlTest {
-
     @Test
     fun `oversetter response fra PDL til personidentifikatorer`() {
-
         @Language("JSON")
-        val response = """
+        val response =
+            """
         {
           "data": {
             "hentIdenter": {

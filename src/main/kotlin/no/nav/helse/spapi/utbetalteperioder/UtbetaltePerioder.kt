@@ -18,26 +18,35 @@ import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 
 internal interface UtbetaltePerioder {
-    suspend fun hent(personidentifikatorer: Set<Personidentifikator>, fom: LocalDate, tom: LocalDate): List<UtbetaltPeriode>
+    suspend fun hent(
+        personidentifikatorer: Set<Personidentifikator>,
+        fom: LocalDate,
+        tom: LocalDate,
+    ): List<UtbetaltPeriode>
 }
 
-internal class Spøkelse(config: Map<String, String>, private val client: HttpClient, private val accessToken: AccessToken): UtbetaltePerioder {
+internal class Spøkelse(
+    config: Map<String, String>,
+    private val client: HttpClient,
+    private val accessToken: AccessToken,
+) : UtbetaltePerioder {
     private val scope = config.hent("SPOKELSE_SCOPE")
 
     override suspend fun hent(
         personidentifikatorer: Set<Personidentifikator>,
         fom: LocalDate,
-        tom: LocalDate
+        tom: LocalDate,
     ): List<UtbetaltPeriode> {
         val authorizationHeader = "Bearer ${accessToken.get(scope)}"
 
-        val response = client.post("http://spokelse/utbetalte-perioder") {
-            header(Authorization, authorizationHeader)
-            header(Accept, Json)
-            header(ContentType, Json)
-            callId("x-callId")
-            @Language("JSON")
-            val body = """
+        val response =
+            client.post("http://spokelse/utbetalte-perioder") {
+                header(Authorization, authorizationHeader)
+                header(Accept, Json)
+                header(ContentType, Json)
+                callId("x-callId")
+                @Language("JSON")
+                val body = """
                {
                   "personidentifikatorer": ${personidentifikatorer.map { "\"$it\"" }},
                   "fom": "$fom",
@@ -45,8 +54,8 @@ internal class Spøkelse(config: Map<String, String>, private val client: HttpCl
                   "oppløsning": ["organisasjonsnummer", "grad"]
                } 
             """
-            setBody(body)
-        }
+                setBody(body)
+            }
         check(response.status == HttpStatusCode.OK) {
             "Mottok HTTP ${response.status} fra Spøkelse"
         }
@@ -56,16 +65,17 @@ internal class Spøkelse(config: Map<String, String>, private val client: HttpCl
                 tom = LocalDate.parse(it.path("tom").asText()),
                 organisasjonsnummer = it.path("organisasjonsnummer").takeUnless { orgnr -> orgnr.isMissingNode || orgnr.isNull }?.let { orgnr -> Organisasjonsnummer(orgnr.asText()) },
                 grad = it.path("grad").asInt(),
-                tags = it.path("tags").map { tag -> tag.asText() }.eksponerteTags
+                tags = it.path("tags").map { tag -> tag.asText() }.eksponerteTags,
             )
         }
     }
 
     internal companion object {
         private val objectMapper = jacksonObjectMapper()
-        private val tags = mapOf(
-            "UsikkerGrad" to "UsikkerSykdomsgrad"
-        )
+        private val tags =
+            mapOf(
+                "UsikkerGrad" to "UsikkerSykdomsgrad",
+            )
         internal val List<String>.eksponerteTags get() = intersect(tags.keys).map(tags::getValue).toSet()
     }
 }

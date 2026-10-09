@@ -8,73 +8,80 @@ import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Test
 
 internal class AksioTest : SpapiTest() {
-
     @Test
-    fun `Aksio integrerer på vegne av Drammen kommune`() = aksioTest(Drammen) {
-        request {
-            assertStatus(OK)
-            @Language("JSON")
-            val forventet = """
+    fun `Aksio integrerer på vegne av Drammen kommune`() =
+        aksioTest(Drammen) {
+            request {
+                assertStatus(OK)
+                @Language("JSON")
+                val forventet = """
                 {"saksId":"jeg-er-en-saksId","utbetaltePerioder":[{"fraOgMedDato":"2018-01-01","tilOgMedDato":"2018-01-31","tags":["UsikkerSykdomsgrad"],"sykdomsgrad":100},{"fraOgMedDato":"2020-01-01","tilOgMedDato":"2020-01-31","tags":[],"sykdomsgrad":79}]}
             """
-            assertResponse(forventet)
+                assertResponse(forventet)
+            }
         }
-    }
 
     @Test
-    fun `Aksio integrerer på vegne av Arendal kommune`() = aksioTest(Arendal) {
-        request {
-            assertStatus(OK)
-            @Language("JSON")
-            val forventet = """
+    fun `Aksio integrerer på vegne av Arendal kommune`() =
+        aksioTest(Arendal) {
+            request {
+                assertStatus(OK)
+                @Language("JSON")
+                val forventet = """
                 {"saksId":"jeg-er-en-saksId","utbetaltePerioder":[{"fraOgMedDato":"2018-01-01","tilOgMedDato":"2018-01-31","tags":["UsikkerSykdomsgrad"],"sykdomsgrad":100},{"fraOgMedDato":"2020-01-01","tilOgMedDato":"2020-01-31","tags":[],"sykdomsgrad":79}]}
             """
-            assertResponse(forventet)
+                assertResponse(forventet)
+            }
         }
-    }
 
     @Test
-    fun `Feil integrator forsøker å integrere for Arendal kommune`() = aksioTest(Arendal, integrator = Drammen) {
-        request {
-            assertStatus(InternalServerError)
+    fun `Feil integrator forsøker å integrere for Arendal kommune`() =
+        aksioTest(Arendal, integrator = Drammen) {
+            request {
+                assertStatus(InternalServerError)
+            }
         }
-    }
 
     @Test
-    fun `Arendal kommune forsøker å integrere selv`() = aksioTest(Arendal, integrator = null) {
-        request {
-            assertStatus(Forbidden)
+    fun `Arendal kommune forsøker å integrere selv`() =
+        aksioTest(Arendal, integrator = null) {
+            request {
+                assertStatus(Forbidden)
+            }
         }
-    }
 
     @Test
-    fun `Aksio integrerer på vegne av Drammen kommune med feil scope`() = aksioTest(Drammen, scope = "åpenbart-feil-scope") {
-        request {
-            assertStatus(Forbidden)
+    fun `Aksio integrerer på vegne av Drammen kommune med feil scope`() =
+        aksioTest(Drammen, scope = "åpenbart-feil-scope") {
+            request {
+                assertStatus(Forbidden)
+            }
         }
-    }
 
     @Test
-    fun `Aksio integrerer på vegne av Drammen kommune med den ikke-delegerte utgaven av scopet`() = aksioTest(Drammen, scope = "nav:sykepenger:avtalefestetpensjon.read") {
-        request {
-            assertStatus(Forbidden)
+    fun `Aksio integrerer på vegne av Drammen kommune med den ikke-delegerte utgaven av scopet`() =
+        aksioTest(Drammen, scope = "nav:sykepenger:avtalefestetpensjon.read") {
+            request {
+                assertStatus(Forbidden)
+            }
         }
-    }
 
     @Test
-    fun `Aksio integrerer på vegne av Drammen kommune mot feil endepunkt`() = aksioTest(Drammen, endepunkt = "/fellesordningen-for-afp") {
-        request {
-            assertStatus(Forbidden)
+    fun `Aksio integrerer på vegne av Drammen kommune mot feil endepunkt`() =
+        aksioTest(Drammen, endepunkt = "/fellesordningen-for-afp") {
+            request {
+                assertStatus(Forbidden)
+            }
         }
-    }
 
     @Test
-    fun `Aksio integrerer på vegne av Drammen kommune uten saksId`() = aksioTest(Drammen) {
-        request(saksId = null) {
-            assertStatus(BadRequest)
-            assertFeilmelding("Mangler feltet 'saksId' i request body.")
+    fun `Aksio integrerer på vegne av Drammen kommune uten saksId`() =
+        aksioTest(Drammen) {
+            request(saksId = null) {
+                assertStatus(BadRequest)
+                assertFeilmelding("Mangler feltet 'saksId' i request body.")
+            }
         }
-    }
 
     private val Drammen = Organisasjonsnummer("980650383")
     private val Aksio = Organisasjonsnummer("927613298")
@@ -85,11 +92,11 @@ internal class AksioTest : SpapiTest() {
         integrator: Organisasjonsnummer? = Aksio,
         scope: String = "nav:sykepenger/delegertavtalefestetpensjon.read",
         endepunkt: String = "/avtalefestet-pensjon",
-        block: suspend SpapiTestContext.() -> Unit
+        block: suspend SpapiTestContext.() -> Unit,
     ) = spapiTest(
         organisasjonsnummer = organisasjonsnummer,
         scope = scope,
         integrator = integrator,
-        endepunkt = endepunkt
+        endepunkt = endepunkt,
     ) { block() }
 }

@@ -12,38 +12,47 @@ import java.io.File
 import kotlin.test.assertEquals
 
 class NaisManifestTest {
-
     @ParameterizedTest
     @CsvSource("dev,dev-gcp", "prod,prod-gcp")
-    fun `maskinporten-scopene i nais-manifestet stemmer med konsumentene appen registrerer`(miljø: String, naisMiljø: String) {
+    fun `maskinporten-scopene i nais-manifestet stemmer med konsumentene appen registrerer`(
+        miljø: String,
+        naisMiljø: String,
+    ) {
         val apis = jacksonObjectMapper().readTree(File("src/main/resources/$miljø-nais.json")).path("apis")
         val manifest = ObjectMapper(YAMLFactory()).readTree(File(".nais/spapi.$naisMiljø.yaml"))
 
         assertEquals(forventedeScopes(apis), manifest.at("/spec/maskinporten/scopes/exposes"))
     }
 
-    private fun forventedeScopes(apis: JsonNode) = JsonNodeFactory.instance.arrayNode().apply {
-        apis.forEach { api ->
-            add(scope(api.path("scope").asText(), api.path("consumers")))
-            if (api.path("enableIntegratorer").asBoolean()) {
-                add(scope("delegert${api.path("scope").asText()}", api.path("integratorer")).apply {
-                    put("separator", "/")
-                    put("delegationSource", "altinn")
-                })
+    private fun forventedeScopes(apis: JsonNode) =
+        JsonNodeFactory.instance.arrayNode().apply {
+            apis.forEach { api ->
+                add(scope(api.path("scope").asText(), api.path("consumers")))
+                if (api.path("enableIntegratorer").asBoolean()) {
+                    add(
+                        scope("delegert${api.path("scope").asText()}", api.path("integratorer")).apply {
+                            put("separator", "/")
+                            put("delegationSource", "altinn")
+                        },
+                    )
+                }
             }
         }
-    }
 
-    private fun scope(navn: String, konsumenter: JsonNode): ObjectNode = JsonNodeFactory.instance.objectNode().apply {
-        put("name", navn)
-        put("enabled", true)
-        put("product", "sykepenger")
-        putArray("consumers").apply {
-            konsumenter.forEach { konsument ->
-                addObject()
-                    .put("name", konsument.path("navn").asText())
-                    .put("orgno", konsument.path("organisasjonsnummer").asText())
+    private fun scope(
+        navn: String,
+        konsumenter: JsonNode,
+    ): ObjectNode =
+        JsonNodeFactory.instance.objectNode().apply {
+            put("name", navn)
+            put("enabled", true)
+            put("product", "sykepenger")
+            putArray("consumers").apply {
+                konsumenter.forEach { konsument ->
+                    addObject()
+                        .put("name", konsument.path("navn").asText())
+                        .put("orgno", konsument.path("organisasjonsnummer").asText())
+                }
             }
         }
-    }
 }

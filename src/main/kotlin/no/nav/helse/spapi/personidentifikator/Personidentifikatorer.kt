@@ -15,30 +15,42 @@ import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 
 internal interface Personidentifikatorer {
-    suspend fun hentAlle(personidentifikator: Personidentifikator, konsument: Konsument): Set<Personidentifikator>
+    suspend fun hentAlle(
+        personidentifikator: Personidentifikator,
+        konsument: Konsument,
+    ): Set<Personidentifikator>
 }
 
-internal class Pdl(config: Map<String, String>, private val httpClient: HttpClient, private val accessToken: AccessToken): Personidentifikatorer {
+internal class Pdl(
+    config: Map<String, String>,
+    private val httpClient: HttpClient,
+    private val accessToken: AccessToken,
+) : Personidentifikatorer {
     private val url = "https://${config.hent("PDL_HOST")}/graphql"
     private val scope = config.hent("PDL_SCOPE")
 
-    override suspend fun hentAlle(personidentifikator: Personidentifikator, konsument: Konsument): Set<Personidentifikator> {
+    override suspend fun hentAlle(
+        personidentifikator: Personidentifikator,
+        konsument: Konsument,
+    ): Set<Personidentifikator> {
         val accessToken = accessToken.get(scope)
 
-        val response = retry {
-            httpClient.post(url) {
-                header(HttpHeaders.Authorization, "Bearer $accessToken")
-                header(HttpHeaders.ContentType, ContentType.Application.Json)
-                header(HttpHeaders.Accept, ContentType.Application.Json)
-                callId("Nav-Call-Id")
-                header("behandlingsnummer", konsument.behandlingsnummer)
-                setBody(body(personidentifikator))
-            }.also { httpResponse ->
-                check(httpResponse.status == HttpStatusCode.OK) {
-                    "Mottok HTTP ${httpResponse.status} fra PDL:\n\t${httpResponse.bodyAsText()}"
-                }
+        val response =
+            retry {
+                httpClient
+                    .post(url) {
+                        header(HttpHeaders.Authorization, "Bearer $accessToken")
+                        header(HttpHeaders.ContentType, ContentType.Application.Json)
+                        header(HttpHeaders.Accept, ContentType.Application.Json)
+                        callId("Nav-Call-Id")
+                        header("behandlingsnummer", konsument.behandlingsnummer)
+                        setBody(body(personidentifikator))
+                    }.also { httpResponse ->
+                        check(httpResponse.status == HttpStatusCode.OK) {
+                            "Mottok HTTP ${httpResponse.status} fra PDL:\n\t${httpResponse.bodyAsText()}"
+                        }
+                    }
             }
-        }
 
         val json = objectMapper.readTree(response.readRawBytes())
 
@@ -50,13 +62,15 @@ internal class Pdl(config: Map<String, String>, private val httpClient: HttpClie
     internal companion object {
         private val sikkerlogg = LoggerFactory.getLogger("tjenestekall")
         private val objectMapper = jacksonObjectMapper()
+
         private fun String.formaterQuery() = replace("[\n\r]".toRegex(), "").replace("\\s{2,}".toRegex(), " ")
 
         private const val DOLLAR = "$"
         private const val QUERY = "query(${DOLLAR}ident: ID!) { hentIdenter(ident: ${DOLLAR}ident, historikk: true, grupper: [FOLKEREGISTERIDENT]) { identer { ident } } }"
 
         @Language("JSON")
-        private fun body(personidentifikator: Personidentifikator) = """
+        private fun body(personidentifikator: Personidentifikator) =
+            """
               {
                 "query": "${QUERY.formaterQuery()}",
                 "variables": {
@@ -65,11 +79,12 @@ internal class Pdl(config: Map<String, String>, private val httpClient: HttpClie
               }
         """
 
-        internal val JsonNode.personidentifikatorer get() = this
-            .path("data")
-            .path("hentIdenter")
-            .path("identer")
-            .map { Personidentifikator(it.path("ident").asText()) }
-            .toSet()
+        internal val JsonNode.personidentifikatorer get() =
+            this
+                .path("data")
+                .path("hentIdenter")
+                .path("identer")
+                .map { Personidentifikator(it.path("ident").asText()) }
+                .toSet()
     }
 }

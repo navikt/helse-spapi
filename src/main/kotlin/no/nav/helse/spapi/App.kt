@@ -48,13 +48,21 @@ import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.seconds
 
 private val sikkerlogg = LoggerFactory.getLogger("tjenestekall")
+
 private fun ApplicationCall.loggHåndtertFeil(melding: String?) = sikkerlogg.warn("Feil i request til ${request.httpMethod.value} - ${request.path()}: $melding")
 
 internal fun Map<String, String>.hent(key: String) = get(key) ?: throw IllegalStateException("Mangler config for $key")
+
 internal val Map<String, String>.miljø get() = if (get("NAIS_CLUSTER_NAME")?.lowercase()?.contains("prod") == true) "prod" else "dev"
+
 internal fun HttpRequestBuilder.callId(headernavn: String) = header(headernavn, "${UUID.fromString(MDC.get("x-callId"))}")
-internal suspend fun ApplicationCall.respondError(status: HttpStatusCode, melding: String? = null) {
+
+internal suspend fun ApplicationCall.respondError(
+    status: HttpStatusCode,
+    melding: String? = null,
+) {
     val feilmelding = melding ?: "Uventet feil. Ta kontakt med NAV om feilen vedvarer."
+
     @Language("JSON")
     val errorResponse = """{"feilmelding": "$feilmelding", "feilreferanse": "$callId"}"""
     respondText(errorResponse, Json, status)
@@ -64,34 +72,37 @@ fun main() {
     spapiApp().start(wait = true)
 }
 
-internal fun spapiApp() = plainApp(
-    applicationLogger = sikkerlogg,
-    cioConfiguration = {
-        val customParallelism = 16
-        connectionGroupSize = customParallelism / 2 + 1
-        workerGroupSize  = customParallelism / 2 + 1
-        callGroupSize = customParallelism
-    },
-    applicationModule = { spapi() }
-)
+internal fun spapiApp() =
+    plainApp(
+        applicationLogger = sikkerlogg,
+        cioConfiguration = {
+            val customParallelism = 16
+            connectionGroupSize = customParallelism / 2 + 1
+            workerGroupSize = customParallelism / 2 + 1
+            callGroupSize = customParallelism
+        },
+        applicationModule = { spapi() },
+    )
+
 internal fun Application.spapi(
     config: Map<String, String> = System.getenv(),
     sporings: Sporingslogg = Kafka(config),
     client: HttpClient = HttpClient(CIO),
     accessToken: AccessToken = Azure(),
     utbetaltePerioder: UtbetaltePerioder = Spøkelse(config, client, accessToken),
-    personidentifikatorer: Personidentifikatorer = Pdl(config, client, accessToken)
+    personidentifikatorer: Personidentifikatorer = Pdl(config, client, accessToken),
 ) {
     standardApiModule(
         meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT, PrometheusRegistry.defaultRegistry, Clock.SYSTEM),
         objectMapper = jacksonObjectMapper(),
         callLogger = sikkerlogg,
-        naisEndpoints = NaisEndpoints(
-            isaliveEndpoint = "/internal/isalive",
-            isreadyEndpoint = "/internal/isready",
-            metricsEndpoint = "/internal/metrics",
-            preStopEndpoint = "/internal/stop"
-        ),
+        naisEndpoints =
+            NaisEndpoints(
+                isaliveEndpoint = "/internal/isalive",
+                isreadyEndpoint = "/internal/isready",
+                metricsEndpoint = "/internal/metrics",
+                preStopEndpoint = "/internal/stop",
+            ),
         callIdHeaderName = "x-callId",
         statusPagesConfig = {
             exception<UgyldigInputException> { call, cause ->
@@ -103,8 +114,8 @@ internal fun Application.spapi(
                 call.respondError(InternalServerError)
             }
         },
-        timersConfig = { call,_ -> this.tag("konsument", call.konsumentOrNull()?.navn ?: "n/a") },
-        mdcEntries = mapOf("konsument" to { call: ApplicationCall -> call.konsumentOrNull()?.navn ?: "n/a" })
+        timersConfig = { call, _ -> this.tag("konsument", call.konsumentOrNull()?.navn ?: "n/a") },
+        mdcEntries = mapOf("konsument" to { call: ApplicationCall -> call.konsumentOrNull()?.navn ?: "n/a" }),
     )
     install(RateLimit) {
         register(RateLimitName("api")) {
@@ -118,10 +129,11 @@ internal fun Application.spapi(
     val apier = config.apis
 
     authentication {
-        val maskinportenJwkProvider = JwkProviderBuilder(URI(config.hent("MASKINPORTEN_JWKS_URI")).toURL())
-            .cached(10, 24, TimeUnit.HOURS)
-            .rateLimited(10, 1, TimeUnit.MINUTES)
-            .build()
+        val maskinportenJwkProvider =
+            JwkProviderBuilder(URI(config.hent("MASKINPORTEN_JWKS_URI")).toURL())
+                .cached(10, 24, TimeUnit.HOURS)
+                .rateLimited(10, 1, TimeUnit.MINUTES)
+                .build()
         val maskinportenIssuer = config.hent("MASKINPORTEN_ISSUER")
         val audience = config.hent("AUDIENCE")
         apier.forEach { it.registerAuthentication(this, maskinportenJwkProvider, maskinportenIssuer, audience) }
