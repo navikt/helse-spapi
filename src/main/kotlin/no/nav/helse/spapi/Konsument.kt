@@ -1,10 +1,10 @@
 package no.nav.helse.spapi
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.node.ObjectNode
 import no.nav.helse.spapi.personidentifikator.Personidentifikator
 import no.nav.helse.spapi.utbetalteperioder.UtbetaltPeriode
 import org.intellij.lang.annotations.Language
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.node.ObjectNode
 import java.time.LocalDate
 
 internal sealed class Konsument(

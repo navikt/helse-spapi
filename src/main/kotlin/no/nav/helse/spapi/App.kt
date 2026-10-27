@@ -1,7 +1,6 @@
 package no.nav.helse.spapi
 
 import com.auth0.jwk.JwkProviderBuilder
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.navikt.tbd_libs.naisful.NaisEndpoints
 import com.github.navikt.tbd_libs.naisful.plainApp
 import com.github.navikt.tbd_libs.naisful.standardApiModule
@@ -42,6 +41,7 @@ import no.nav.helse.spapi.utbetalteperioder.UtbetaltePerioder
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import java.net.URI
 import java.util.UUID
 import java.util.concurrent.TimeUnit

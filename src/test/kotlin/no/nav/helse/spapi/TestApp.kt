@@ -1,6 +1,5 @@
 package no.nav.helse.spapi
 
-import com.fasterxml.jackson.databind.JsonNode
 import com.github.navikt.tbd_libs.naisful.plainApp
 import com.github.navikt.tbd_libs.signed_jwt_issuer_test.Issuer
 import io.ktor.client.request.HttpRequestBuilder
@@ -14,6 +13,7 @@ import no.nav.helse.spapi.personidentifikator.Personidentifikatorer
 import no.nav.helse.spapi.utbetalteperioder.UtbetaltPeriode
 import no.nav.helse.spapi.utbetalteperioder.UtbetaltePerioder
 import org.slf4j.LoggerFactory
+import tools.jackson.databind.JsonNode
 import java.time.LocalDate
 
 fun main() {
