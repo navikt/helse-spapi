@@ -1,7 +1,5 @@
 package no.nav.helse.spapi.personidentifikator
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.navikt.tbd_libs.retry.retry
 import io.ktor.client.*
 import io.ktor.client.request.*
@@ -13,6 +11,8 @@ import no.nav.helse.spapi.callId
 import no.nav.helse.spapi.hent
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
+import tools.jackson.databind.JsonNode
+import tools.jackson.module.kotlin.jacksonObjectMapper
 
 internal interface Personidentifikatorer {
     suspend fun hentAlle(
@@ -84,7 +84,8 @@ internal class Pdl(
                 .path("data")
                 .path("hentIdenter")
                 .path("identer")
-                .map { Personidentifikator(it.path("ident").asText()) }
+                .values()
+                .map { Personidentifikator(it.path("ident").asString()) }
                 .toSet()
     }
 }

@@ -3,7 +3,6 @@ package no.nav.helse.spapi
 import com.auth0.jwk.JwkProvider
 import com.auth0.jwt.interfaces.Claim
 import com.auth0.jwt.interfaces.DecodedJWT
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -15,6 +14,7 @@ import no.nav.helse.spapi.personidentifikator.Personidentifikatorer
 import no.nav.helse.spapi.utbetalteperioder.UtbetaltPeriode
 import no.nav.helse.spapi.utbetalteperioder.UtbetaltePerioder
 import org.slf4j.LoggerFactory
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import java.util.*
 
 internal class Api(
@@ -181,18 +181,18 @@ internal class Api(
         private val Map<String, String>.naisFil get() = objectMapper.readTree("/$miljø-nais.json".innholdFraResource)
 
         internal val Map<String, String>.apis get() =
-            naisFil.path("apis").map { api ->
+            naisFil.path("apis").values().map { api ->
                 val konsumenter =
-                    api.path("consumers").map { it.path("organisasjonsnummer").asText() }.map { organisasjonsnummer ->
+                    api.path("consumers").values().map { it.path("organisasjonsnummer").asString() }.map { organisasjonsnummer ->
                         AlleKonsumenter.singleOrNull { it.organisasjonsnummer.toString() == organisasjonsnummer } ?: error("Konsument med $organisasjonsnummer er ikke definert")
                     }
 
                 val viaIntegratorer =
-                    api.path("integratorer").map { it.path("organisasjonsnummer").asText() }.mapNotNull { organisasjonsnummer ->
+                    api.path("integratorer").values().map { it.path("organisasjonsnummer").asString() }.mapNotNull { organisasjonsnummer ->
                         AlleKonsumenter.singleOrNull { it.organisasjonsnummer.toString() == organisasjonsnummer }
                     }
 
-                Api(id = api.path("id").asText(), scope = api.path("scope").asText(), navn = api.path("navn").asText(), konsumenter = (konsumenter + viaIntegratorer).toSet())
+                Api(id = api.path("id").asString(), scope = api.path("scope").asString(), navn = api.path("navn").asString(), konsumenter = (konsumenter + viaIntegratorer).toSet())
             }
     }
 }
