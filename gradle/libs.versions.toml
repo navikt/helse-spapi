@@ -1,6 +1,6 @@
 [versions]
-tbdLibs = "20260702.1010"
-sykepengerGradlePlugins = "20261001.1830"
+tbdLibs = "20261013.1613"
+sykepengerGradlePlugins = "20261026.1611"
 
 [libraries]
 handlebars = "com.github.jknack:handlebars:4.5.5"
@@ -8,16 +8,16 @@ jsonassert = "org.skyscreamer:jsonassert:1.5.3"
 
 jackson-dataformat-yaml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml" }
 
-kafka-clients = "org.apache.kafka:kafka-clients:4.3.1"
+kafka-clients = "org.apache.kafka:kafka-clients:4.3.2"
 
 ktor-client-cio = { module = "io.ktor:ktor-client-cio" }
 ktor-server-auth-jwt = { module = "io.ktor:ktor-server-auth-jwt" }
 ktor-server-rate-limit = { module = "io.ktor:ktor-server-rate-limit" }
 ktor-server-swagger = { module = "io.ktor:ktor-server-swagger" }
 
-logback-classic = "ch.qos.logback:logback-classic:1.6.3"
+logback-classic = "ch.qos.logback:logback-classic:1.6.5"
 logstash-logback-encoder = "net.logstash.logback:logstash-logback-encoder:9.0"
-slf4j-api = "org.slf4j:slf4j-api:2.0.19"
+slf4j-api = "org.slf4j:slf4j-api:2.0.20"
 
 wiremock = "org.wiremock:wiremock-jetty12:3.13.2"
 
