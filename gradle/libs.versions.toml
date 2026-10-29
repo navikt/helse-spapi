@@ -1,6 +1,6 @@
 [versions]
 tbdLibs = "20261013.1613"
-sykepengerGradlePlugins = "20261026.1611"
+sykepengerGradlePlugins = "20261028.1441"
 
 [libraries]
 handlebars = "com.github.jknack:handlebars:4.5.5"
