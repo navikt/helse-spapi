@@ -3,7 +3,7 @@ tbdLibs = "20261029.1843"
 sykepengerGradlePlugins = "20261029.1945"
 
 [libraries]
-handlebars = "com.github.jknack:handlebars:4.5.5"
+handlebars = "com.github.jknack:handlebars:4.5.7"
 jsonassert = "org.skyscreamer:jsonassert:1.5.3"
 
 jackson-dataformat-yaml = { module = "tools.jackson.dataformat:jackson-dataformat-yaml" }
@@ -15,7 +15,7 @@ ktor-server-auth-jwt = { module = "io.ktor:ktor-server-auth-jwt" }
 ktor-server-rate-limit = { module = "io.ktor:ktor-server-rate-limit" }
 ktor-server-swagger = { module = "io.ktor:ktor-server-swagger" }
 
-logback-classic = "ch.qos.logback:logback-classic:1.6.5"
+logback-classic = "ch.qos.logback:logback-classic:1.6.6"
 logstash-logback-encoder = "net.logstash.logback:logstash-logback-encoder:9.0"
 slf4j-api = "org.slf4j:slf4j-api:2.0.20"
 
