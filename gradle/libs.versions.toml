@@ -3,7 +3,7 @@ tbdLibs = "20261029.1843"
 sykepengerGradlePlugins = "20261029.1945"
 
 [libraries]
-handlebars = "com.github.jknack:handlebars:4.5.7"
+handlebars = "com.github.jknack:handlebars:4.5.8"
 jsonassert = "org.skyscreamer:jsonassert:1.5.3"
 
 jackson-dataformat-yaml = { module = "tools.jackson.dataformat:jackson-dataformat-yaml" }
